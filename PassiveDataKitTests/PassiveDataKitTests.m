@@ -1,6 +1,6 @@
 //
-//  Passive_Data_KitTests.m
-//  Passive Data KitTests
+//  PassiveDataKitTests.m
+//  PassiveDataKitTests
 //
 //  Created by Chris Karr on 5/4/16.
 //  Copyright © 2016 Audacious Software. All rights reserved.
@@ -8,11 +8,11 @@
 
 #import <XCTest/XCTest.h>
 
-@interface Passive_Data_KitTests : XCTestCase
+@interface PassiveDataKitTests : XCTestCase
 
 @end
 
-@implementation Passive_Data_KitTests
+@implementation PassiveDataKitTests
 
 - (void)setUp {
     [super setUp];
