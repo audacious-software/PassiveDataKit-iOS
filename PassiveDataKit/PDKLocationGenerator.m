@@ -31,7 +31,7 @@ static PDKLocationGenerator * sharedObject = nil;
     return sharedObject;
 }
 
-+ (id) allocWithZone:(NSZone *) zone
++ (id) allocWithZone:(NSZone *) zone //!OCLINT
 {
     return [self sharedInstance];
 }
@@ -65,7 +65,7 @@ static PDKLocationGenerator * sharedObject = nil;
     NSLog(@"ADDING LOCATION LISTENER: %@ -- %@", options, listener);
     
     if (options == nil) {
-        options = [NSDictionary dictionary];
+        options = @{}; //!OCLINT
     }
     
     if (self.listeners.count == 0) {
@@ -75,11 +75,11 @@ static PDKLocationGenerator * sharedObject = nil;
         
         NSLog(@"AUTH STATUS: %d", status);
         
-        if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) {
+        if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
             // Do nothing - user shut off location services...
         } else if (status == kCLAuthorizationStatusNotDetermined) {
             [self.locationManager requestAlwaysAuthorization];
-        } else {
+        } else { //!OCLINT
             // Already authed -- do nothing...
         }
     }

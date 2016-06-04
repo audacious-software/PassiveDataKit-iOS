@@ -37,7 +37,7 @@ static PassiveDataKit * sharedObject = nil;
     return sharedObject;
 }
 
-+ (id) allocWithZone:(NSZone *) zone
++ (id) allocWithZone:(NSZone *) zone //!OCLINT
 {
     return [self sharedInstance];
 }
@@ -91,6 +91,8 @@ static PassiveDataKit * sharedObject = nil;
         case PDKLocation:
             [[PDKLocationGenerator sharedInstance] removeListener:listener];
             break;
+        default:
+            break;
     }
 }
 
@@ -98,6 +100,8 @@ static PassiveDataKit * sharedObject = nil;
     switch(generator) {
         case PDKLocation:
             [[PDKLocationGenerator sharedInstance] addListener:listener options:options];
+            break;
+        default:
             break;
     }
 }
@@ -107,6 +111,8 @@ static PassiveDataKit * sharedObject = nil;
     switch(generator) {
         case PDKLocation:
             return @"PDKLocationGenerator";
+        default:
+            break;
     }
 
     return @"PDKUnknownGenerator";
