@@ -181,7 +181,7 @@ static PDKDataPointsManager * sharedObject = nil;
                                }
                            }
                            
-                           completed(YES, uploaded.count);
+                           completed(YES, (int) uploaded.count);
                             
                             NSTimeInterval interval = [NSDate date].timeIntervalSince1970 - now;
 
