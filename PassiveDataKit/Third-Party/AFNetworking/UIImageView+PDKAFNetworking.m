@@ -1,4 +1,4 @@
-// UIImageView+AFNetworking.m
+// UIImageView+PDKAFNetworking.m
 // Copyright (c) 2011–2016 Alamofire Software Foundation ( http://alamofire.org/ )
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,25 +19,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "UIImageView+AFNetworking.h"
+#import "UIImageView+PDKAFNetworking.h"
 
 #import <objc/runtime.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 
-#import "AFImageDownloader.h"
+#import "PDKAFImageDownloader.h"
 
-@interface UIImageView (_AFNetworking)
-@property (readwrite, nonatomic, strong, setter = af_setActiveImageDownloadReceipt:) AFImageDownloadReceipt *af_activeImageDownloadReceipt;
+@interface UIImageView (_PDKPDKAFNetworking)
+@property (readwrite, nonatomic, strong, setter = af_setActiveImageDownloadReceipt:) PDKAFImageDownloadReceipt *af_activeImageDownloadReceipt;
 @end
 
-@implementation UIImageView (_AFNetworking)
+@implementation UIImageView (_PDKPDKAFNetworking)
 
-- (AFImageDownloadReceipt *)af_activeImageDownloadReceipt {
-    return (AFImageDownloadReceipt *)objc_getAssociatedObject(self, @selector(af_activeImageDownloadReceipt));
+- (PDKAFImageDownloadReceipt *)af_activeImageDownloadReceipt {
+    return (PDKAFImageDownloadReceipt *)objc_getAssociatedObject(self, @selector(af_activeImageDownloadReceipt));
 }
 
-- (void)af_setActiveImageDownloadReceipt:(AFImageDownloadReceipt *)imageDownloadReceipt {
+- (void)af_setActiveImageDownloadReceipt:(PDKAFImageDownloadReceipt *)imageDownloadReceipt {
     objc_setAssociatedObject(self, @selector(af_activeImageDownloadReceipt), imageDownloadReceipt, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
@@ -45,13 +45,13 @@
 
 #pragma mark -
 
-@implementation UIImageView (AFNetworking)
+@implementation UIImageView (PDKAFNetworking)
 
-+ (AFImageDownloader *)sharedImageDownloader {
-    return objc_getAssociatedObject(self, @selector(sharedImageDownloader)) ?: [AFImageDownloader defaultInstance];
++ (PDKAFImageDownloader *)sharedImageDownloader {
+    return objc_getAssociatedObject(self, @selector(sharedImageDownloader)) ?: [PDKAFImageDownloader defaultInstance];
 }
 
-+ (void)setSharedImageDownloader:(AFImageDownloader *)imageDownloader {
++ (void)setSharedImageDownloader:(PDKAFImageDownloader *)imageDownloader {
     objc_setAssociatedObject(self, @selector(sharedImageDownloader), imageDownloader, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
@@ -88,8 +88,8 @@
 
     [self cancelImageDownloadTask];
 
-    AFImageDownloader *downloader = [[self class] sharedImageDownloader];
-    id <AFImageRequestCache> imageCache = downloader.imageCache;
+    PDKAFImageDownloader *downloader = [[self class] sharedImageDownloader];
+    id <PDKAFImageRequestCache> imageCache = downloader.imageCache;
 
     //Use the image from the image cache if it exists
     UIImage *cachedImage = [imageCache imageforRequest:urlRequest withAdditionalIdentifier:nil];
@@ -107,7 +107,7 @@
 
         __weak __typeof(self)weakSelf = self;
         NSUUID *downloadID = [NSUUID UUID];
-        AFImageDownloadReceipt *receipt;
+        PDKAFImageDownloadReceipt *receipt;
         receipt = [downloader
                    downloadImageForURLRequest:urlRequest
                    withReceiptID:downloadID

@@ -1,4 +1,4 @@
-// UIWebView+AFNetworking.m
+// UIWebView+PDKAFNetworking.m
 // Copyright (c) 2011–2016 Alamofire Software Foundation ( http://alamofire.org/ )
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,21 +19,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "UIWebView+AFNetworking.h"
+#import "UIWebView+PDKAFNetworking.h"
 
 #import <objc/runtime.h>
 
 #if TARGET_OS_IOS
 
-#import "AFHTTPSessionManager.h"
-#import "AFURLResponseSerialization.h"
-#import "AFURLRequestSerialization.h"
+#import "PDKAFHTTPSessionManager.h"
+#import "PDKAFURLResponseSerialization.h"
+#import "PDKAFURLRequestSerialization.h"
 
-@interface UIWebView (_AFNetworking)
+@interface UIWebView (_PDKAFNetworking)
 @property (readwrite, nonatomic, strong, setter = af_setURLSessionTask:) NSURLSessionDataTask *af_URLSessionTask;
 @end
 
-@implementation UIWebView (_AFNetworking)
+@implementation UIWebView (_PDKAFNetworking)
 
 - (NSURLSessionDataTask *)af_URLSessionTask {
     return (NSURLSessionDataTask *)objc_getAssociatedObject(self, @selector(af_URLSessionTask));
@@ -47,35 +47,35 @@
 
 #pragma mark -
 
-@implementation UIWebView (AFNetworking)
+@implementation UIWebView (PDKAFNetworking)
 
-- (AFHTTPSessionManager  *)sessionManager {
-    static AFHTTPSessionManager *_af_defaultHTTPSessionManager = nil;
+- (PDKAFHTTPSessionManager  *)sessionManager {
+    static PDKAFHTTPSessionManager *_af_defaultHTTPSessionManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _af_defaultHTTPSessionManager = [[AFHTTPSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-        _af_defaultHTTPSessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
-        _af_defaultHTTPSessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        _af_defaultHTTPSessionManager = [[PDKAFHTTPSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        _af_defaultHTTPSessionManager.requestSerializer = [PDKAFHTTPRequestSerializer serializer];
+        _af_defaultHTTPSessionManager.responseSerializer = [PDKAFHTTPResponseSerializer serializer];
     });
 
     return objc_getAssociatedObject(self, @selector(sessionManager)) ?: _af_defaultHTTPSessionManager;
 }
 
-- (void)setSessionManager:(AFHTTPSessionManager *)sessionManager {
+- (void)setSessionManager:(PDKAFHTTPSessionManager *)sessionManager {
     objc_setAssociatedObject(self, @selector(sessionManager), sessionManager, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (AFHTTPResponseSerializer <AFURLResponseSerialization> *)responseSerializer {
-    static AFHTTPResponseSerializer <AFURLResponseSerialization> *_af_defaultResponseSerializer = nil;
+- (PDKAFHTTPResponseSerializer <PDKAFURLResponseSerialization> *)responseSerializer {
+    static PDKAFHTTPResponseSerializer <PDKAFURLResponseSerialization> *_af_defaultResponseSerializer = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _af_defaultResponseSerializer = [AFHTTPResponseSerializer serializer];
+        _af_defaultResponseSerializer = [PDKAFHTTPResponseSerializer serializer];
     });
 
     return objc_getAssociatedObject(self, @selector(responseSerializer)) ?: _af_defaultResponseSerializer;
 }
 
-- (void)setResponseSerializer:(AFHTTPResponseSerializer<AFURLResponseSerialization> *)responseSerializer {
+- (void)setResponseSerializer:(PDKAFHTTPResponseSerializer<PDKAFURLResponseSerialization> *)responseSerializer {
     objc_setAssociatedObject(self, @selector(responseSerializer), responseSerializer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 

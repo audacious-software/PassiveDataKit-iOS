@@ -1,4 +1,4 @@
-// UIButton+AFNetworking.h
+// UIButton+PDKAFNetworking.h
 // Copyright (c) 2011–2016 Alamofire Software Foundation ( http://alamofire.org/ )
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,14 +29,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class AFImageDownloader;
+@class PDKAFImageDownloader;
 
 /**
  This category adds methods to the UIKit framework's `UIButton` class. The methods in this category provide support for loading remote images and background images asynchronously from a URL.
 
  @warning Compound values for control `state` (such as `UIControlStateHighlighted | UIControlStateDisabled`) are unsupported.
  */
-@interface UIButton (AFNetworking)
+@interface UIButton (PDKAFNetworking)
 
 ///------------------------------------
 /// @name Accessing the Image Downloader
@@ -47,12 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param imageDownloader The shared image downloader used to download images.
 */
-+ (void)setSharedImageDownloader:(AFImageDownloader *)imageDownloader;
++ (void)setSharedImageDownloader:(PDKAFImageDownloader *)imageDownloader;
 
 /**
  The shared image downloader used to download images.
  */
-+ (AFImageDownloader *)sharedImageDownloader;
++ (PDKAFImageDownloader *)sharedImageDownloader;
 
 ///--------------------
 /// @name Setting Image
