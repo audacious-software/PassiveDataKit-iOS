@@ -522,7 +522,7 @@ static NSString * const AFNSURLSessionTaskDidSuspendNotification = @"com.alamofi
 
     self.responseSerializer = [PDKAFJSONResponseSerializer serializer];
 
-    self.securityPolicy = [AFSecurityPolicy defaultPolicy];
+    self.securityPolicy = [PDKAFSecurityPolicy defaultPolicy];
 
 #if !TARGET_OS_WATCH
     self.reachabilityManager = [PDKAFNetworkReachabilityManager sharedManager];

@@ -27,15 +27,15 @@
 #ifndef _AFNETWORKING_
     #define _AFNETWORKING_
 
-    #import "AFURLRequestSerialization.h"
-    #import "AFURLResponseSerialization.h"
-    #import "AFSecurityPolicy.h"
+    #import "PDKAFURLRequestSerialization.h"
+    #import "PDKAFURLResponseSerialization.h"
+    #import "PDKAFSecurityPolicy.h"
 
 #if !TARGET_OS_WATCH
-    #import "AFNetworkReachabilityManager.h"
+    #import "PDKAFNetworkReachabilityManager.h"
 #endif
 
-    #import "AFURLSessionManager.h"
-    #import "AFHTTPSessionManager.h"
+    #import "PDKAFURLSessionManager.h"
+    #import "PDKAFHTTPSessionManager.h"
 
 #endif /* _AFNETWORKING_ */
