@@ -1,4 +1,4 @@
-// AFNetworkActivityIndicatorManager.h
+// PDKAFNetworkActivityIndicatorManager.h
 // Copyright (c) 2011–2016 Alamofire Software Foundation ( http://alamofire.org/ )
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,11 +30,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- `AFNetworkActivityIndicatorManager` manages the state of the network activity indicator in the status bar. When enabled, it will listen for notifications indicating that a session task has started or finished, and start or stop animating the indicator accordingly. The number of active requests is incremented and decremented much like a stack or a semaphore, and the activity indicator will animate so long as that number is greater than zero.
+ `PDKAFNetworkActivityIndicatorManager` manages the state of the network activity indicator in the status bar. When enabled, it will listen for notifications indicating that a session task has started or finished, and start or stop animating the indicator accordingly. The number of active requests is incremented and decremented much like a stack or a semaphore, and the activity indicator will animate so long as that number is greater than zero.
 
- You should enable the shared instance of `AFNetworkActivityIndicatorManager` when your application finishes launching. In `AppDelegate application:didFinishLaunchingWithOptions:` you can do so with the following code:
+ You should enable the shared instance of `PDKAFNetworkActivityIndicatorManager` when your application finishes launching. In `AppDelegate application:didFinishLaunchingWithOptions:` you can do so with the following code:
 
-    [[AFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
+    [[PDKAFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
 
  By setting `enabled` to `YES` for `sharedManager`, the network activity indicator will show and hide automatically as requests start and finish. You should not ever need to call `incrementActivityCount` or `decrementActivityCount` yourself.
 
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
  http://developer.apple.com/library/iOS/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW44
  */
 NS_EXTENSION_UNAVAILABLE_IOS("Use view controller based solutions where appropriate instead.")
-@interface AFNetworkActivityIndicatorManager : NSObject
+@interface PDKAFNetworkActivityIndicatorManager : NSObject
 
 /**
  A Boolean value indicating whether the manager is enabled.

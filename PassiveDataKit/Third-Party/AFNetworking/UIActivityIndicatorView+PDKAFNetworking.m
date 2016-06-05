@@ -19,12 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "UIActivityIndicatorView+AFNetworking.h"
+#import "UIActivityIndicatorView+PDKAFNetworking.h"
 #import <objc/runtime.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 
-#import "AFURLSessionManager.h"
+#import "PDKAFURLSessionManager.h"
 
 @interface AFActivityIndicatorViewNotificationObserver : NSObject
 @property (readonly, nonatomic, weak) UIActivityIndicatorView *activityIndicatorView;
@@ -65,9 +65,9 @@
 - (void)setAnimatingWithStateOfTask:(NSURLSessionTask *)task {
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
-    [notificationCenter removeObserver:self name:AFNetworkingTaskDidResumeNotification object:nil];
-    [notificationCenter removeObserver:self name:AFNetworkingTaskDidSuspendNotification object:nil];
-    [notificationCenter removeObserver:self name:AFNetworkingTaskDidCompleteNotification object:nil];
+    [notificationCenter removeObserver:self name:PDKAFNetworkingTaskDidResumeNotification object:nil];
+    [notificationCenter removeObserver:self name:PDKAFNetworkingTaskDidSuspendNotification object:nil];
+    [notificationCenter removeObserver:self name:PDKAFNetworkingTaskDidCompleteNotification object:nil];
     
     if (task) {
         if (task.state != NSURLSessionTaskStateCompleted) {
@@ -78,9 +78,9 @@
                 [activityIndicatorView stopAnimating];
             }
 
-            [notificationCenter addObserver:self selector:@selector(af_startAnimating) name:AFNetworkingTaskDidResumeNotification object:task];
-            [notificationCenter addObserver:self selector:@selector(af_stopAnimating) name:AFNetworkingTaskDidCompleteNotification object:task];
-            [notificationCenter addObserver:self selector:@selector(af_stopAnimating) name:AFNetworkingTaskDidSuspendNotification object:task];
+            [notificationCenter addObserver:self selector:@selector(af_startAnimating) name:PDKAFNetworkingTaskDidResumeNotification object:task];
+            [notificationCenter addObserver:self selector:@selector(af_stopAnimating) name:PDKAFNetworkingTaskDidCompleteNotification object:task];
+            [notificationCenter addObserver:self selector:@selector(af_stopAnimating) name:PDKAFNetworkingTaskDidSuspendNotification object:task];
         }
     }
 }
@@ -104,9 +104,9 @@
 - (void)dealloc {
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     
-    [notificationCenter removeObserver:self name:AFNetworkingTaskDidCompleteNotification object:nil];
-    [notificationCenter removeObserver:self name:AFNetworkingTaskDidResumeNotification object:nil];
-    [notificationCenter removeObserver:self name:AFNetworkingTaskDidSuspendNotification object:nil];
+    [notificationCenter removeObserver:self name:PDKAFNetworkingTaskDidCompleteNotification object:nil];
+    [notificationCenter removeObserver:self name:PDKAFNetworkingTaskDidResumeNotification object:nil];
+    [notificationCenter removeObserver:self name:PDKAFNetworkingTaskDidSuspendNotification object:nil];
 }
 
 @end

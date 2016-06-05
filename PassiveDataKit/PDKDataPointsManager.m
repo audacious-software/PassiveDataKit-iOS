@@ -8,7 +8,7 @@
 
 #import <sqlite3.h>
 
-#import "AFHTTPSessionManager.h"
+#import "PDKAFHTTPSessionManager.h"
 
 #import "PDKDataPointsManager.h"
 
@@ -137,14 +137,14 @@ static PDKDataPointsManager * sharedObject = nil;
         
         sqlite3_finalize(statement);
 
-        NSMutableURLRequest *req = [[AFJSONRequestSerializer serializer] requestWithMethod:@"CREATE"
+        NSMutableURLRequest *req = [[PDKAFJSONRequestSerializer serializer] requestWithMethod:@"CREATE"
                                                                                  URLString:[url description]
                                                                                 parameters:payload
                                                                                      error:nil];
         [req setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [req setValue:@"application/json" forHTTPHeaderField:@"Accept"];
 
-        AFURLSessionManager * manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        PDKAFURLSessionManager * manager = [[PDKAFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
 
         [[manager dataTaskWithRequest:req
                        uploadProgress:nil
@@ -182,6 +182,12 @@ static PDKDataPointsManager * sharedObject = nil;
                            }
                            
                            completed(YES, uploaded.count);
+                            
+                            NSTimeInterval interval = [NSDate date].timeIntervalSince1970 - now;
+
+                            if (interval > uploadWindow) {
+                                [self uploadDataPoints:url window:(uploadWindow - interval) complete:completed];
+                            }
                        } else {
                            completed(NO, 0);
                        }
@@ -236,6 +242,5 @@ static PDKDataPointsManager * sharedObject = nil;
     
     return NULL;
 }
-
 
 @end

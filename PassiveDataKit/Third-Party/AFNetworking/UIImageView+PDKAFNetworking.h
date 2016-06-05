@@ -1,4 +1,4 @@
-// UIImageView+AFNetworking.h
+// UIImageView+PDKAFNetworking.h
 // Copyright (c) 2011–2016 Alamofire Software Foundation ( http://alamofire.org/ )
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,12 +29,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class AFImageDownloader;
+@class PDKAFImageDownloader;
 
 /**
  This category adds methods to the UIKit framework's `UIImageView` class. The methods in this category provide support for loading remote images asynchronously from a URL.
  */
-@interface UIImageView (AFNetworking)
+@interface UIImageView (PDKAFNetworking)
 
 ///------------------------------------
 /// @name Accessing the Image Downloader
@@ -45,12 +45,12 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param imageDownloader The shared image downloader used to download images.
  */
-+ (void)setSharedImageDownloader:(AFImageDownloader *)imageDownloader;
++ (void)setSharedImageDownloader:(PDKAFImageDownloader *)imageDownloader;
 
 /**
  The shared image downloader used to download images.
  */
-+ (AFImageDownloader *)sharedImageDownloader;
++ (PDKAFImageDownloader *)sharedImageDownloader;
 
 ///--------------------
 /// @name Setting Image
