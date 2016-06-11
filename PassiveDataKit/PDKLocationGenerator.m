@@ -73,8 +73,6 @@ static PDKLocationGenerator * sharedObject = nil;
         
         CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
         
-        NSLog(@"AUTH STATUS: %d", status);
-        
         if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) {
             // Do nothing - user shut off location services...
         } else if (status == kCLAuthorizationStatusNotDetermined) {
