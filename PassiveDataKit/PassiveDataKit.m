@@ -7,6 +7,9 @@
 //
 
 #import "PassiveDataKit.h"
+
+#import "PDKDataPointsManager.h"
+
 #import "PDKLocationGenerator.h"
 
 @interface PassiveDataKit ()
@@ -37,7 +40,7 @@ static PassiveDataKit * sharedObject = nil;
     return sharedObject;
 }
 
-+ (id) allocWithZone:(NSZone *) zone
++ (id) allocWithZone:(NSZone *) zone //!OCLINT
 {
     return [self sharedInstance];
 }
@@ -91,6 +94,8 @@ static PassiveDataKit * sharedObject = nil;
         case PDKLocation:
             [[PDKLocationGenerator sharedInstance] removeListener:listener];
             break;
+        default:
+            break;
     }
 }
 
@@ -98,6 +103,8 @@ static PassiveDataKit * sharedObject = nil;
     switch(generator) {
         case PDKLocation:
             [[PDKLocationGenerator sharedInstance] addListener:listener options:options];
+            break;
+        default:
             break;
     }
 }
@@ -107,9 +114,19 @@ static PassiveDataKit * sharedObject = nil;
     switch(generator) {
         case PDKLocation:
             return @"PDKLocationGenerator";
+        default:
+            break;
     }
 
     return @"PDKUnknownGenerator";
+}
+
+- (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties {
+    return [[PDKDataPointsManager sharedInstance] logDataPoint:generator generatorId:generatorId source:source properties:properties];
+}
+
+- (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed {
+    [[PDKDataPointsManager sharedInstance] uploadDataPoints:url window:uploadWindow complete:completed];
 }
 
 @end

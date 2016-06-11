@@ -6,7 +6,11 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
+@import Foundation;
+
 #import <XCTest/XCTest.h>
+
+#import "PDKDataPointsManager.h"
 
 @interface PassiveDataKitTests : XCTestCase
 
@@ -24,16 +28,26 @@
     [super tearDown];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+- (void)testTest {
+    XCTAssertTrue(YES, @"Testing is broken.");
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
+- (void)testUpload {
+    PDKDataPointsManager * pdk = [PDKDataPointsManager sharedInstance];
+    
+    BOOL result = [pdk logDataPoint:@"PDK Tester" generatorId:@"pdk-tester" source:@"tester" properties:@{ @"foo": @"bar" }];
+    
+    XCTAssertTrue(result, @"Didn't log data point.");
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Upload Complete"];
+
+    [pdk uploadDataPoints:[NSURL URLWithString:@"http://pdk.audacious-software.com/data/add-bundle.json"] window:0 complete:^(BOOL success, int uploaded) {
+        [expectation fulfill];
+
+        XCTAssertTrue((uploaded > 0), @"Didn't upload data point.");
     }];
+
+    [self waitForExpectationsWithTimeout:30 handler:nil];
 }
 
 @end
