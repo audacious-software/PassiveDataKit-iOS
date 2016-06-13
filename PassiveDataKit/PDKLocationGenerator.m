@@ -61,9 +61,6 @@ static PDKLocationGenerator * sharedObject = nil;
 
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
-
-    NSLog(@"ADDING LOCATION LISTENER: %@ -- %@", options, listener);
-    
     if (options == nil) {
         options = @{}; //!OCLINT
     }
