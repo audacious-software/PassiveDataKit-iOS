@@ -12,6 +12,7 @@
 
 @property NSMutableArray * listeners;
 @property CLLocationManager * locationManager;
+@property NSDictionary * lastOptions;
 
 @end
 
@@ -61,25 +62,33 @@ static PDKLocationGenerator * sharedObject = nil;
 
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
-
-    NSLog(@"ADDING LOCATION LISTENER: %@ -- %@", options, listener);
-    
     if (options == nil) {
         options = @{}; //!OCLINT
     }
     
+    self.lastOptions = options;
+    
     if (self.listeners.count == 0) {
         // Turn on sensors with options...
-        
+     
+        NSNumber * alwaysOn = [options valueForKey:PDKLocationAlwaysOn];
+
         CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-        
-        NSLog(@"AUTH STATUS: %d", status);
         
         if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
             // Do nothing - user shut off location services...
         } else if (status == kCLAuthorizationStatusNotDetermined) {
+            if (alwaysOn != nil && alwaysOn.boolValue) {
+                [self.locationManager requestAlwaysAuthorization];
+            } else {
+                [self.locationManager requestWhenInUseAuthorization];
+            }
+        } else if (alwaysOn != nil && alwaysOn.boolValue && status != kCLAuthorizationStatusAuthorizedAlways) {
             [self.locationManager requestAlwaysAuthorization];
-        } else { //!OCLINT
+        } else if ((alwaysOn == nil || alwaysOn.boolValue == NO) && status != kCLAuthorizationStatusAuthorizedWhenInUse) {
+            [self.locationManager requestWhenInUseAuthorization];
+        }
+        else { //!OCLINT
             // Already authed -- do nothing...
         }
     }
@@ -116,9 +125,14 @@ static PDKLocationGenerator * sharedObject = nil;
         [self.locationManager startUpdatingLocation];
     }
     
-    [self.listeners addObject:listener];
+    if (listener != nil) {
+        [self.listeners addObject:listener];
+    }
+    
+    if (self.locationManager.location != nil) {
+        [self locationManager:self.locationManager didUpdateLocations:@[self.locationManager.location]];
+    }
 }
-
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     for (CLLocation * location in locations) {
@@ -135,6 +149,10 @@ static PDKLocationGenerator * sharedObject = nil;
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     // TODO: Log error...
     NSLog(@"TODO: LOG LOCATION FAILURE: %@", error);
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    [self addListener:nil options:self.lastOptions];
 }
 
 

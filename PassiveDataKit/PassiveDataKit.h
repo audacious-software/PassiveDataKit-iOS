@@ -16,6 +16,7 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKitVersionString[];
 
 extern NSString *const PDKCapabilityRationale;
 extern NSString *const PDKLocationSignificantChangesOnly;
+extern NSString *const PDKLocationAlwaysOn;
 extern NSString *const PDKLocationRequestedAccuracy;
 extern NSString *const PDKLocationRequestedDistance;
 extern NSString *const PDKLocationInstance;

@@ -20,6 +20,7 @@
 
 NSString * const PDKCapabilityRationale = @"PDKCapabilityRationale";
 NSString * const PDKLocationSignificantChangesOnly = @"PDKLocationSignificantChangesOnly";
+NSString * const PDKLocationAlwaysOn = @"PDKLocationAlwaysOn";
 NSString * const PDKLocationRequestedAccuracy = @"PDKLocationRequestedAccuracy";
 NSString * const PDKLocationRequestedDistance = @"PDKLocationRequestedDistance";
 NSString * const PDKLocationInstance = @"PDKLocationInstance";
