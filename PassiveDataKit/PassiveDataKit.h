@@ -6,7 +6,7 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import UIKit;
 
 //! Project version number for PassiveDataKit.
 FOUNDATION_EXPORT double PassiveDataKitVersionNumber;
@@ -16,6 +16,7 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKitVersionString[];
 
 extern NSString *const PDKCapabilityRationale;
 extern NSString *const PDKLocationSignificantChangesOnly;
+extern NSString *const PDKLocationAlwaysOn;
 extern NSString *const PDKLocationRequestedAccuracy;
 extern NSString *const PDKLocationRequestedDistance;
 extern NSString *const PDKLocationInstance;
@@ -46,5 +47,8 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 
 - (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options;
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator;
+
+- (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties;
+- (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed;
 
 @end

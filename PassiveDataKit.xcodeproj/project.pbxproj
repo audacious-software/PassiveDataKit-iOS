@@ -14,6 +14,42 @@
 		38A6523C1CDA2D9B00AE8B3B /* PDKLocationGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */; };
 		38A6523D1CDA2D9B00AE8B3B /* PDKLocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38A6523B1CDA2D9B00AE8B3B /* PDKLocationGenerator.m */; };
 		38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38A652421CDA30DB00AE8B3B /* CoreLocation.framework */; };
+		38C666B01D037FCF00E6A6C8 /* PDKDataPointsManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666AE1D037FCF00E6A6C8 /* PDKDataPointsManager.h */; };
+		38C666B11D037FCF00E6A6C8 /* PDKDataPointsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666AF1D037FCF00E6A6C8 /* PDKDataPointsManager.m */; };
+		38C666B31D0380CD00E6A6C8 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */; };
+		38C666D71D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666B61D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.h */; };
+		38C666D81D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666B71D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.m */; };
+		38C666D91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666B81D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h */; };
+		38C666DA1D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666B91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.m */; };
+		38C666DB1D038A8E00E6A6C8 /* PDKAFImageDownloader.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666BA1D038A8E00E6A6C8 /* PDKAFImageDownloader.h */; };
+		38C666DC1D038A8E00E6A6C8 /* PDKAFImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666BB1D038A8E00E6A6C8 /* PDKAFImageDownloader.m */; };
+		38C666DD1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666BC1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.h */; };
+		38C666DE1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666BD1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.m */; };
+		38C666DF1D038A8E00E6A6C8 /* PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666BE1D038A8E00E6A6C8 /* PDKAFNetworking.h */; };
+		38C666E01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666BF1D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.h */; };
+		38C666E11D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.m */; };
+		38C666E21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C11D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h */; };
+		38C666E31D038A8E00E6A6C8 /* PDKAFSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.m */; };
+		38C666E41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C31D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h */; };
+		38C666E51D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.m */; };
+		38C666E61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C51D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h */; };
+		38C666E71D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.m */; };
+		38C666E81D038A8E00E6A6C8 /* PDKAFURLSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C71D038A8E00E6A6C8 /* PDKAFURLSessionManager.h */; };
+		38C666E91D038A8E00E6A6C8 /* PDKAFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C81D038A8E00E6A6C8 /* PDKAFURLSessionManager.m */; };
+		38C666EA1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C91D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.h */; };
+		38C666EB1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666CA1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.m */; };
+		38C666EC1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666CB1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.h */; };
+		38C666ED1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666CC1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.m */; };
+		38C666EE1D038A8E00E6A6C8 /* UIImage+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666CD1D038A8E00E6A6C8 /* UIImage+PDKAFNetworking.h */; };
+		38C666EF1D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666CE1D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.h */; };
+		38C666F01D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666CF1D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.m */; };
+		38C666F11D038A8E00E6A6C8 /* UIKit+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666D01D038A8E00E6A6C8 /* UIKit+PDKAFNetworking.h */; };
+		38C666F21D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666D11D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.h */; };
+		38C666F31D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666D21D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.m */; };
+		38C666F41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666D31D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.h */; };
+		38C666F51D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666D41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m */; };
+		38C666F61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666D51D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h */; };
+		38C666F71D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666D61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +73,42 @@
 		38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKLocationGenerator.h; sourceTree = "<group>"; };
 		38A6523B1CDA2D9B00AE8B3B /* PDKLocationGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKLocationGenerator.m; sourceTree = "<group>"; };
 		38A652421CDA30DB00AE8B3B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		38C666AE1D037FCF00E6A6C8 /* PDKDataPointsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKDataPointsManager.h; sourceTree = "<group>"; };
+		38C666AF1D037FCF00E6A6C8 /* PDKDataPointsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKDataPointsManager.m; sourceTree = "<group>"; };
+		38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		38C666B61D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFAutoPurgingImageCache.h; sourceTree = "<group>"; };
+		38C666B71D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFAutoPurgingImageCache.m; sourceTree = "<group>"; };
+		38C666B81D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFHTTPSessionManager.h; sourceTree = "<group>"; };
+		38C666B91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFHTTPSessionManager.m; sourceTree = "<group>"; };
+		38C666BA1D038A8E00E6A6C8 /* PDKAFImageDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFImageDownloader.h; sourceTree = "<group>"; };
+		38C666BB1D038A8E00E6A6C8 /* PDKAFImageDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFImageDownloader.m; sourceTree = "<group>"; };
+		38C666BC1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFNetworkActivityIndicatorManager.h; sourceTree = "<group>"; };
+		38C666BD1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFNetworkActivityIndicatorManager.m; sourceTree = "<group>"; };
+		38C666BE1D038A8E00E6A6C8 /* PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFNetworking.h; sourceTree = "<group>"; };
+		38C666BF1D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFNetworkReachabilityManager.h; sourceTree = "<group>"; };
+		38C666C01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFNetworkReachabilityManager.m; sourceTree = "<group>"; };
+		38C666C11D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFSecurityPolicy.h; sourceTree = "<group>"; };
+		38C666C21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFSecurityPolicy.m; sourceTree = "<group>"; };
+		38C666C31D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFURLRequestSerialization.h; sourceTree = "<group>"; };
+		38C666C41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFURLRequestSerialization.m; sourceTree = "<group>"; };
+		38C666C51D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFURLResponseSerialization.h; sourceTree = "<group>"; };
+		38C666C61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFURLResponseSerialization.m; sourceTree = "<group>"; };
+		38C666C71D038A8E00E6A6C8 /* PDKAFURLSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAFURLSessionManager.h; sourceTree = "<group>"; };
+		38C666C81D038A8E00E6A6C8 /* PDKAFURLSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAFURLSessionManager.m; sourceTree = "<group>"; };
+		38C666C91D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActivityIndicatorView+PDKAFNetworking.h"; sourceTree = "<group>"; };
+		38C666CA1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActivityIndicatorView+PDKAFNetworking.m"; sourceTree = "<group>"; };
+		38C666CB1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+PDKAFNetworking.h"; sourceTree = "<group>"; };
+		38C666CC1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+PDKAFNetworking.m"; sourceTree = "<group>"; };
+		38C666CD1D038A8E00E6A6C8 /* UIImage+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+PDKAFNetworking.h"; sourceTree = "<group>"; };
+		38C666CE1D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+PDKAFNetworking.h"; sourceTree = "<group>"; };
+		38C666CF1D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+PDKAFNetworking.m"; sourceTree = "<group>"; };
+		38C666D01D038A8E00E6A6C8 /* UIKit+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIKit+PDKAFNetworking.h"; sourceTree = "<group>"; };
+		38C666D11D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIProgressView+PDKAFNetworking.h"; sourceTree = "<group>"; };
+		38C666D21D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIProgressView+PDKAFNetworking.m"; sourceTree = "<group>"; };
+		38C666D31D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIRefreshControl+PDKAFNetworking.h"; sourceTree = "<group>"; };
+		38C666D41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIRefreshControl+PDKAFNetworking.m"; sourceTree = "<group>"; };
+		38C666D51D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebView+PDKAFNetworking.h"; sourceTree = "<group>"; };
+		38C666D61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+PDKAFNetworking.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +116,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				38C666B31D0380CD00E6A6C8 /* libsqlite3.tbd in Frameworks */,
 				38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -81,11 +154,13 @@
 		3842F7331CDA2021007F843D /* PassiveDataKit */ = {
 			isa = PBXGroup;
 			children = (
+				38C666B41D038A8E00E6A6C8 /* Third Party */,
+				38C666AD1D037FA700E6A6C8 /* Generators */,
 				3842F7341CDA2021007F843D /* PassiveDataKit.h */,
 				3842F7551CDA20FE007F843D /* PassiveDataKit.m */,
 				3842F7361CDA2021007F843D /* Info.plist */,
-				38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */,
-				38A6523B1CDA2D9B00AE8B3B /* PDKLocationGenerator.m */,
+				38C666AE1D037FCF00E6A6C8 /* PDKDataPointsManager.h */,
+				38C666AF1D037FCF00E6A6C8 /* PDKDataPointsManager.m */,
 			);
 			path = PassiveDataKit;
 			sourceTree = "<group>";
@@ -102,9 +177,68 @@
 		38A652441CDA30E800AE8B3B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */,
 				38A652421CDA30DB00AE8B3B /* CoreLocation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		38C666AD1D037FA700E6A6C8 /* Generators */ = {
+			isa = PBXGroup;
+			children = (
+				38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */,
+				38A6523B1CDA2D9B00AE8B3B /* PDKLocationGenerator.m */,
+			);
+			name = Generators;
+			sourceTree = "<group>";
+		};
+		38C666B41D038A8E00E6A6C8 /* Third Party */ = {
+			isa = PBXGroup;
+			children = (
+				38C666B51D038A8E00E6A6C8 /* AFNetworking */,
+			);
+			name = "Third Party";
+			path = "Third-Party";
+			sourceTree = "<group>";
+		};
+		38C666B51D038A8E00E6A6C8 /* AFNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				38C666B61D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.h */,
+				38C666B71D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.m */,
+				38C666B81D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h */,
+				38C666B91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.m */,
+				38C666BA1D038A8E00E6A6C8 /* PDKAFImageDownloader.h */,
+				38C666BB1D038A8E00E6A6C8 /* PDKAFImageDownloader.m */,
+				38C666BC1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.h */,
+				38C666BD1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.m */,
+				38C666BE1D038A8E00E6A6C8 /* PDKAFNetworking.h */,
+				38C666BF1D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.h */,
+				38C666C01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.m */,
+				38C666C11D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h */,
+				38C666C21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.m */,
+				38C666C31D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h */,
+				38C666C41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.m */,
+				38C666C51D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h */,
+				38C666C61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.m */,
+				38C666C71D038A8E00E6A6C8 /* PDKAFURLSessionManager.h */,
+				38C666C81D038A8E00E6A6C8 /* PDKAFURLSessionManager.m */,
+				38C666C91D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.h */,
+				38C666CA1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.m */,
+				38C666CB1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.h */,
+				38C666CC1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.m */,
+				38C666CD1D038A8E00E6A6C8 /* UIImage+PDKAFNetworking.h */,
+				38C666CE1D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.h */,
+				38C666CF1D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.m */,
+				38C666D01D038A8E00E6A6C8 /* UIKit+PDKAFNetworking.h */,
+				38C666D11D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.h */,
+				38C666D21D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.m */,
+				38C666D31D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.h */,
+				38C666D41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m */,
+				38C666D51D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h */,
+				38C666D61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m */,
+			);
+			path = AFNetworking;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -114,6 +248,25 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				38C666B01D037FCF00E6A6C8 /* PDKDataPointsManager.h in Headers */,
+				38C666D91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h in Headers */,
+				38C666E41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h in Headers */,
+				38C666E01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.h in Headers */,
+				38C666E21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h in Headers */,
+				38C666EA1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.h in Headers */,
+				38C666F11D038A8E00E6A6C8 /* UIKit+PDKAFNetworking.h in Headers */,
+				38C666E81D038A8E00E6A6C8 /* PDKAFURLSessionManager.h in Headers */,
+				38C666F61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h in Headers */,
+				38C666DD1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.h in Headers */,
+				38C666EE1D038A8E00E6A6C8 /* UIImage+PDKAFNetworking.h in Headers */,
+				38C666DF1D038A8E00E6A6C8 /* PDKAFNetworking.h in Headers */,
+				38C666EF1D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.h in Headers */,
+				38C666DB1D038A8E00E6A6C8 /* PDKAFImageDownloader.h in Headers */,
+				38C666EC1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.h in Headers */,
+				38C666F21D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.h in Headers */,
+				38C666E61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h in Headers */,
+				38C666F41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.h in Headers */,
+				38C666D71D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.h in Headers */,
 				3842F7351CDA2021007F843D /* PassiveDataKit.h in Headers */,
 				38A6523C1CDA2D9B00AE8B3B /* PDKLocationGenerator.h in Headers */,
 			);
@@ -215,8 +368,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				38C666F31D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.m in Sources */,
+				38C666B11D037FCF00E6A6C8 /* PDKDataPointsManager.m in Sources */,
+				38C666F71D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m in Sources */,
+				38C666F01D038A8E00E6A6C8 /* UIImageView+PDKAFNetworking.m in Sources */,
+				38C666E31D038A8E00E6A6C8 /* PDKAFSecurityPolicy.m in Sources */,
+				38C666ED1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.m in Sources */,
 				38A6523D1CDA2D9B00AE8B3B /* PDKLocationGenerator.m in Sources */,
+				38C666DA1D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.m in Sources */,
+				38C666F51D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m in Sources */,
+				38C666E71D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.m in Sources */,
 				3842F7571CDA20FE007F843D /* PassiveDataKit.m in Sources */,
+				38C666D81D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.m in Sources */,
+				38C666DE1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.m in Sources */,
+				38C666E51D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.m in Sources */,
+				38C666E91D038A8E00E6A6C8 /* PDKAFURLSessionManager.m in Sources */,
+				38C666E11D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.m in Sources */,
+				38C666DC1D038A8E00E6A6C8 /* PDKAFImageDownloader.m in Sources */,
+				38C666EB1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,10 +501,12 @@
 		3842F7461CDA2021007F843D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = PassiveDataKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -348,10 +519,12 @@
 		3842F7471CDA2021007F843D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = PassiveDataKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
