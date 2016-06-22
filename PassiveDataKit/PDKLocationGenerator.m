@@ -61,9 +61,6 @@ static PDKLocationGenerator * sharedObject = nil;
 
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
-
-    NSLog(@"ADDING LOCATION LISTENER: %@ -- %@", options, listener);
-    
     if (options == nil) {
         options = [NSDictionary dictionary];
     }
@@ -72,8 +69,6 @@ static PDKLocationGenerator * sharedObject = nil;
         // Turn on sensors with options...
         
         CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-        
-        NSLog(@"AUTH STATUS: %d", status);
         
         if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) {
             // Do nothing - user shut off location services...
