@@ -94,8 +94,6 @@ static PDKDataPointsManager * sharedObject = nil;
         NSData * jsonData = [NSJSONSerialization dataWithJSONObject:properties options:0 error:&err];
         NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         
-        NSLog(@"INSERTING JSON: %@", jsonString);
-        
         sqlite3_bind_text(stmt, 5, [jsonString UTF8String], -1, SQLITE_TRANSIENT);
 
         if (SQLITE_DONE != sqlite3_step(stmt)) {
@@ -111,6 +109,10 @@ static PDKDataPointsManager * sharedObject = nil;
 }
 
 - (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed { //!OCLINT
+    if (uploadWindow == 0) {
+        uploadWindow = 5;
+    }
+    
     NSTimeInterval now = [NSDate date].timeIntervalSince1970;
     
     sqlite3_stmt * statement = NULL;
@@ -211,7 +213,7 @@ static PDKDataPointsManager * sharedObject = nil;
                             
                             NSTimeInterval interval = [NSDate date].timeIntervalSince1970 - now;
 
-                            if (interval > uploadWindow) {
+                            if (uploadWindow > 0 && interval > uploadWindow && uploaded.count > 0) {
                                 [self uploadDataPoints:url window:(uploadWindow - interval) complete:completed];
                             }
                        } else {

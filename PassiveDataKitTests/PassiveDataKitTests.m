@@ -50,7 +50,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Upload Complete"];
 
-    [pdk uploadDataPoints:[NSURL URLWithString:@"http://pdk.audacious-software.com/data/add-bundle.json"] window:0 complete:^(BOOL success, int uploaded) {
+    [pdk uploadDataPoints:[NSURL URLWithString:@"https://pdk.audacious-software.com/data/add-bundle.json"] window:0 complete:^(BOOL success, int uploaded) {
         [expectation fulfill];
 
         XCTAssertTrue((uploaded > 0), @"Didn't upload data point.");

@@ -129,6 +129,10 @@ static PassiveDataKit * sharedObject = nil;
     return [[PDKDataPointsManager sharedInstance] logDataPoint:generator generatorId:generatorId source:source properties:properties];
 }
 
+- (BOOL) logEvent:(NSString *) eventName properties:(NSDictionary *) properties {
+    return [[PDKDataPointsManager sharedInstance] logEvent:eventName properties:properties];
+}
+
 - (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed {
     [[PDKDataPointsManager sharedInstance] uploadDataPoints:url window:uploadWindow complete:completed];
 }
@@ -178,7 +182,7 @@ static PassiveDataKit * sharedObject = nil;
     
     NSString * version = [NSString stringWithFormat:@"%d.%d.%d", (int) osVer.majorVersion, (int) osVer.minorVersion, (int) osVer.patchVersion];
 
-    return [NSString stringWithFormat:@"%@ %@ (iOS %@)", info[@"CFBundleDisplayName"], info[@"CFBundleVersion"], version, nil];
+    return [NSString stringWithFormat:@"%@ %@ (iOS %@)", info[@"CFBundleDisplayName"], info[@"CFBundleShortVersionString"], version, nil];
 }
 
 - (BOOL) setGenerator:(NSString *) newGenerator {
