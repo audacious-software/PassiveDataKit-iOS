@@ -13,6 +13,7 @@
 + (PDKDataPointsManager *) sharedInstance;
 
 - (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties;
+- (BOOL) logEvent:(NSString *) eventName properties:(NSDictionary *) properties;
 
 - (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed;
 

@@ -8,8 +8,8 @@
 
 #import <sqlite3.h>
 
+#import "PassiveDataKit.h"
 #import "PDKAFHTTPSessionManager.h"
-
 #import "PDKDataPointsManager.h"
 
 @interface PDKDataPointsManager ()
@@ -49,7 +49,31 @@ static PDKDataPointsManager * sharedObject = nil;
     return self;
 }
 
+- (BOOL) logEvent:(NSString *) eventName properties:(NSDictionary *) properties {
+    NSMutableDictionary * payload = [NSMutableDictionary dictionary];
+    
+    if (properties != nil) {
+        [payload addEntriesFromDictionary:properties];
+    }
+    
+    payload[@"event"] = eventName;
+    
+    return [self logDataPoint:nil generatorId:nil source:nil properties:payload];
+}
+
 - (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties {
+    if (source == nil) {
+        source = [[PassiveDataKit sharedInstance] identifierForUser];
+    }
+
+    if (generator == nil) {
+        generator = [[PassiveDataKit sharedInstance] generator];
+    }
+
+    if (generatorId == nil) {
+        generatorId = [[PassiveDataKit sharedInstance] generatorId];
+    }
+
     NSDate * now = [NSDate date];
     
     if (properties == nil) {
@@ -69,6 +93,8 @@ static PDKDataPointsManager * sharedObject = nil;
         NSError * err = nil;
         NSData * jsonData = [NSJSONSerialization dataWithJSONObject:properties options:0 error:&err];
         NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        
+        NSLog(@"INSERTING JSON: %@", jsonString);
         
         sqlite3_bind_text(stmt, 5, [jsonString UTF8String], -1, SQLITE_TRANSIENT);
 

@@ -24,6 +24,9 @@ NSString * const PDKLocationAlwaysOn = @"PDKLocationAlwaysOn";
 NSString * const PDKLocationRequestedAccuracy = @"PDKLocationRequestedAccuracy";
 NSString * const PDKLocationRequestedDistance = @"PDKLocationRequestedDistance";
 NSString * const PDKLocationInstance = @"PDKLocationInstance";
+NSString * const PDKUserIdentifier = @"PDKUserIdentifier";
+NSString * const PDKGenerator = @"PDKGenerator";
+NSString * const PDKGeneratorIdentifier = @"PDKGeneratorIdentifier";
 
 @implementation PassiveDataKit
 
@@ -128,6 +131,97 @@ static PassiveDataKit * sharedObject = nil;
 
 - (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed {
     [[PDKDataPointsManager sharedInstance] uploadDataPoints:url window:uploadWindow complete:completed];
+}
+
+- (NSString *) identifierForUser {
+    NSString * identifier = [[NSUserDefaults standardUserDefaults] stringForKey:PDKUserIdentifier];
+    
+    if (identifier != nil) {
+        return identifier;
+    }
+    
+    return [UIDevice currentDevice].identifierForVendor.UUIDString;
+}
+
+- (BOOL) setIdentifierForUser:(NSString *) newIdentifier {
+    if (newIdentifier != nil) {
+        [[NSUserDefaults standardUserDefaults] setValue:newIdentifier forKey:PDKUserIdentifier];
+        
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void) resetIdentifierForUser {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKUserIdentifier];
+}
+
+- (NSString *) generator {
+    NSString * generator = [[NSUserDefaults standardUserDefaults] stringForKey:PDKGenerator];
+    
+    if (generator != nil) {
+        return generator;
+    }
+    
+    NSMutableDictionary * info = [NSMutableDictionary dictionaryWithDictionary:[[NSBundle mainBundle] infoDictionary]];
+    
+    if (info[@"CFBundleDisplayName"] == nil) {
+        info[@"CFBundleDisplayName"] = @"Passive Data Kit";
+    }
+
+    if (info[@"CFBundleVersion"] == nil) {
+        info[@"CFBundleVersion"] = @"1.0";
+    }
+    
+    NSOperatingSystemVersion osVer = [NSProcessInfo processInfo].operatingSystemVersion;
+    
+    NSString * version = [NSString stringWithFormat:@"%d.%d.%d", (int) osVer.majorVersion, (int) osVer.minorVersion, (int) osVer.patchVersion];
+
+    return [NSString stringWithFormat:@"%@ %@ (iOS %@)", info[@"CFBundleDisplayName"], info[@"CFBundleVersion"], version, nil];
+}
+
+- (BOOL) setGenerator:(NSString *) newGenerator {
+    if (newGenerator != nil) {
+        [[NSUserDefaults standardUserDefaults] setValue:newGenerator forKey:PDKGenerator];
+        
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void) resetGenerator {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKGenerator];
+}
+
+- (NSString *) generatorId {
+    NSString * identifier = [[NSUserDefaults standardUserDefaults] stringForKey:PDKGeneratorIdentifier];
+    
+    if (identifier != nil) {
+        return identifier;
+    }
+    
+    if ([[NSBundle mainBundle] bundleIdentifier] != nil) {
+        return [[NSBundle mainBundle] bundleIdentifier];
+    }
+    
+    return @"passive-data-kit";
+}
+
+- (BOOL) setGeneratorId:(NSString *) newIdentifier
+{
+    if (newIdentifier != nil) {
+        [[NSUserDefaults standardUserDefaults] setValue:newIdentifier forKey:PDKGeneratorIdentifier];
+        
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void) resetGeneratorId {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKGeneratorIdentifier];
 }
 
 @end
