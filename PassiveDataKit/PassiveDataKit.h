@@ -20,7 +20,7 @@ extern NSString *const PDKLocationAlwaysOn;
 extern NSString *const PDKLocationRequestedAccuracy;
 extern NSString *const PDKLocationRequestedDistance;
 extern NSString *const PDKLocationInstance;
-
+extern NSString *const PDKMixpanelToken;
 
 typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKLocation
@@ -39,7 +39,6 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
 
 @end
-
 
 @interface PassiveDataKit : NSObject
 
@@ -63,5 +62,9 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 - (NSString *) generatorId;
 - (BOOL) setGeneratorId:(NSString *) newIdentifier;
 - (void) resetGeneratorId;
+
+- (BOOL) mixpanelEnabled;
+- (void) enableMixpanel:(NSString *) token;
+- (void) disableMixpanel;
 
 @end

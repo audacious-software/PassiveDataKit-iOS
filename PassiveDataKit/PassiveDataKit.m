@@ -27,6 +27,7 @@ NSString * const PDKLocationInstance = @"PDKLocationInstance";
 NSString * const PDKUserIdentifier = @"PDKUserIdentifier";
 NSString * const PDKGenerator = @"PDKGenerator";
 NSString * const PDKGeneratorIdentifier = @"PDKGeneratorIdentifier";
+NSString * const PDKMixpanelToken = @"PDKMixpanelToken";
 
 @implementation PassiveDataKit
 
@@ -170,19 +171,19 @@ static PassiveDataKit * sharedObject = nil;
     
     NSMutableDictionary * info = [NSMutableDictionary dictionaryWithDictionary:[[NSBundle mainBundle] infoDictionary]];
     
-    if (info[@"CFBundleDisplayName"] == nil) {
-        info[@"CFBundleDisplayName"] = @"Passive Data Kit";
+    if (info[@"CFBundleName"] == nil) {
+        info[@"CFBundleName"] = @"Passive Data Kit";
     }
 
-    if (info[@"CFBundleVersion"] == nil) {
-        info[@"CFBundleVersion"] = @"1.0";
+    if (info[@"CFBundleShortVersionString"] == nil) {
+        info[@"CFBundleShortVersionString"] = @"1.0";
     }
     
     NSOperatingSystemVersion osVer = [NSProcessInfo processInfo].operatingSystemVersion;
     
     NSString * version = [NSString stringWithFormat:@"%d.%d.%d", (int) osVer.majorVersion, (int) osVer.minorVersion, (int) osVer.patchVersion];
 
-    return [NSString stringWithFormat:@"%@ %@ (iOS %@)", info[@"CFBundleDisplayName"], info[@"CFBundleShortVersionString"], version, nil];
+    return [NSString stringWithFormat:@"%@ %@ (iOS %@)", info[@"CFBundleName"], info[@"CFBundleShortVersionString"], version, nil];
 }
 
 - (BOOL) setGenerator:(NSString *) newGenerator {
@@ -226,6 +227,18 @@ static PassiveDataKit * sharedObject = nil;
 
 - (void) resetGeneratorId {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKGeneratorIdentifier];
+}
+
+- (BOOL) mixpanelEnabled {
+    return [[NSUserDefaults standardUserDefaults] stringForKey:PDKMixpanelToken] != nil;
+}
+
+- (void) enableMixpanel:(NSString *) token {
+    [[NSUserDefaults standardUserDefaults] setValue:token forKey:PDKMixpanelToken];
+}
+
+- (void) disableMixpanel {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKMixpanelToken];
 }
 
 @end

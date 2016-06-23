@@ -8,6 +8,8 @@
 
 #import <sqlite3.h>
 
+#import "Mixpanel.h"
+
 #import "PassiveDataKit.h"
 #import "PDKAFHTTPSessionManager.h"
 #import "PDKDataPointsManager.h"
@@ -57,6 +59,29 @@ static PDKDataPointsManager * sharedObject = nil;
     }
     
     payload[@"event"] = eventName;
+    
+    if ([[PassiveDataKit sharedInstance] mixpanelEnabled]) {
+        Mixpanel * mixpanel = [Mixpanel sharedInstanceWithToken:[[NSUserDefaults standardUserDefaults] stringForKey:PDKMixpanelToken]];
+        
+        [mixpanel identify:[[PassiveDataKit sharedInstance] identifierForUser]];
+        
+        NSMutableDictionary * info = [NSMutableDictionary dictionaryWithDictionary:[[NSBundle mainBundle] infoDictionary]];
+        
+        if (info[@"CFBundleName"] == nil) {
+            info[@"CFBundleName"] = @"Passive Data Kit";
+        }
+        
+        if (info[@"CFBundleShortVersionString"] == nil) {
+            info[@"CFBundleShortVersionString"] = @"1.0";
+        }
+        
+        payload[@"$browser"] = info[@"CFBundleName"];
+        payload[@"$browser_version"] = info[@"CFBundleShortVersionString"];
+
+        if (mixpanel != nil) {
+            [mixpanel track:eventName properties:payload];
+        }
+    }
     
     return [self logDataPoint:nil generatorId:nil source:nil properties:payload];
 }
