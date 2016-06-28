@@ -1,0 +1,15 @@
+/* 
+  PassiveDataKit.strings
+  PassiveDataKit
+
+  Created by Chris Karr on 6/25/16.
+  Copyright © 2016 Audacious Software. All rights reserved.
+*/
+
+"title_data_report" = "Data Report";
+"placeholder_select_generator" = "Select data source to visualize…";
+"placeholder_unknown_generator" = "Unknown Data Source";
+
+"name_generator_events" = "Application Events";
+"name_generator_events_mixpanel" = "Application Events (Mixpanel)";
+"name_generator_location" = "Physical Location";

@@ -13,6 +13,8 @@
 #import "PassiveDataKit.h"
 #import "PDKAFHTTPSessionManager.h"
 #import "PDKDataPointsManager.h"
+#import "PDKMixpanelEventGenerator.h"
+#import "PDKEventGenerator.h"
 
 @interface PDKDataPointsManager ()
 
@@ -81,8 +83,12 @@ static PDKDataPointsManager * sharedObject = nil;
         if (mixpanel != nil) {
             [mixpanel track:eventName properties:payload];
         }
+        
+        [PDKMixpanelEventGenerator logForReview:payload];
     }
-    
+
+    [PDKEventGenerator logForReview:payload];
+
     return [self logDataPoint:nil generatorId:nil source:nil properties:payload];
 }
 

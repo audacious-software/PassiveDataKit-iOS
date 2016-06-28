@@ -12,6 +12,8 @@
 
 #import "PDKLocationGenerator.h"
 
+#import "PDKDataReportViewController.h"
+
 @interface PassiveDataKit ()
 
 @property NSMutableDictionary * listeners;
@@ -28,6 +30,9 @@ NSString * const PDKUserIdentifier = @"PDKUserIdentifier";
 NSString * const PDKGenerator = @"PDKGenerator";
 NSString * const PDKGeneratorIdentifier = @"PDKGeneratorIdentifier";
 NSString * const PDKMixpanelToken = @"PDKMixpanelToken";
+NSString * const PDKLastEventLogged = @"PDKLastEventLogged";
+NSString * const PDKEventGenerator = @"PDKEventGenerator";
+NSString * const PDKMixpanelEventGenerator = @"PDKMixpanelEventGenerator";
 
 @implementation PassiveDataKit
 
@@ -78,6 +83,22 @@ static PassiveDataKit * sharedObject = nil;
     }
     
     return YES;
+}
+
+- (NSArray *) activeListeners {
+    NSMutableArray * listeners = [NSMutableArray arrayWithArray:[self.listeners allKeys]];
+    
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    
+    if ([defaults valueForKey:PDKLastEventLogged] != nil) {
+        [listeners addObject:PDKEventGenerator];
+        
+        if ([self mixpanelEnabled]) {
+            [listeners addObject:PDKMixpanelEventGenerator];
+        }
+    }
+    
+    return listeners;
 }
 
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator {
@@ -131,6 +152,11 @@ static PassiveDataKit * sharedObject = nil;
 }
 
 - (BOOL) logEvent:(NSString *) eventName properties:(NSDictionary *) properties {
+    NSUserDefaults * defaults= [NSUserDefaults standardUserDefaults];
+    
+    [defaults setValue:[NSDate date] forKey:PDKLastEventLogged];
+    [defaults synchronize];
+    
     return [[PDKDataPointsManager sharedInstance] logEvent:eventName properties:properties];
 }
 
@@ -239,6 +265,10 @@ static PassiveDataKit * sharedObject = nil;
 
 - (void) disableMixpanel {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKMixpanelToken];
+}
+
+- (UIViewController *) dataReportController {
+    return [[PDKDataReportViewController alloc] init];
 }
 
 @end

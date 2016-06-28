@@ -26,7 +26,6 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKLocation
 };
 
-
 @protocol PDKDataListener
 
 - (void) receivedData:(NSDictionary *) data forGenerator:(PDKDataGenerator) dataGenerator;
@@ -37,6 +36,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 
 - (void) removeListener:(id<PDKDataListener>)listener;
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
++ (UIView *) visualizationForSize:(CGSize) size;
 
 @end
 
@@ -46,6 +46,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 
 - (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options;
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator;
+- (NSArray *) activeListeners;
 
 - (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties;
 - (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed;
@@ -66,5 +67,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 - (BOOL) mixpanelEnabled;
 - (void) enableMixpanel:(NSString *) token;
 - (void) disableMixpanel;
+
+- (UIViewController *) dataReportController;
 
 @end
