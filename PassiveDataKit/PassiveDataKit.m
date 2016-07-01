@@ -11,6 +11,7 @@
 #import "PDKDataPointsManager.h"
 
 #import "PDKLocationGenerator.h"
+#import "PDKGooglePlacesGenerator.h"
 
 #import "PDKDataReportViewController.h"
 
@@ -33,6 +34,13 @@ NSString * const PDKMixpanelToken = @"PDKMixpanelToken";
 NSString * const PDKLastEventLogged = @"PDKLastEventLogged";
 NSString * const PDKEventGenerator = @"PDKEventGenerator";
 NSString * const PDKMixpanelEventGenerator = @"PDKMixpanelEventGenerator";
+
+NSString * const PDKGooglePlacesInstance = @"PDKGooglePlacesInstance";
+NSString * const PDKGooglePlacesSpecificLocation = @"PDKGooglePlacesSpecificLocation";
+NSString * const PDKGooglePlacesAPIKey = @"PDKGooglePlacesAPIKey";
+NSString * const PDKGooglePlacesType = @"PDKGooglePlacesType";
+NSString * const PDKGooglePlacesRadius = @"PDKGooglePlacesRadius";
+NSString * const PDKGooglePlacesIncludeFullDetails = @"PDKGooglePlacesIncludeFullDetails";
 
 @implementation PassiveDataKit
 
@@ -120,6 +128,9 @@ static PassiveDataKit * sharedObject = nil;
         case PDKLocation:
             [[PDKLocationGenerator sharedInstance] removeListener:listener];
             break;
+        case PDKGooglePlaces:
+            [[PDKGooglePlacesGenerator sharedInstance] removeListener:listener];
+            break;
         default:
             break;
     }
@@ -129,6 +140,9 @@ static PassiveDataKit * sharedObject = nil;
     switch(generator) {
         case PDKLocation:
             [[PDKLocationGenerator sharedInstance] addListener:listener options:options];
+            break;
+        case PDKGooglePlaces:
+            [[PDKGooglePlacesGenerator sharedInstance] addListener:listener options:options];
             break;
         default:
             break;
@@ -140,6 +154,8 @@ static PassiveDataKit * sharedObject = nil;
     switch(generator) {
         case PDKLocation:
             return @"PDKLocationGenerator";
+        case PDKGooglePlaces:
+            return @"PDKGooglePlacesGenerator";
         default:
             break;
     }

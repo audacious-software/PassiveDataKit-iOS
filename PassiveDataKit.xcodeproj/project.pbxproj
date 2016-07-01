@@ -226,6 +226,8 @@
 		38C666F51D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666D41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m */; };
 		38C666F61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666D51D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h */; };
 		38C666F71D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666D61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m */; };
+		38DC94961D2597C200552259 /* PDKGooglePlacesGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38DC94941D2597C200552259 /* PDKGooglePlacesGenerator.h */; };
+		38DC94971D2597C200552259 /* PDKGooglePlacesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38DC94951D2597C200552259 /* PDKGooglePlacesGenerator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -463,6 +465,8 @@
 		38C666D41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIRefreshControl+PDKAFNetworking.m"; sourceTree = "<group>"; };
 		38C666D51D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebView+PDKAFNetworking.h"; sourceTree = "<group>"; };
 		38C666D61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+PDKAFNetworking.m"; sourceTree = "<group>"; };
+		38DC94941D2597C200552259 /* PDKGooglePlacesGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKGooglePlacesGenerator.h; sourceTree = "<group>"; };
+		38DC94951D2597C200552259 /* PDKGooglePlacesGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKGooglePlacesGenerator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -727,14 +731,14 @@
 		38A652441CDA30E800AE8B3B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				383ECC621D1F7E9F004E0B2B /* MapKit.framework */,
 				387F9A5B1D1B8E32007FA29A /* libicucore.tbd */,
+				38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */,
+				383ECC621D1F7E9F004E0B2B /* MapKit.framework */,
 				387F9A581D1B8AF9007FA29A /* QuartzCore.framework */,
 				387F9A561D1B8AF3007FA29A /* CoreGraphics.framework */,
 				387F9A541D1B8ADE007FA29A /* Accelerate.framework */,
 				387F9A521D1B8AD7007FA29A /* CoreTelephony.framework */,
 				387F9A501D1B8ACD007FA29A /* SystemConfiguration.framework */,
-				38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */,
 				38A652421CDA30DB00AE8B3B /* CoreLocation.framework */,
 			);
 			name = Frameworks;
@@ -743,6 +747,7 @@
 		38C666AD1D037FA700E6A6C8 /* Generators */ = {
 			isa = PBXGroup;
 			children = (
+				38DC94931D2597AD00552259 /* Services */,
 				38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */,
 				38A6523B1CDA2D9B00AE8B3B /* PDKLocationGenerator.m */,
 				383ECC641D1F816D004E0B2B /* PDKEventGenerator.h */,
@@ -805,6 +810,15 @@
 			path = AFNetworking;
 			sourceTree = "<group>";
 		};
+		38DC94931D2597AD00552259 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				38DC94941D2597C200552259 /* PDKGooglePlacesGenerator.h */,
+				38DC94951D2597C200552259 /* PDKGooglePlacesGenerator.m */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -827,6 +841,7 @@
 				387F99E41D1B8A8D007FA29A /* MPABTestDesignerTweakRequestMessage.h in Headers */,
 				387F99F31D1B8A8D007FA29A /* MPDesignerEventBindingMessage.h in Headers */,
 				387F99C31D1B8A8D007FA29A /* Mixpanel+AutomaticEvents.h in Headers */,
+				38DC94961D2597C200552259 /* PDKGooglePlacesGenerator.h in Headers */,
 				387F9A3A1D1B8A8D007FA29A /* MPWebSocket.h in Headers */,
 				387F9A071D1B8A8D007FA29A /* MPObjectIdentifierProvider.h in Headers */,
 				387F99CB1D1B8A8D007FA29A /* MixpanelWatchOS.h in Headers */,
@@ -1083,6 +1098,7 @@
 				387F9A271D1B8A8D007FA29A /* MPTweak.m in Sources */,
 				38C666D81D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.m in Sources */,
 				387F9A121D1B8A8D007FA29A /* MPPassThroughValueTransformer.m in Sources */,
+				38DC94971D2597C200552259 /* PDKGooglePlacesGenerator.m in Sources */,
 				387F9A0D1D1B8A8D007FA29A /* MPObjectSerializer.m in Sources */,
 				38C666DE1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.m in Sources */,
 				387F9A2E1D1B8A8D007FA29A /* MPTypeDescription.m in Sources */,
@@ -1239,6 +1255,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/PassiveDataKit/Third-Party",
+				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = PassiveDataKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1257,6 +1277,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/PassiveDataKit/Third-Party",
+				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = PassiveDataKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

@@ -22,8 +22,16 @@ extern NSString *const PDKLocationRequestedDistance;
 extern NSString *const PDKLocationInstance;
 extern NSString *const PDKMixpanelToken;
 
+extern NSString *const PDKGooglePlacesSpecificLocation;
+extern NSString *const PDKGooglePlacesAPIKey;
+extern NSString *const PDKGooglePlacesType;
+extern NSString *const PDKGooglePlacesRadius;
+extern NSString *const PDKGooglePlacesInstance;
+extern NSString *const PDKGooglePlacesIncludeFullDetails;
+
 typedef NS_ENUM(NSInteger, PDKDataGenerator) {
-    PDKLocation
+    PDKLocation,
+    PDKGooglePlaces
 };
 
 @protocol PDKDataListener
