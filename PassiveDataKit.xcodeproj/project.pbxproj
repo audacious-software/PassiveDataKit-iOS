@@ -226,6 +226,8 @@
 		38C666F51D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666D41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m */; };
 		38C666F61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666D51D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h */; };
 		38C666F71D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666D61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m */; };
+		38DC94881D23470C00552259 /* PDKLocationGeneratorViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38DC94861D23470C00552259 /* PDKLocationGeneratorViewController.h */; };
+		38DC94891D23470C00552259 /* PDKLocationGeneratorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38DC94871D23470C00552259 /* PDKLocationGeneratorViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -463,6 +465,8 @@
 		38C666D41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIRefreshControl+PDKAFNetworking.m"; sourceTree = "<group>"; };
 		38C666D51D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebView+PDKAFNetworking.h"; sourceTree = "<group>"; };
 		38C666D61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+PDKAFNetworking.m"; sourceTree = "<group>"; };
+		38DC94861D23470C00552259 /* PDKLocationGeneratorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKLocationGeneratorViewController.h; sourceTree = "<group>"; };
+		38DC94871D23470C00552259 /* PDKLocationGeneratorViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKLocationGeneratorViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -743,6 +747,7 @@
 		38C666AD1D037FA700E6A6C8 /* Generators */ = {
 			isa = PBXGroup;
 			children = (
+				38DC94851D2346EC00552259 /* ViewControllers */,
 				38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */,
 				38A6523B1CDA2D9B00AE8B3B /* PDKLocationGenerator.m */,
 				383ECC641D1F816D004E0B2B /* PDKEventGenerator.h */,
@@ -805,6 +810,15 @@
 			path = AFNetworking;
 			sourceTree = "<group>";
 		};
+		38DC94851D2346EC00552259 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				38DC94861D23470C00552259 /* PDKLocationGeneratorViewController.h */,
+				38DC94871D23470C00552259 /* PDKLocationGeneratorViewController.m */,
+			);
+			name = ViewControllers;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -860,6 +874,7 @@
 				387F99C51D1B8A8D007FA29A /* Mixpanel+HostWatchOS.h in Headers */,
 				387F99B31D1B8A8D007FA29A /* _MPTweakBindObserver.h in Headers */,
 				383ECC5B1D1F5E6E004E0B2B /* PDKGeneratorViewController.h in Headers */,
+				38DC94881D23470C00552259 /* PDKLocationGeneratorViewController.h in Headers */,
 				38C666DF1D038A8E00E6A6C8 /* PDKAFNetworking.h in Headers */,
 				387F9A0C1D1B8A8D007FA29A /* MPObjectSerializer.h in Headers */,
 				387F99DB1D1B8A8D007FA29A /* MPABTestDesignerDeviceInfoResponseMessage.h in Headers */,
@@ -1069,6 +1084,7 @@
 				387F9A2F1D1B8A8D007FA29A /* MPUIColorToNSStringValueTransformer.m in Sources */,
 				387F99F01D1B8A8D007FA29A /* MPCGSizeToNSDictionaryValueTransformer.m in Sources */,
 				387F99B41D1B8A8D007FA29A /* _MPTweakBindObserver.m in Sources */,
+				38DC94891D23470C00552259 /* PDKLocationGeneratorViewController.m in Sources */,
 				387F9A0F1D1B8A8D007FA29A /* MPObjectSerializerConfig.m in Sources */,
 				38C666F51D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.m in Sources */,
 				38C666E71D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.m in Sources */,
