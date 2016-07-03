@@ -14,7 +14,7 @@
 #import "PDKAFHTTPSessionManager.h"
 #import "PDKDataPointsManager.h"
 #import "PDKMixpanelEventGenerator.h"
-#import "PDKEventGenerator.h"
+#import "PDKEventsGenerator.h"
 
 @interface PDKDataPointsManager ()
 
@@ -87,22 +87,22 @@ static PDKDataPointsManager * sharedObject = nil;
         [PDKMixpanelEventGenerator logForReview:payload];
     }
 
-    [PDKEventGenerator logForReview:payload];
+    [PDKEventsGenerator logForReview:payload];
 
     return [self logDataPoint:nil generatorId:nil source:nil properties:payload];
 }
 
 - (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties {
     if (source == nil) {
-        source = [[PassiveDataKit sharedInstance] identifierForUser];
+        source = [[PassiveDataKit sharedInstance] identifierForUser]; //!OCLINT
     }
 
     if (generator == nil) {
-        generator = [[PassiveDataKit sharedInstance] generator];
+        generator = [[PassiveDataKit sharedInstance] generator]; //!OCLINT
     }
 
     if (generatorId == nil) {
-        generatorId = [[PassiveDataKit sharedInstance] generatorId];
+        generatorId = [[PassiveDataKit sharedInstance] generatorId]; //!OCLINT
     }
 
     NSDate * now = [NSDate date];
@@ -141,7 +141,7 @@ static PDKDataPointsManager * sharedObject = nil;
 
 - (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed { //!OCLINT
     if (uploadWindow == 0) {
-        uploadWindow = 5;
+        uploadWindow = 5; //!OCLINT
     }
     
     NSTimeInterval now = [NSDate date].timeIntervalSince1970;

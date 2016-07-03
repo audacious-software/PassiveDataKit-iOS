@@ -6,9 +6,16 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
+@import CoreLocation;
+
 #import "PDKLocationGeneratorViewController.h"
+#import "PDKLocationGenerator.h"
 
 @interface PDKLocationGeneratorViewController ()
+
+@property UIView * detailsView;
+@property UITableView * parametersView;
+@property UIView * separator;
 
 @end
 
@@ -17,101 +24,48 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.initialized = NO;
+    self.detailsView = [[UIView alloc] init];
     
-    self.sourcesTable = [[UITableView alloc] initWithFrame:CGRectZero];
-    self.sourcesTable.dataSource = self;
-    self.sourcesTable.delegate = self;
-    
-    [self.view addSubview:self.sourcesTable];
-    
-    self.detailsView = [[UIView alloc] initWithFrame:CGRectZero];
-    self.detailsView.backgroundColor = [UIColor redColor];
     [self.view addSubview:self.detailsView];
     
-    self.separatorView = [[UIView alloc] initWithFrame:CGRectZero];
-    self.separatorView.backgroundColor = self.navigationController.navigationBar.barTintColor;
-    
-    self.separatorView.layer.shadowColor = [UIColor blackColor].CGColor;
-    self.separatorView.layer.shadowOpacity = 0.5;
-    self.separatorView.layer.shadowRadius = 2.0f;
-    self.separatorView.layer.shadowOffset = CGSizeMake(0, 0);
-    self.separatorView.layer.masksToBounds = NO;
-    
-    [self.view addSubview:self.separatorView];
-    
-    self.listeners = [[PassiveDataKit sharedInstance] activeListeners];
-}
+    self.parametersView = [[UITableView alloc] init];
+    self.parametersView.dataSource = self;
+    self.parametersView.delegate = self;
 
-- (void) loadVisualization:(NSString *) generator {
-    UIView * visualization = nil;
+    [self.view addSubview:self.parametersView];
     
-    if (generator == nil) {
-        UILabel * placeholder = [[UILabel alloc] initWithFrame:self.detailsView.bounds];
-        
-        placeholder.text = NSLocalizedStringFromTableInBundle(@"placeholder_select_generator", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
-        
-        placeholder.backgroundColor = [UIColor colorWithWhite:(0x42 / 255.0) alpha:1.0];
-        placeholder.textColor = [UIColor whiteColor];
-        placeholder.textAlignment = NSTextAlignmentCenter;
-        
-        visualization = placeholder;
-    } else {
-        Class generatorClass = NSClassFromString(generator);
-        
-        if (generatorClass != nil) {
-            if ([generatorClass respondsToSelector:@selector(visualizationForSize:)]) {
-                visualization = [generatorClass visualizationForSize:self.detailsView.bounds.size];
-            }
-        }
-        
-        if (visualization == nil) {
-            UILabel * placeholder = [[UILabel alloc] initWithFrame:self.detailsView.bounds];
-            
-            placeholder.text = NSLocalizedStringFromTableInBundle(@"placeholder_unknown_generator", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
-            
-            placeholder.backgroundColor = [UIColor colorWithWhite:(0x42 / 255.0) alpha:1.0];
-            placeholder.textColor = [UIColor whiteColor];
-            placeholder.textAlignment = NSTextAlignmentCenter;
-            
-            visualization = placeholder;
-        }
-    }
-    
-    NSArray * children = self.detailsView.subviews;
-    
-    for (UIView * child in children) {
-        [child removeFromSuperview];
-    }
-    
-    [self.detailsView addSubview:visualization];
-}
+    self.separator = [[UIView alloc] init];
+    self.separator.backgroundColor = self.navigationController.navigationBar.barTintColor;
+    self.separator.layer.shadowColor = [UIColor colorWithWhite:0.0 alpha:0.5].CGColor;
+    self.separator.layer.shadowOpacity = 0.5;
+    self.separator.layer.shadowRadius = 2.0;
+    self.separator.layer.shadowOffset = CGSizeMake(0, 0);
 
-- (void) viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    
-    self.navigationItem.title = NSLocalizedStringFromTableInBundle(@"title_data_report", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+    [self.view addSubview:self.separator];
 }
 
 - (void) viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     
-    CGRect frame = self.view.frame;
+    CGSize size = self.view.bounds.size;
     
-    self.detailsView.frame = CGRectMake(0, 0, frame.size.width, (frame.size.height / 2) - 8);
-    self.sourcesTable.frame = CGRectMake(0, (frame.size.height / 2) + 8, frame.size.width, (frame.size.height / 2) - 8);
-    
-    self.separatorView.frame = CGRectMake(0, (frame.size.height / 2) - 8, frame.size.width, 16);
-    
-    [self.view bringSubviewToFront:self.separatorView];
-    
-    if (self.initialized == NO) {
-        [self loadVisualization:nil];
-        
-        self.initialized = YES;
-    }
+    self.detailsView.frame = CGRectMake(0, 0, self.view.bounds.size.width, size.height - 104);
+    self.separator.frame = CGRectMake(0, size.height - 104, self.view.bounds.size.width, 16);
+    self.parametersView.frame = CGRectMake(0, size.height - 88, self.view.bounds.size.width, 88);
 }
 
+- (void) viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.navigationItem.title = NSLocalizedStringFromTableInBundle(@"name_generator_location", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+}
+
+- (void) viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [self.parametersView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionTop];
+    [self tableView:self.parametersView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -119,71 +73,229 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.listeners.count;
+    if (tableView == self.parametersView) {
+        return 2;
+    }
+    
+    return 4;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"DataSourceCell"];
-    
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DataSourceCell"];
+    if (tableView == self.parametersView) {
+        UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"DataSourceCell"];
+        
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DataSourceCell"];
+        }
+        
+        cell.accessoryType = UITableViewCellAccessoryNone;
+        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+        
+        if (indexPath.row == 0) {
+            cell.textLabel.text = NSLocalizedStringFromTableInBundle(@"title_pdk_generator_description", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            cell.detailTextLabel.text = NSLocalizedStringFromTableInBundle(@"subtitle_pdk_generator_description", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+        } else if (indexPath.row == 1) {
+            cell.textLabel.text = NSLocalizedStringFromTableInBundle(@"title_pdk_location_generator_accuracy", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            cell.detailTextLabel.text = NSLocalizedStringFromTableInBundle(@"subtitle_pdk_location_generator_accuracy", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+        }
+        
+        return cell;
     }
     
-    cell.accessoryType = UITableViewCellAccessoryNone;
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    
+    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"DataOptionCell"];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DataOptionCell"];
+    }
+    
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    UIImage * gear = [UIImage imageNamed:@"Icon - Generator Settings" inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil];
+    NSString * mode = [defaults valueForKey:PDKLocationAccuracyMode];
     
-    UIButton * settingsButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [settingsButton setImage:gear forState:UIControlStateNormal];
-    settingsButton.frame = CGRectMake(0, 0, 44, 44);
-    settingsButton.tag = indexPath.row;
-    
-    [settingsButton addTarget:self action:@selector(tappedSettings:) forControlEvents:UIControlEventTouchUpInside];
-    
-    cell.accessoryView = settingsButton;
-    
-    cell.textLabel.text = [self titleForGenerator:self.listeners[indexPath.row]];
+    if (indexPath.row == 0) {
+        cell.textLabel.text = NSLocalizedStringFromTableInBundle(@"pdk_title_location_accuracy_best", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+        cell.detailTextLabel.text = NSLocalizedStringFromTableInBundle(@"pdk_subtitle_location_accuracy_best", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+        
+        if (mode == nil || [PDKLocationAccuracyModeBest isEqualToString:mode]) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        } else {
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+    } else if (indexPath.row == 1) {
+        cell.textLabel.text = NSLocalizedStringFromTableInBundle(@"pdk_title_accuracy_location_randomized", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+        cell.detailTextLabel.text = NSLocalizedStringFromTableInBundle(@"pdk_subtitle_accuracy_location_randomized", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+
+        if ([PDKLocationAccuracyModeRandomized isEqualToString:mode]) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        } else {
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+    } else if (indexPath.row == 2) {
+        cell.textLabel.text = NSLocalizedStringFromTableInBundle(@"pdk_title_accuracy_location_user_provided", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+        cell.detailTextLabel.text = NSLocalizedStringFromTableInBundle(@"pdk_subtitle_accuracy_location_user_provided", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+
+        if ([PDKLocationAccuracyModeUserProvided isEqualToString:mode]) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        } else {
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+    } else if (indexPath.row == 3) {
+        cell.textLabel.text = NSLocalizedStringFromTableInBundle(@"pdk_title_accuracy_location_disabled", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+        cell.detailTextLabel.text = NSLocalizedStringFromTableInBundle(@"pdk_subtitle_accuracy_location_disabled", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+
+        if ([PDKLocationAccuracyModeDisabled isEqualToString:mode]) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        } else {
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+    }
     
     return cell;
 }
 
-- (NSString *) titleForGenerator:(NSString *) key {
-    if ([@"PDKEventGenerator" isEqualToString:key]) {
-        return NSLocalizedStringFromTableInBundle(@"name_generator_events", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
-    } else if ([@"PDKMixpanelEventGenerator" isEqualToString:key]) {
-        return NSLocalizedStringFromTableInBundle(@"name_generator_events_mixpanel", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
-    } else {
-        Class generatorClass = NSClassFromString(key);
-        
-        if (generatorClass != nil) {
-            if ([generatorClass respondsToSelector:@selector(title)]) {
-                return [generatorClass title];
-            }
-        }
-    }
-    
-    return key;
-}
-
-- (void) tappedSettings:(UIButton *) button {
-    NSString * generator = self.listeners[button.tag];
-    
-    self.navigationItem.title = @"";
-    
-    PDKGeneratorViewController * controller = [[PDKGeneratorViewController alloc] initWithGenerator:generator];
-    
-    [self.navigationController pushViewController:controller animated:YES];
-}
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSString * generator = self.listeners[indexPath.row];
-    
-    NSString * title = [self titleForGenerator:generator];
-    
-    self.navigationItem.title = title;
-    
-    [self loadVisualization:generator];
+    if (tableView == self.parametersView) {
+        NSArray * children = self.detailsView.subviews;
+        
+        for (UIView * child in children) {
+            [child removeFromSuperview];
+        }
+        
+        if (indexPath.row == 0) {
+            NSString * path = [[NSBundle mainBundle] pathForResource:@"pdk_location_description" ofType:@"html"];
+            
+            if (path == nil) {
+                UILabel * warningLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+                warningLabel.backgroundColor = [UIColor blackColor];
+                
+                NSString * message = [NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"warning_pdk_missing_resource", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil), @"pdk_location_description.html"];
+                
+                UIFont * font = [UIFont fontWithName:@"Menlo-Bold" size:16];
+                
+                CGRect titleRect = [message boundingRectWithSize:CGSizeMake(self.view.frame.size.width - 16, 1000)
+                                                         options:NSStringDrawingUsesLineFragmentOrigin
+                                                      attributes:@{ NSFontAttributeName: font }
+                                                         context:nil];
+                
+                warningLabel.frame = CGRectMake(8, 8, self.view.frame.size.width - 16, titleRect.size.height);
+                warningLabel.text = message;
+                warningLabel.font = font;
+                warningLabel.textColor = [UIColor colorWithRed:0 green:1.0 blue:0 alpha:1.0];
+                warningLabel.textAlignment = NSTextAlignmentLeft;
+                warningLabel.numberOfLines = 0;
+                
+                [self.detailsView addSubview:warningLabel];
+            } else {
+                WKWebView * webView = [[WKWebView alloc] initWithFrame:self.detailsView.bounds];
+                webView.navigationDelegate = self;
+                [webView loadFileURL:[NSURL fileURLWithPath:path] allowingReadAccessToURL:[NSURL fileURLWithPath:path]];
+                
+                [self.detailsView addSubview:webView];
+            }
+        } else if (indexPath.row == 1) {
+            UITableView * settingsTable = [[UITableView alloc] initWithFrame:self.detailsView.bounds];
+            
+            settingsTable.delegate = self;
+            settingsTable.dataSource = self;
+            
+            [self.detailsView addSubview:settingsTable];
+        }
+    } else {
+        NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+        
+        if (indexPath.row == 0) {
+            [defaults setValue:PDKLocationAccuracyModeBest forKey:PDKLocationAccuracyMode];
+        } else if (indexPath.row == 1) {
+            [defaults setValue:PDKLocationAccuracyModeRandomized forKey:PDKLocationAccuracyMode];
+
+            NSString * title = NSLocalizedStringFromTableInBundle(@"pdk_title_specify_location_random", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            NSString * message = NSLocalizedStringFromTableInBundle(@"pdk_message_specify_location_random", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            NSString * placeholder = NSLocalizedStringFromTableInBundle(@"pdk_placeholder_distance_meters", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            NSString * buttonTitle = NSLocalizedStringFromTableInBundle(@"pdk_button_title_specify_location_random", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            
+            UIAlertController * alert = [UIAlertController alertControllerWithTitle:title
+                                                                            message:message
+                                                                     preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.placeholder = placeholder;
+                textField.keyboardType = UIKeyboardTypeNumberPad;
+                
+                textField.text = [[defaults valueForKey:PDKLocationAccuracyModeUserProvidedDistance] description];
+            }];
+            
+            UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:buttonTitle
+                                                                    style:UIAlertActionStyleDefault
+                                                                  handler:^(UIAlertAction * action) {
+                                                                      UITextField * distanceField = alert.textFields[0];
+                                                                      
+                                                                      NSNumber * distance = [NSNumber numberWithDouble:[distanceField.text doubleValue]];
+                                                                      
+                                                                      [defaults setValue:distance forKey:PDKLocationAccuracyModeUserProvidedDistance];
+                                                                      [defaults synchronize];
+                                                                  }];
+            [alert addAction:defaultAction];
+            
+            [self presentViewController:alert animated:YES completion:nil];
+        } else if (indexPath.row == 2) {
+            [defaults setValue:PDKLocationAccuracyModeUserProvided forKey:PDKLocationAccuracyMode];
+
+            NSString * title = NSLocalizedStringFromTableInBundle(@"pdk_title_specify_location_geocode", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            NSString * message = NSLocalizedStringFromTableInBundle(@"pdk_message_specify_location_geocode", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            NSString * placeholder = NSLocalizedStringFromTableInBundle(@"pdk_placeholder_location_name", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            NSString * buttonTitle = NSLocalizedStringFromTableInBundle(@"pdk_button_title_specify_location_geocode", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+            
+            UIAlertController * alert = [UIAlertController alertControllerWithTitle:title
+                                                                            message:message
+                                                                     preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.placeholder = placeholder;
+                textField.keyboardType = UIKeyboardTypeAlphabet;
+                textField.autocapitalizationType = UITextAutocapitalizationTypeWords;
+            }];
+            
+            UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:buttonTitle
+                                                                    style:UIAlertActionStyleDefault
+                                                                  handler:^(UIAlertAction * action) {
+                                                                      UITextField * locationField = alert.textFields[0];
+
+                                                                      CLGeocoder * geocoder = [[CLGeocoder alloc] init];
+
+                                                                      [geocoder geocodeAddressString:locationField.text completionHandler:^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+                                                                          if (placemarks.count > 0) {
+                                                                              CLLocation * place = placemarks[0].location;
+                                                                              
+                                                                              [defaults setValue:[NSNumber numberWithDouble:place.coordinate.latitude] forKey:PDKLocationAccuracyModeUserProvidedLatitude];
+                                                                              [defaults setValue:[NSNumber numberWithDouble:place.coordinate.longitude] forKey:PDKLocationAccuracyModeUserProvidedLongitude];
+                                                                              
+                                                                              [defaults setValue:PDKLocationAccuracyModeUserProvided forKey:PDKLocationAccuracyMode];
+
+                                                                              [defaults synchronize];
+                                                                          }
+                                                                      }];
+                                                                  }];
+            [alert addAction:defaultAction];
+            
+            [self presentViewController:alert animated:YES completion:nil];
+        } else if (indexPath.row == 3) {
+            [defaults setValue:PDKLocationAccuracyModeDisabled forKey:PDKLocationAccuracyMode];
+        }
+        
+        [defaults synchronize];
+        
+        [tableView reloadData];
+    }
 }
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+    
+    decisionHandler(WKNavigationActionPolicyAllow);
+}
+
 
 @end

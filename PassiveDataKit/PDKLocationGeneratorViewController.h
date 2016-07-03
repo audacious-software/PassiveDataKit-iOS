@@ -6,8 +6,9 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import UIKit;
+@import WebKit;
 
-@interface PDKLocationGeneratorViewController : UIViewController
+@interface PDKLocationGeneratorViewController : UIViewController<UITableViewDelegate, UITableViewDataSource, WKNavigationDelegate>
 
 @end

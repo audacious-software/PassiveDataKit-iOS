@@ -8,7 +8,10 @@
 
 @import UIKit;
 
-@interface PDKEventGenerator : NSObject<UITableViewDataSource, UITableViewDelegate>
+@interface PDKEventsGenerator : NSObject<UITableViewDataSource, UITableViewDelegate>
+
+extern NSString *const PDKEventsGeneratorEnabled;
+extern NSString *const PDKEventsGeneratorCanDisable;
 
 + (void) logForReview:(NSDictionary *) payload;
 

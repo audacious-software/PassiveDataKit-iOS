@@ -59,6 +59,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 - (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties;
 - (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed;
 - (BOOL) logEvent:(NSString *) eventName properties:(NSDictionary *) properties;
+- (void) setMandatoryEventLogging:(BOOL) isMandatory;
 
 - (NSString *) identifierForUser;
 - (BOOL) setIdentifierForUser:(NSString *) newIdentifier;

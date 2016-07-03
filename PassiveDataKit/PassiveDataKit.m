@@ -10,6 +10,7 @@
 
 #import "PDKDataPointsManager.h"
 
+#import "PDKEventsGenerator.h"
 #import "PDKLocationGenerator.h"
 #import "PDKGooglePlacesGenerator.h"
 
@@ -21,26 +22,26 @@
 
 @end
 
-NSString * const PDKCapabilityRationale = @"PDKCapabilityRationale";
-NSString * const PDKLocationSignificantChangesOnly = @"PDKLocationSignificantChangesOnly";
-NSString * const PDKLocationAlwaysOn = @"PDKLocationAlwaysOn";
-NSString * const PDKLocationRequestedAccuracy = @"PDKLocationRequestedAccuracy";
-NSString * const PDKLocationRequestedDistance = @"PDKLocationRequestedDistance";
-NSString * const PDKLocationInstance = @"PDKLocationInstance";
-NSString * const PDKUserIdentifier = @"PDKUserIdentifier";
-NSString * const PDKGenerator = @"PDKGenerator";
-NSString * const PDKGeneratorIdentifier = @"PDKGeneratorIdentifier";
-NSString * const PDKMixpanelToken = @"PDKMixpanelToken";
-NSString * const PDKLastEventLogged = @"PDKLastEventLogged";
-NSString * const PDKEventGenerator = @"PDKEventGenerator";
-NSString * const PDKMixpanelEventGenerator = @"PDKMixpanelEventGenerator";
+NSString * const PDKCapabilityRationale = @"PDKCapabilityRationale"; //!OCLINT
+NSString * const PDKLocationSignificantChangesOnly = @"PDKLocationSignificantChangesOnly"; //!OCLINT
+NSString * const PDKLocationAlwaysOn = @"PDKLocationAlwaysOn"; //!OCLINT
+NSString * const PDKLocationRequestedAccuracy = @"PDKLocationRequestedAccuracy"; //!OCLINT
+NSString * const PDKLocationRequestedDistance = @"PDKLocationRequestedDistance"; //!OCLINT
+NSString * const PDKLocationInstance = @"PDKLocationInstance"; //!OCLINT
+NSString * const PDKUserIdentifier = @"PDKUserIdentifier"; //!OCLINT
+NSString * const PDKGenerator = @"PDKGenerator"; //!OCLINT
+NSString * const PDKGeneratorIdentifier = @"PDKGeneratorIdentifier"; //!OCLINT
+NSString * const PDKMixpanelToken = @"PDKMixpanelToken"; //!OCLINT
+NSString * const PDKLastEventLogged = @"PDKLastEventLogged"; //!OCLINT
+NSString * const PDKEventGenerator = @"PDKEventsGenerator"; //!OCLINT
+NSString * const PDKMixpanelEventGenerator = @"PDKMixpanelEventGenerator"; //!OCLINT
 
-NSString * const PDKGooglePlacesInstance = @"PDKGooglePlacesInstance";
-NSString * const PDKGooglePlacesSpecificLocation = @"PDKGooglePlacesSpecificLocation";
-NSString * const PDKGooglePlacesAPIKey = @"PDKGooglePlacesAPIKey";
-NSString * const PDKGooglePlacesType = @"PDKGooglePlacesType";
-NSString * const PDKGooglePlacesRadius = @"PDKGooglePlacesRadius";
-NSString * const PDKGooglePlacesIncludeFullDetails = @"PDKGooglePlacesIncludeFullDetails";
+NSString * const PDKGooglePlacesInstance = @"PDKGooglePlacesInstance"; //!OCLINT
+NSString * const PDKGooglePlacesSpecificLocation = @"PDKGooglePlacesSpecificLocation"; //!OCLINT
+NSString * const PDKGooglePlacesAPIKey = @"PDKGooglePlacesAPIKey"; //!OCLINT
+NSString * const PDKGooglePlacesType = @"PDKGooglePlacesType"; //!OCLINT
+NSString * const PDKGooglePlacesRadius = @"PDKGooglePlacesRadius"; //!OCLINT
+NSString * const PDKGooglePlacesIncludeFullDetails = @"PDKGooglePlacesIncludeFullDetails"; //!OCLINT
 
 @implementation PassiveDataKit
 
@@ -124,44 +125,46 @@ static PassiveDataKit * sharedObject = nil;
 }
 
 - (void) decrementGenerator:(PDKDataGenerator) generator withListener:(id<PDKDataListener>) listener {
-    switch(generator) {
+    switch(generator) { //!OCLINT
         case PDKLocation:
             [[PDKLocationGenerator sharedInstance] removeListener:listener];
             break;
         case PDKGooglePlaces:
             [[PDKGooglePlacesGenerator sharedInstance] removeListener:listener];
             break;
-        default:
-            break;
     }
 }
 
 - (void) incrementGenerator:(PDKDataGenerator) generator withListener:(id<PDKDataListener>) listener options:(NSDictionary *) options {
-    switch(generator) {
+    switch(generator) { //!OCLINT
         case PDKLocation:
             [[PDKLocationGenerator sharedInstance] addListener:listener options:options];
             break;
         case PDKGooglePlaces:
             [[PDKGooglePlacesGenerator sharedInstance] addListener:listener options:options];
             break;
-        default:
-            break;
     }
 }
 
 + (NSString *) keyForGenerator:(PDKDataGenerator) generator
 {
-    switch(generator) {
+    switch(generator) { //!OCLINT
         case PDKLocation:
             return @"PDKLocationGenerator";
         case PDKGooglePlaces:
             return @"PDKGooglePlacesGenerator";
-        default:
-            break;
     }
 
     return @"PDKUnknownGenerator";
 }
+
+- (void) setMandatoryEventLogging:(BOOL) isMandatory {
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:(isMandatory == NO)   forKey:PDKEventsGeneratorCanDisable];
+    
+    [defaults synchronize];
+}
+
 
 - (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties {
     return [[PDKDataPointsManager sharedInstance] logDataPoint:generator generatorId:generatorId source:source properties:properties];

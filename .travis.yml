@@ -8,4 +8,4 @@ xcode_sdk: iphonesimulator9.3
 script:
  - xctool -scheme PassiveDataKit -project PassiveDataKit.xcodeproj -sdk iphonesimulator9.3 ARCHS=i386 VALID_ARCHS=i386  CURRENT_ARCH=i386 ONLY_ACTIVE_ARCH=NO -reporter json-compilation-database:compile_commands.json build 
  - xcodebuild test -scheme PassiveDataKitTests -project PassiveDataKit.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 6,OS=9.3'
- - oclint-json-compilation-database -e AFNetworking
+ - oclint-json-compilation-database -e AFNetworking -e mixpanel-iphone

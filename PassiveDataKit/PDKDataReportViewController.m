@@ -9,7 +9,6 @@
 #import "PassiveDataKit.h"
 
 #import "PDKDataReportViewController.h"
-#import "PDKGeneratorViewController.h"
 
 @interface PDKDataReportViewController ()
 
@@ -17,6 +16,7 @@
 @property UIView * detailsView;
 @property UIView * separatorView;
 @property BOOL initialized;
+@property BOOL tableInited;
 
 @property NSArray * listeners;
 
@@ -28,6 +28,7 @@
     [super viewDidLoad];
     
     self.initialized = NO;
+    self.tableInited = NO;
     
     self.sourcesTable = [[UITableView alloc] initWithFrame:CGRectZero];
     self.sourcesTable.dataSource = self;
@@ -103,6 +104,17 @@
     self.navigationItem.title = NSLocalizedStringFromTableInBundle(@"title_data_report", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
 }
 
+- (void) viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+
+    if (self.tableInited == NO) {
+        [self.sourcesTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionTop];
+        [self tableView:self.sourcesTable didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+        
+        self.tableInited = YES;
+    }
+}
+
 - (void) viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     
@@ -140,7 +152,7 @@
     }
     
     cell.accessoryType = UITableViewCellAccessoryNone;
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     
     UIImage * gear = [UIImage imageNamed:@"Icon - Generator Settings" inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil];
     
@@ -159,7 +171,7 @@
 }
 
 - (NSString *) titleForGenerator:(NSString *) key {
-    if ([@"PDKEventGenerator" isEqualToString:key]) {
+    if ([@"PDKEventsGenerator" isEqualToString:key]) {
         return NSLocalizedStringFromTableInBundle(@"name_generator_events", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
     } else if ([@"PDKMixpanelEventGenerator" isEqualToString:key]) {
         return NSLocalizedStringFromTableInBundle(@"name_generator_events_mixpanel", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
@@ -168,7 +180,7 @@
         
         if (generatorClass != nil) {
             if ([generatorClass respondsToSelector:@selector(title)]) {
-                return [generatorClass title];
+                return [generatorClass performSelector:@selector(title)];
             }
         }
     }
@@ -176,14 +188,33 @@
     return key;
 }
 
+- (UIViewController *) detailsControllerForGenerator:(NSString *) key {
+    UIViewController * controller = nil;
+    
+    Class generatorClass = NSClassFromString(key);
+    
+    if (generatorClass != nil) {
+        if ([generatorClass respondsToSelector:@selector(detailsController)]) {
+            controller =  [generatorClass performSelector:@selector(detailsController)];
+        }
+    }
+    return controller;
+    
+}
+
 - (void) tappedSettings:(UIButton *) button {
     NSString * generator = self.listeners[button.tag];
     
     self.navigationItem.title = @"";
     
-    PDKGeneratorViewController * controller = [[PDKGeneratorViewController alloc] initWithGenerator:generator];
+    UIViewController * controller = [self detailsControllerForGenerator:generator];
     
-    [self.navigationController pushViewController:controller animated:YES];
+    if (controller != nil) {
+        [self.navigationController pushViewController:controller animated:YES];
+    } else {
+        NSLog(@"UNKNOWN DETAILS CONTROLLER: %@", generator);
+    }
+    
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

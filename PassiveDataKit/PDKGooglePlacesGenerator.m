@@ -43,12 +43,9 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
     return [self sharedInstance];
 }
 
-- (id) init
-{
-    if (self = [super init])
-    {
+- (id) init {
+    if (self = [super init]) {
         self.listeners = [NSMutableArray array];
-
     }
     
     return self;
@@ -57,7 +54,7 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
 - (void) removeListener:(id<PDKDataListener>)listener {
     [self.listeners removeObject:listener];
     
-    if (self.listeners.count == 0) {
+    if (self.listeners.count == 0) { //!OCLINT
         // Shut down sensors...
     }
 }

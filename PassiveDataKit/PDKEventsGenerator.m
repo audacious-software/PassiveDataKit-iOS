@@ -8,13 +8,17 @@
 
 @import UIKit;
 
-#import "PDKEventGenerator.h"
+#import "PDKEventsGenerator.h"
+#import "PDKEventsGeneratorViewController.h"
 
-@implementation PDKEventGenerator
+NSString * const PDKEventsGeneratorEnabled = @"PDKEventsGeneratorEnabled"; //!OCLINT
+NSString * const PDKEventsGeneratorCanDisable = @"PDKEventsGeneratorCanDisable"; //!OCLINT
 
-static PDKEventGenerator * sharedObject = nil;
+@implementation PDKEventsGenerator
 
-+ (PDKEventGenerator *) sharedInstance
+static PDKEventsGenerator * sharedObject = nil;
+
++ (PDKEventsGenerator *) sharedInstance
 {
     static dispatch_once_t _singletonPredicate;
     
@@ -32,7 +36,7 @@ static PDKEventGenerator * sharedObject = nil;
 }
 
 + (UIView *) visualizationForSize:(CGSize) size {
-    PDKEventGenerator * generator = [PDKEventGenerator sharedInstance];
+    PDKEventsGenerator * generator = [PDKEventsGenerator sharedInstance];
    
     UITableView * tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     
@@ -104,5 +108,10 @@ static PDKEventGenerator * sharedObject = nil;
     [defaults setValue:newPoints forKey:key];
     [defaults synchronize];
 }
+
++ (UIViewController *) detailsController {
+    return [[PDKEventsGeneratorViewController alloc] init];
+}
+
 
 @end

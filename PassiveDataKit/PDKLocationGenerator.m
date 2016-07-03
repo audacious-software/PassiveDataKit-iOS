@@ -6,18 +6,31 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
+#include <math.h>
+
 @import MapKit;
 
 #import "PDKLocationGenerator.h"
 #import "PDKLocationAnnotation.h"
+#import "PDKLocationGeneratorViewController.h"
 
 @interface PDKLocationGenerator ()
 
 @property NSMutableArray * listeners;
 @property CLLocationManager * locationManager;
 @property NSDictionary * lastOptions;
+@property NSString * mode;
 
 @end
+
+NSString * const PDKLocationAccuracyMode = @"PDKLocationAccuracyMode"; //!OCLINT
+NSString * const PDKLocationAccuracyModeBest = @"PDKLocationAccuracyModeBest"; //!OCLINT
+NSString * const PDKLocationAccuracyModeRandomized = @"PDKLocationAccuracyModeRandomized"; //!OCLINT
+NSString * const PDKLocationAccuracyModeUserProvided = @"PDKLocationAccuracyModeUserProvided"; //!OCLINT
+NSString * const PDKLocationAccuracyModeDisabled = @"PDKLocationAccuracyModeDisabled"; //!OCLINT
+NSString * const PDKLocationAccuracyModeUserProvidedDistance = @"PDKLocationAccuracyModeUserProvidedDistance"; //!OCLINT
+NSString * const PDKLocationAccuracyModeUserProvidedLatitude = @"PDKLocationAccuracyModeUserProvidedLatitude"; //!OCLINT
+NSString * const PDKLocationAccuracyModeUserProvidedLongitude = @"PDKLocationAccuracyModeUserProvidedLongitude"; //!OCLINT
 
 @implementation PDKLocationGenerator
 
@@ -47,9 +60,34 @@ static PDKLocationGenerator * sharedObject = nil;
         self.listeners = [NSMutableArray array];
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
+        
+        self.mode = [[NSUserDefaults standardUserDefaults] valueForKey:PDKLocationAccuracyMode];
+        
+        if (self.mode == nil) {
+            self.mode = PDKLocationAccuracyModeBest;
+        }
+        
+        [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:PDKLocationAccuracyMode options:NSKeyValueObservingOptionNew context:NULL];
     }
     
     return self;
+}
+
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context {
+    if ([PDKLocationAccuracyMode isEqualToString:keyPath]) {
+        self.mode = change[NSKeyValueChangeNewKey];
+        
+        if ([PDKLocationAccuracyModeBest isEqualToString:self.mode]) {
+            [self.locationManager startUpdatingLocation];
+        } else if ([PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
+            [self.locationManager startUpdatingLocation];
+        } else if ([PDKLocationAccuracyModeUserProvided isEqualToString:self.mode]) {
+            [self.locationManager stopUpdatingLocation];
+            [self locationManager:self.locationManager didUpdateLocations:@[]];
+        } else if ([PDKLocationAccuracyModeDisabled isEqualToString:self.mode]) {
+            [self.locationManager stopUpdatingLocation];
+        }
+    }
 }
 
 - (void) removeListener:(id<PDKDataListener>)listener {
@@ -125,7 +163,9 @@ static PDKLocationGenerator * sharedObject = nil;
             self.locationManager.desiredAccuracy = accuracy;
         }
         
-        [self.locationManager startUpdatingLocation];
+        if ([PDKLocationAccuracyModeBest isEqualToString:self.mode] || [PDKLocationAccuracyModeRandomized isEqualToString:self.mode]){
+            [self.locationManager startUpdatingLocation];
+        }
     }
     
     if (listener != nil) {
@@ -138,16 +178,65 @@ static PDKLocationGenerator * sharedObject = nil;
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
-    NSLog(@"LOCATION UPDATE");
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
     
-    for (CLLocation * location in locations) {
+    if ([PDKLocationAccuracyModeBest isEqualToString:self.mode] || [PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
+        for (CLLocation * location in locations) {
+            CLLocation * thisLocation = location;
+            
+            if ([PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
+                // http://gis.stackexchange.com/a/68275/10230
+                
+                CGFloat radius = [defaults doubleForKey:PDKLocationAccuracyModeUserProvidedDistance];
+
+                // Convert radius from meters to degrees
+                CGFloat radiusInDegrees = radius / 111000;
+                
+                CGFloat u = ((CGFloat) rand() / (CGFloat) RAND_MAX); //!OCLINT
+                CGFloat v = ((CGFloat) rand() / (CGFloat) RAND_MAX); //!OCLINT
+
+                CGFloat w = radiusInDegrees * sqrt(u); //!OCLINT
+                CGFloat t = 2 * M_PI * v; //!OCLINT
+                CGFloat x = w * cos(t); //!OCLINT
+                CGFloat y = w * sin(t); //!OCLINT
+                
+                // Adjust the x-coordinate for the shrinking of the east-west distances
+                CGFloat new_x = x / cos(location.coordinate.latitude);
+                
+                CGFloat foundLongitude = new_x + location.coordinate.longitude;
+                CGFloat foundLatitude = y + location.coordinate.latitude;
+                
+                thisLocation = [[CLLocation alloc] initWithLatitude:foundLatitude longitude:foundLongitude];
+            }
+
+            NSMutableDictionary * log = [NSMutableDictionary dictionary];
+            [log setValue:[NSDate date] forKey:@"recorded"];
+            [log setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:@"latitude"];
+            [log setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:@"longitude"];
+            
+            [PDKLocationGenerator logForReview:log];
+            
+            NSMutableDictionary * data = [NSMutableDictionary dictionary];
+            
+            [data setValue:location forKey:PDKLocationInstance];
+            
+            for (id<PDKDataListener> listener in self.listeners) {
+                [listener receivedData:data forGenerator:PDKLocation];
+            }
+        }
+    } else if ([PDKLocationAccuracyModeUserProvided isEqualToString:self.mode]) {
+        CLLocationDegrees latitude = [defaults doubleForKey:PDKLocationAccuracyModeUserProvidedLatitude];
+        CLLocationDegrees longitude = [defaults doubleForKey:PDKLocationAccuracyModeUserProvidedLongitude];
+
+        CLLocation * location = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+        
         NSMutableDictionary * log = [NSMutableDictionary dictionary];
         [log setValue:[NSDate date] forKey:@"recorded"];
         [log setValue:[NSNumber numberWithDouble:location.coordinate.latitude] forKey:@"latitude"];
         [log setValue:[NSNumber numberWithDouble:location.coordinate.longitude] forKey:@"longitude"];
-
+        
         [PDKLocationGenerator logForReview:log];
-
+        
         NSMutableDictionary * data = [NSMutableDictionary dictionary];
         
         [data setValue:location forKey:PDKLocationInstance];
@@ -155,6 +244,8 @@ static PDKLocationGenerator * sharedObject = nil;
         for (id<PDKDataListener> listener in self.listeners) {
             [listener receivedData:data forGenerator:PDKLocation];
         }
+    } else if ([PDKLocationAccuracyModeDisabled isEqualToString:self.mode]) { //!OCLINT
+        // Do nothing...
     }
 }
 
@@ -205,6 +296,10 @@ static PDKLocationGenerator * sharedObject = nil;
     return NSLocalizedStringFromTableInBundle(@"name_generator_location", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
 }
 
++ (UIViewController *) detailsController {
+    return [[PDKLocationGeneratorViewController alloc] init];
+}
+
 + (UIView *) visualizationForSize:(CGSize) size {
     MKMapView * mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     mapView.showsUserLocation = NO;
@@ -245,8 +340,6 @@ static PDKLocationGenerator * sharedObject = nil;
         
         count += 1;
     }
-    
-    NSLog(@"MAP COUNT %d", (int) count);
     
     if (count > 1) {
         MKCoordinateSpan span = MKCoordinateSpanMake((maxLat - minLat) * 1.25, (maxLon - minLon) * 1.25);

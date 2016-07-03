@@ -6,7 +6,7 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
-#import "PDKEventGenerator.h"
+#import "PDKEventsGenerator.h"
 
 @interface PDKMixpanelEventGenerator : NSObject<UITableViewDataSource, UITableViewDelegate>
 
