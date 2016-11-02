@@ -23,6 +23,7 @@ extern NSString *const PDKLocationInstance;
 extern NSString *const PDKMixpanelToken;
 
 extern NSString *const PDKGooglePlacesSpecificLocation;
+extern NSString *const PDKGooglePlacesFreetextQuery;
 extern NSString *const PDKGooglePlacesAPIKey;
 extern NSString *const PDKGooglePlacesType;
 extern NSString *const PDKGooglePlacesRadius;
@@ -44,6 +45,8 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 
 - (void) removeListener:(id<PDKDataListener>)listener;
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
+- (void) updateOptions:(NSDictionary *) options;
+
 + (UIView *) visualizationForSize:(CGSize) size;
 
 @end

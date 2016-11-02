@@ -42,6 +42,7 @@ NSString * const PDKGooglePlacesAPIKey = @"PDKGooglePlacesAPIKey"; //!OCLINT
 NSString * const PDKGooglePlacesType = @"PDKGooglePlacesType"; //!OCLINT
 NSString * const PDKGooglePlacesRadius = @"PDKGooglePlacesRadius"; //!OCLINT
 NSString * const PDKGooglePlacesIncludeFullDetails = @"PDKGooglePlacesIncludeFullDetails"; //!OCLINT
+NSString * const PDKGooglePlacesFreetextQuery = @"PDKGooglePlacesFreetextQuery"; //!OCLINT
 
 @implementation PassiveDataKit
 
@@ -89,6 +90,8 @@ static PassiveDataKit * sharedObject = nil;
         [dataListeners addObject:listener];
         
         [self incrementGenerator:dataGenerator withListener:listener options:options];
+    } else {
+        [self updateGenerator:dataGenerator withOptions:options];
     }
     
     return YES;
@@ -145,6 +148,19 @@ static PassiveDataKit * sharedObject = nil;
             break;
     }
 }
+
+- (void) updateGenerator:(PDKDataGenerator) generator withOptions:(NSDictionary *) options {
+    switch(generator) { //!OCLINT
+        case PDKLocation:
+            [[PDKLocationGenerator sharedInstance] updateOptions:options];
+
+            break;
+        case PDKGooglePlaces:
+            [[PDKGooglePlacesGenerator sharedInstance] updateOptions:options];
+            break;
+    }
+}
+
 
 + (NSString *) keyForGenerator:(PDKDataGenerator) generator
 {

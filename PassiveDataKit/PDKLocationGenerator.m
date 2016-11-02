@@ -101,6 +101,15 @@ static PDKLocationGenerator * sharedObject = nil;
     }
 }
 
+- (void) updateOptions:(NSDictionary *) options {
+    if (options == nil) {
+        options = @{}; //!OCLINT
+    }
+    
+    NSLog(@"TODO: Update options and refresh generator!");
+    
+}
+
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
     if (options == nil) {

@@ -59,6 +59,22 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
     }
 }
 
+- (void) updateOptions:(NSDictionary *) options {
+    if (options == nil) {
+        options = @{}; //!OCLINT
+    }
+    
+    NSArray * existingListeners = [NSArray arrayWithArray:self.listeners];
+    
+    for (id<PDKDataListener> listener in existingListeners) {
+        [self removeListener:listener];
+    }
+    
+    for (id<PDKDataListener> listener in existingListeners) {
+        [self addListener:listener options:options];
+    }
+}
+
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
     if (options == nil) {
         options = @{}; //!OCLINT
@@ -74,6 +90,8 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
         CLLocation * location = self.lastOptions[PDKGooglePlacesSpecificLocation];
         
         [self transmitPlacesForLocation:location];
+    } else if (self.lastOptions[PDKGooglePlacesFreetextQuery] != nil) {
+        [self transmitPlacesForFreetextQuery:self.lastOptions[PDKGooglePlacesFreetextQuery]];
     } else {
         if (self.listeners.count == 1) {
             [[PassiveDataKit sharedInstance] registerListener:self forGenerator:PDKLocation options:options];
@@ -100,6 +118,26 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
         [urlString appendString:@"rankby=distance"];
     }
     
+    return [NSURL URLWithString:urlString];
+}
+
+- (NSURL *) urlForFreetextQuery:(NSString *) query {
+    NSMutableString * urlString = [NSMutableString stringWithString:@"https://maps.googleapis.com/maps/api/place/textsearch/json?"];
+    
+    [urlString appendFormat:@"key=%@&", self.lastOptions[PDKGooglePlacesAPIKey]];
+    
+    NSMutableCharacterSet * charSet = [[NSMutableCharacterSet alloc] init];
+    [charSet formUnionWithCharacterSet:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    [charSet removeCharactersInString:@"?&="];
+    
+    query = [query stringByAddingPercentEncodingWithAllowedCharacters:charSet];
+    
+    [urlString appendFormat:@"query=%@&", query];
+    
+    if (self.lastOptions[PDKGooglePlacesType] != nil) {
+        [urlString appendFormat:@"type=%@&", self.lastOptions[PDKGooglePlacesType]];
+    }
+
     return [NSURL URLWithString:urlString];
 }
 
@@ -199,6 +237,68 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
     
     [self.reach startMonitoring];
 }
+
+- (void) transmitPlacesForFreetextQuery:(NSString *) query {
+    self.reach = [PDKAFNetworkReachabilityManager managerForDomain:@"maps.googleapis.com"];
+    
+    __unsafe_unretained PDKGooglePlacesGenerator * weakSelf = self;
+    
+    [self.reach setReachabilityStatusChangeBlock:^(PDKAFNetworkReachabilityStatus status){
+        if (status == PDKAFNetworkReachabilityStatusReachableViaWWAN || status == PDKAFNetworkReachabilityStatusReachableViaWiFi)
+        {
+            PDKAFHTTPSessionManager *manager = [PDKAFHTTPSessionManager manager];
+            
+            manager.responseSerializer = [PDKAFHTTPResponseSerializer serializer];
+            manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript", nil];
+            
+            [manager GET:[weakSelf urlForFreetextQuery:query].absoluteString parameters:nil progress:nil success:^(NSURLSessionTask *task, id responseObject) {
+                
+                NSError * error = nil;
+                
+                NSDictionary * response = [NSJSONSerialization JSONObjectWithData:responseObject options:0 error:&error];
+
+                NSLog(@"response: %@", response);
+                NSLog(@"count: %d", (int) [response[@"results"] count]);
+
+                NSMutableDictionary * log = [NSMutableDictionary dictionary];
+                [log setValue:[NSDate date] forKey:@"recorded"];
+                [log setValue:response[@"results"] forKey:@"response"];
+                
+                [PDKGooglePlacesGenerator logForReview:log];
+                
+                NSMutableDictionary * data = [NSMutableDictionary dictionary];
+                
+                [data setValue:response[@"results"] forKey:PDKGooglePlacesInstance];
+                
+                if (self.lastOptions[PDKGooglePlacesIncludeFullDetails] != nil && [self.lastOptions[PDKGooglePlacesIncludeFullDetails] boolValue]) {
+                    for (NSDictionary * place in response[@"results"]) {
+                        NSData * placeData = [[NSData alloc] initWithContentsOfURL:[weakSelf urlForPlaceId:place[@"place_id"]]];
+                        
+                        NSDictionary * placeResponse = [NSJSONSerialization JSONObjectWithData:placeData options:0 error:&error];
+                        
+                        [data setValue:placeResponse[@"result"] forKey:place[@"place_id"]];
+                    }
+                }
+                
+                NSLog(@"DATA: %@", data);
+                
+                for (id<PDKDataListener> listener in weakSelf.listeners) {
+                    [listener receivedData:data forGenerator:PDKGooglePlaces];
+                }
+            } failure:^(NSURLSessionTask *operation, NSError *error) {
+                NSLog(@"ERROR: %@", error);
+                // TODO: Log failure...
+            }];
+        }
+        
+        [weakSelf.reach stopMonitoring];
+        weakSelf.reach = nil;
+    }];
+    
+    [self.reach startMonitoring];
+}
+
+
 
 - (void) receivedData:(NSDictionary *) data forGenerator:(PDKDataGenerator) dataGenerator {
     [self transmitPlacesForLocation:[data valueForKey:PDKLocationInstance]];
