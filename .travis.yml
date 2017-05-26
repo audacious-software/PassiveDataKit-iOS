@@ -16,4 +16,6 @@ script:
  - xcodebuild -project 'PassiveDataKit.xcodeproj' | tee xcodebuild.log
  - oclint-xcodebuild
  - oclint-json-compilation-database
+  -e Mixpanel
+  -e AFNetworking
 
