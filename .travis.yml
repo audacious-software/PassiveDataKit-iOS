@@ -18,4 +18,8 @@ script:
  - oclint-json-compilation-database
   -e Mixpanel
   -e AFNetworking
+  --
+  -disable-rule=PreferEarlyExit
+  -disable-rule=LongMethod
+  -disable-rule=LongVariableName
 
