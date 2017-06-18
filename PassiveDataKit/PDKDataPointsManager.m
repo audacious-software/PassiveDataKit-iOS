@@ -8,7 +8,7 @@
 
 #import <sqlite3.h>
 
-#import "Mixpanel.h"
+@import Mixpanel;
 
 #import "PassiveDataKit.h"
 #import "PDKAFHTTPSessionManager.h"
