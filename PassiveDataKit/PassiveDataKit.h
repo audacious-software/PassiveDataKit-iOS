@@ -20,7 +20,6 @@ extern NSString *const PDKLocationAlwaysOn;
 extern NSString *const PDKLocationRequestedAccuracy;
 extern NSString *const PDKLocationRequestedDistance;
 extern NSString *const PDKLocationInstance;
-extern NSString *const PDKMixpanelToken;
 
 extern NSString *const PDKGooglePlacesSpecificLocation;
 extern NSString *const PDKGooglePlacesFreetextQuery;
@@ -31,8 +30,10 @@ extern NSString *const PDKGooglePlacesInstance;
 extern NSString *const PDKGooglePlacesIncludeFullDetails;
 
 typedef NS_ENUM(NSInteger, PDKDataGenerator) {
+    PDKAnyGenerator,
     PDKLocation,
-    PDKGooglePlaces
+    PDKGooglePlaces,
+    PDKEvents
 };
 
 @protocol PDKDataListener
@@ -43,43 +44,51 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 
 @protocol PDKGenerator
 
-- (void) removeListener:(id<PDKDataListener>)listener;
-- (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
 - (void) updateOptions:(NSDictionary *) options;
-
-+ (UIView *) visualizationForSize:(CGSize) size;
+- (NSString *) generatorId;
+- (NSString *) fullGeneratorName;
+- (UIView *) visualizationForSize:(CGSize) size;
 
 @end
+
+@protocol PDKTransmitter
+
+- (id<PDKTransmitter>) initWithOptions:(NSDictionary *) options;
+- (NSUInteger) pendingSize;
+- (NSUInteger) transmittedSize;
+- (void) transmit:(BOOL) force completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
+
+@end
+
 
 @interface PassiveDataKit : NSObject
 
 + (PassiveDataKit *) sharedInstance;
 
-- (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options;
+- (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator;
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator;
+
 - (NSArray *) activeListeners;
 
-- (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties;
-- (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed;
-- (BOOL) logEvent:(NSString *) eventName properties:(NSDictionary *) properties;
-- (void) setMandatoryEventLogging:(BOOL) isMandatory;
+
+- (void) transmit:(BOOL) force;
+- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
+
+- (void) logEvent:(NSString *) eventName properties:(NSDictionary *) properties;
+
+- (void) receivedData:(NSDictionary *) data forGenerator:(PDKDataGenerator) dataGenerator;
 
 - (NSString *) identifierForUser;
 - (BOOL) setIdentifierForUser:(NSString *) newIdentifier;
 - (void) resetIdentifierForUser;
 
-- (NSString *) generator;
-- (BOOL) setGenerator:(NSString *) newGenerator;
-- (void) resetGenerator;
+- (NSString *) userAgent;
 
-- (NSString *) generatorId;
-- (BOOL) setGeneratorId:(NSString *) newIdentifier;
-- (void) resetGeneratorId;
-
-- (BOOL) mixpanelEnabled;
-- (void) enableMixpanel:(NSString *) token;
-- (void) disableMixpanel;
+- (id<PDKGenerator>) generatorInstance:(PDKDataGenerator) generator;
 
 - (UIViewController *) dataReportController;
++ (NSString *) keyForGenerator:(PDKDataGenerator) generator;
+
+- (void) addTransmitter:(id<PDKTransmitter>) transmitter;
 
 @end

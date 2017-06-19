@@ -8,8 +8,12 @@
 
 @import UIKit;
 
+#import "PassiveDataKit.h"
+
 #import "PDKEventsGenerator.h"
 #import "PDKEventsGeneratorViewController.h"
+
+#define GENERATOR_ID @"pdk-app-event"
 
 NSString * const PDKEventsGeneratorEnabled = @"PDKEventsGeneratorEnabled"; //!OCLINT
 NSString * const PDKEventsGeneratorCanDisable = @"PDKEventsGeneratorCanDisable"; //!OCLINT
@@ -18,8 +22,7 @@ NSString * const PDKEventsGeneratorCanDisable = @"PDKEventsGeneratorCanDisable";
 
 static PDKEventsGenerator * sharedObject = nil;
 
-+ (PDKEventsGenerator *) sharedInstance
-{
++ (PDKEventsGenerator *) sharedInstance {
     static dispatch_once_t _singletonPredicate;
     
     dispatch_once(&_singletonPredicate, ^{
@@ -30,18 +33,15 @@ static PDKEventsGenerator * sharedObject = nil;
     return sharedObject;
 }
 
-+ (id) allocWithZone:(NSZone *) zone //!OCLINT
-{
++ (id) allocWithZone:(NSZone *) zone { //!OCLINT
     return [self sharedInstance];
 }
 
-+ (UIView *) visualizationForSize:(CGSize) size {
-    PDKEventsGenerator * generator = [PDKEventsGenerator sharedInstance];
-   
+- (UIView *) visualizationForSize:(CGSize) size {
     UITableView * tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     
-    tableView.dataSource = generator;
-    tableView.delegate = generator;
+    tableView.dataSource = self;
+    tableView.delegate = self;
     
     return tableView;
 }
@@ -75,7 +75,15 @@ static PDKEventsGenerator * sharedObject = nil;
     return reviewPoints.count;
 }
 
-+ (void) logForReview:(NSDictionary *) payload {
+- (void) logEvent:(NSString *) eventName properties:(NSDictionary *) properties {
+    NSMutableDictionary * event = [NSMutableDictionary dictionaryWithDictionary:properties];
+    
+    NSDate * recorded = [NSDate date];
+    
+    event[@"event_name"] = eventName;
+    event[@"event_details"] = properties;
+    event[@"observed"] = [NSNumber numberWithDouble:(1000 * recorded.timeIntervalSince1970)];
+    
     NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
     
     NSString * key = @"PDKEventGeneratorReviewPoints";
@@ -92,10 +100,7 @@ static PDKEventsGenerator * sharedObject = nil;
         }
     }
     
-    NSMutableDictionary * reviewPoint = [NSMutableDictionary dictionaryWithDictionary:payload];
-    [reviewPoint setValue:[NSDate date] forKey:@"recorded"];
-    
-    [newPoints addObject:reviewPoint];
+    [newPoints addObject:event];
     
     [newPoints sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
         return [obj2[@"recorded"] compare:obj1[@"recorded"]];
@@ -107,10 +112,16 @@ static PDKEventsGenerator * sharedObject = nil;
     
     [defaults setValue:newPoints forKey:key];
     [defaults synchronize];
+    
+    [[PassiveDataKit sharedInstance] receivedData:event forGenerator:PDKEvents];
 }
 
 + (UIViewController *) detailsController {
     return [[PDKEventsGeneratorViewController alloc] init];
+}
+
+- (NSString *) generatorId {
+    return GENERATOR_ID;
 }
 
 

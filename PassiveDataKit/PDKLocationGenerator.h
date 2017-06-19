@@ -11,6 +11,8 @@
 
 #import "PassiveDataKit.h"
 
+#import "PDKBaseGenerator.h"
+
 extern NSString *const PDKLocationAccuracyMode;
 extern NSString *const PDKLocationAccuracyModeBest;
 extern NSString *const PDKLocationAccuracyModeRandomized;
@@ -21,7 +23,7 @@ extern NSString *const PDKLocationAccuracyModeUserProvidedLatitude;
 extern NSString *const PDKLocationAccuracyModeUserProvidedLongitude;
 
 
-@interface PDKLocationGenerator : NSObject<PDKGenerator, CLLocationManagerDelegate>
+@interface PDKLocationGenerator : PDKBaseGenerator<CLLocationManagerDelegate>
 
 + (PDKLocationGenerator *) sharedInstance;
 

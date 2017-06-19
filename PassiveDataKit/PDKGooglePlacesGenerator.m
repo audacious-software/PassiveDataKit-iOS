@@ -12,6 +12,7 @@
 #import "PDKAFHTTPSessionManager.h"
 
 #import "PDKGooglePlacesGenerator.h"
+#import "PDKLocationGenerator.h"
 
 @interface PDKGooglePlacesGenerator ()
 
@@ -94,7 +95,9 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
         [self transmitPlacesForFreetextQuery:self.lastOptions[PDKGooglePlacesFreetextQuery]];
     } else {
         if (self.listeners.count == 1) {
-            [[PassiveDataKit sharedInstance] registerListener:self forGenerator:PDKLocation options:options];
+            [[PassiveDataKit sharedInstance] registerListener:self forGenerator:PDKLocation];
+            
+            [[PDKLocationGenerator sharedInstance] updateOptions:options];
         }
     }
 }
@@ -304,7 +307,7 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
     [self transmitPlacesForLocation:[data valueForKey:PDKLocationInstance]];
 }
 
-+ (UIView *) visualizationForSize:(CGSize) size {
+- (UIView *) visualizationForSize:(CGSize) size {
     UIView * view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     
     view.backgroundColor = [UIColor redColor];

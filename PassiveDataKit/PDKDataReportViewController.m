@@ -70,9 +70,11 @@
     } else {
         Class generatorClass = NSClassFromString(generator);
         
+        id<PDKGenerator> generator = [generatorClass sharedInstance];
+        
         if (generatorClass != nil) {
             if ([generatorClass respondsToSelector:@selector(visualizationForSize:)]) {
-                visualization = [generatorClass visualizationForSize:self.detailsView.bounds.size];
+                visualization = [generator visualizationForSize:self.detailsView.bounds.size];
             }
         }
         

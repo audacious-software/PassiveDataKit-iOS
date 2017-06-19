@@ -14,6 +14,8 @@
 #import "PDKLocationAnnotation.h"
 #import "PDKLocationGeneratorViewController.h"
 
+#define GENERATOR_ID @"pdk-location"
+
 @interface PDKLocationGenerator ()
 
 @property NSMutableArray * listeners;
@@ -309,7 +311,7 @@ static PDKLocationGenerator * sharedObject = nil;
     return [[PDKLocationGeneratorViewController alloc] init];
 }
 
-+ (UIView *) visualizationForSize:(CGSize) size {
+- (UIView *) visualizationForSize:(CGSize) size {
     MKMapView * mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     mapView.showsUserLocation = NO;
 
@@ -361,6 +363,10 @@ static PDKLocationGenerator * sharedObject = nil;
     }
     
     return mapView;
+}
+
+- (NSString *) generatorId {
+    return GENERATOR_ID;
 }
 
 @end
