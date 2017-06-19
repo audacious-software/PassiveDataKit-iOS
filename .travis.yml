@@ -22,4 +22,5 @@ script:
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
   -disable-rule=LongVariableName
-
+  -disable-rule=HighCyclomaticComplexity 
+  -disable-rule=HighNPathComplexity

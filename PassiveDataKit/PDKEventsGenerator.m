@@ -82,7 +82,7 @@ static PDKEventsGenerator * sharedObject = nil;
     
     event[@"event_name"] = eventName;
     event[@"event_details"] = properties;
-    event[@"observed"] = [NSNumber numberWithDouble:(1000 * recorded.timeIntervalSince1970)];
+    event[@"observed"] = @(1000 * recorded.timeIntervalSince1970);
     
     NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
     
