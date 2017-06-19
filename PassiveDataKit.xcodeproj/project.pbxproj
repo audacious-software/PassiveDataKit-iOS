@@ -22,7 +22,6 @@
 		3842F73C1CDA2021007F843D /* PassiveDataKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3842F7311CDA2021007F843D /* PassiveDataKit.framework */; };
 		3842F7411CDA2021007F843D /* PassiveDataKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3842F7401CDA2021007F843D /* PassiveDataKitTests.m */; };
 		3842F7571CDA20FE007F843D /* PassiveDataKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 3842F7551CDA20FE007F843D /* PassiveDataKit.m */; };
-		384A2A131EF88D14009510B1 /* Mixpanel.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 389DE4B31EF726B2009C8B27 /* Mixpanel.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		387F9A511D1B8ACD007FA29A /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A501D1B8ACD007FA29A /* SystemConfiguration.framework */; };
 		387F9A531D1B8AD7007FA29A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A521D1B8AD7007FA29A /* CoreTelephony.framework */; };
 		387F9A551D1B8ADE007FA29A /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A541D1B8ADE007FA29A /* Accelerate.framework */; };
@@ -90,6 +89,13 @@
 			remoteGlobalIDString = 3842F7301CDA2021007F843D;
 			remoteInfo = PassiveDataKit;
 		};
+		384A2A1A1EF890EF009510B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7C170C291A4A02F500D9E0F2;
+			remoteInfo = Mixpanel;
+		};
 		389DE4B21EF726B2009C8B27 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
@@ -126,19 +132,6 @@
 			remoteInfo = Mixpanel_macOS;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		384A2A121EF88D03009510B1 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				384A2A131EF88D14009510B1 /* Mixpanel.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		383ECC511D1F4F41004E0B2B /* PDKDataReportViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKDataReportViewController.h; sourceTree = "<group>"; };
@@ -483,11 +476,11 @@
 				3842F72D1CDA2021007F843D /* Frameworks */,
 				3842F72E1CDA2021007F843D /* Headers */,
 				3842F72F1CDA2021007F843D /* Resources */,
-				384A2A121EF88D03009510B1 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				384A2A1B1EF890EF009510B1 /* PBXTargetDependency */,
 			);
 			name = PassiveDataKit;
 			productName = PassiveDataKit;
@@ -660,6 +653,11 @@
 			isa = PBXTargetDependency;
 			target = 3842F7301CDA2021007F843D /* PassiveDataKit */;
 			targetProxy = 3842F73D1CDA2021007F843D /* PBXContainerItemProxy */;
+		};
+		384A2A1B1EF890EF009510B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Mixpanel;
+			targetProxy = 384A2A1A1EF890EF009510B1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
