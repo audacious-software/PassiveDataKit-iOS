@@ -109,7 +109,6 @@ static PDKLocationGenerator * sharedObject = nil;
     }
     
     NSLog(@"TODO: Update options and refresh generator!");
-    
 }
 
 

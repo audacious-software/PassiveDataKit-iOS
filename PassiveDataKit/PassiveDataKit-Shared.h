@@ -12,3 +12,4 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 #import "PDKHttpTransmitter.h"
 
 #import "PDKAFURLRequestSerialization.h"
+#import "PDKAFURLResponseSerialization.h"

@@ -162,7 +162,7 @@ typedef enum {
         }
     }
 
-    [self transmitReadings:0 completionHandler:completionHandler];
+    [self transmitReadingsWithStart:[NSDate date].timeIntervalSince1970 completionHandler:completionHandler];
 }
 
 - (NSURLRequest *) uploadRequestForPayload:(NSArray *) payload {
@@ -180,12 +180,10 @@ typedef enum {
     return 16;
 }
 
-- (void) transmitReadings:(NSUInteger) uploadWindow completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
-    if (uploadWindow == 0) {
-        uploadWindow = 8; //!OCLINT
+- (void) transmitReadingsWithStart:(NSTimeInterval) start completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
+    if (start < 1) {
+        start = [NSDate date].timeIntervalSince1970; //!OCLINT
     }
-    
-    NSTimeInterval now = [NSDate date].timeIntervalSince1970;
     
     sqlite3_stmt * statement = NULL;
     
@@ -195,7 +193,7 @@ typedef enum {
     
     if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK)
     {
-        sqlite3_bind_double(statement, 1, now);
+        sqlite3_bind_double(statement, 1, start);
         
         NSMutableArray * payload = [NSMutableArray array];
         NSMutableArray * uploaded = [NSMutableArray array];
@@ -230,18 +228,13 @@ typedef enum {
         NSURLRequest * request = [self uploadRequestForPayload:payload];
         
         if (request != nil) {
-            NSLog(@"UPLOADING PAYLOAD: %@", payload);
-            
             PDKAFURLSessionManager * manager = [[PDKAFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
             
             [[manager dataTaskWithRequest:request
                            uploadProgress:nil
                          downloadProgress:nil
                         completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                            if ([responseObject containsObject:@"Data bundle added successfully, and ready for processing."] == NO) {
-                                NSLog(@"Invalid response: %@", responseObject);
-                            }
-                            else if (error == nil) {
+                            if (error == nil) {
                                 for (NSNumber * identifier in uploaded) {
                                     sqlite3_stmt * deleteStatement = NULL;
                                     
@@ -269,19 +262,31 @@ typedef enum {
                                     }
                                 }
                                 
-                                NSTimeInterval interval = [NSDate date].timeIntervalSince1970 - now;
+                                NSTimeInterval interval = [NSDate date].timeIntervalSince1970 - start;
                                 
-                                if (uploadWindow > 0 && interval > uploadWindow && uploaded.count > 0) {
-                                    [self transmitReadings:(uploadWindow - interval) completionHandler:completionHandler];
+                                if (interval < 5 && uploaded.count > 0) {
+                                    [self transmitReadingsWithStart:start completionHandler:completionHandler];
                                 } else {
                                     if (completionHandler != nil) {
                                         completionHandler(UIBackgroundFetchResultNewData);
                                     }
-                                    
+                                }
+                            } else {
+                                NSLog(@"Error: %@", error);
+                                if (completionHandler != nil) {
+                                    completionHandler(UIBackgroundFetchResultFailed);
                                 }
                             }
                             
                         }] resume];
+        } else {
+            if (completionHandler != nil) {
+                completionHandler(UIBackgroundFetchResultNoData);
+            }
+        }
+    } else {
+        if (completionHandler != nil) {
+            completionHandler(UIBackgroundFetchResultFailed);
         }
     }
 }
@@ -324,8 +329,6 @@ typedef enum {
     NSDictionary * toStore = [self processIncomingDataPoint:dataPoint forGenerator:dataGenerator];
     
     if (toStore != nil) {
-        NSLog(@"STORING: %@", toStore);
-        
         sqlite3_stmt * stmt;
         
         NSString * insert = @"INSERT INTO data (timestamp, properties) VALUES (?, ?);";
