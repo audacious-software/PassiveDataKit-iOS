@@ -70,7 +70,7 @@
     } else {
         Class generatorClass = NSClassFromString(generator);
         
-        id<PDKGenerator> generator = [generatorClass sharedInstance];
+        id generator = [generatorClass sharedInstance];
         
         if (generatorClass != nil) {
             if ([generatorClass respondsToSelector:@selector(visualizationForSize:)]) {
@@ -196,8 +196,13 @@
     Class generatorClass = NSClassFromString(key);
     
     if (generatorClass != nil) {
-        if ([generatorClass respondsToSelector:@selector(detailsController)]) {
-            controller =  [generatorClass performSelector:@selector(detailsController)];
+        SEL details = NSSelectorFromString(@"detailsController");
+        
+        if ([generatorClass respondsToSelector:details]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            controller =  [generatorClass performSelector:details];
+#pragma clang diagnostic pop
         }
     }
     return controller;

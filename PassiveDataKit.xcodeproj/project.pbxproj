@@ -32,7 +32,7 @@
 		389DE4BC1EF726BB009C8B27 /* Mixpanel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 389DE4B31EF726B2009C8B27 /* Mixpanel.framework */; };
 		389DE4D21EF7492C009C8B27 /* PDKHttpTransmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D01EF7492C009C8B27 /* PDKHttpTransmitter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D31EF7492C009C8B27 /* PDKHttpTransmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D11EF7492C009C8B27 /* PDKHttpTransmitter.m */; };
-		389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */; };
+		389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */; };
 		389DE4DE1EF75ADB009C8B27 /* PDKBaseGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4DC1EF75ADB009C8B27 /* PDKBaseGenerator.h */; };
 		389DE4DF1EF75ADB009C8B27 /* PDKBaseGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4DD1EF75ADB009C8B27 /* PDKBaseGenerator.m */; };
@@ -53,9 +53,9 @@
 		38C666E11D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.m */; };
 		38C666E21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C11D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h */; };
 		38C666E31D038A8E00E6A6C8 /* PDKAFSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.m */; };
-		38C666E41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C31D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h */; };
+		38C666E41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C31D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38C666E51D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.m */; };
-		38C666E61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C51D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h */; };
+		38C666E61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C51D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38C666E71D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.m */; };
 		38C666E81D038A8E00E6A6C8 /* PDKAFURLSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666C71D038A8E00E6A6C8 /* PDKAFURLSessionManager.h */; };
 		38C666E91D038A8E00E6A6C8 /* PDKAFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666C81D038A8E00E6A6C8 /* PDKAFURLSessionManager.m */; };
@@ -434,16 +434,17 @@
 				388D5E401EF76CD500C9A2A2 /* PassiveDataKit-Shared.h in Headers */,
 				3842F7351CDA2021007F843D /* PassiveDataKit.h in Headers */,
 				389DE4D21EF7492C009C8B27 /* PDKHttpTransmitter.h in Headers */,
+				389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */,
+				38C666E61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h in Headers */,
+				38C666E41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h in Headers */,
 				38C666D91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h in Headers */,
 				38A6523C1CDA2D9B00AE8B3B /* PDKLocationGenerator.h in Headers */,
 				383ECC6A1D1F82F5004E0B2B /* PDKMixpanelEventGenerator.h in Headers */,
 				383ECC661D1F816D004E0B2B /* PDKEventsGenerator.h in Headers */,
 				38DC949F1D2711C600552259 /* PDKGooglePlacesGenerator.h in Headers */,
-				38C666E41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h in Headers */,
 				38C666E01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.h in Headers */,
 				38C666E21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h in Headers */,
 				38C666EA1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.h in Headers */,
-				389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */,
 				38C666F11D038A8E00E6A6C8 /* UIKit+PDKAFNetworking.h in Headers */,
 				389DE4DE1EF75ADB009C8B27 /* PDKBaseGenerator.h in Headers */,
 				38C666E81D038A8E00E6A6C8 /* PDKAFURLSessionManager.h in Headers */,
@@ -458,7 +459,6 @@
 				38C666DB1D038A8E00E6A6C8 /* PDKAFImageDownloader.h in Headers */,
 				38C666EC1D038A8E00E6A6C8 /* UIButton+PDKAFNetworking.h in Headers */,
 				38C666F21D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.h in Headers */,
-				38C666E61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h in Headers */,
 				38C666F41D038A8E00E6A6C8 /* UIRefreshControl+PDKAFNetworking.h in Headers */,
 				383ECC6E1D1F9915004E0B2B /* PDKLocationAnnotation.h in Headers */,
 				38C666D71D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.h in Headers */,
