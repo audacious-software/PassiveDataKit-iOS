@@ -21,12 +21,17 @@
 }
 
 - (void) updateOptions:(NSDictionary *) options {
-    
+    NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
 }
 
 - (UIView *) visualizationForSize:(CGSize) size {
+    NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
+
     return nil;
 }
 
+- (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
+    NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
+}
 
 @end

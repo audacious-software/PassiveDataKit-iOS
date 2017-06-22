@@ -76,6 +76,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 
 - (void) transmit:(BOOL) force;
 - (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
+- (void) clearTransmitters;
 
 - (void) logEvent:(NSString *) eventName properties:(NSDictionary *) properties;
 

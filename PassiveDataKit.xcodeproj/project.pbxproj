@@ -12,7 +12,7 @@
 		383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */; };
 		383ECC611D1F742E004E0B2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC601D1F742E004E0B2B /* Assets.xcassets */; };
 		383ECC631D1F7E9F004E0B2B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 383ECC621D1F7E9F004E0B2B /* MapKit.framework */; };
-		383ECC661D1F816D004E0B2B /* PDKEventsGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 383ECC641D1F816D004E0B2B /* PDKEventsGenerator.h */; };
+		383ECC661D1F816D004E0B2B /* PDKEventsGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 383ECC641D1F816D004E0B2B /* PDKEventsGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		383ECC671D1F816D004E0B2B /* PDKEventsGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 383ECC651D1F816D004E0B2B /* PDKEventsGenerator.m */; };
 		383ECC6A1D1F82F5004E0B2B /* PDKMixpanelEventGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 383ECC681D1F82F5004E0B2B /* PDKMixpanelEventGenerator.h */; };
 		383ECC6B1D1F82F5004E0B2B /* PDKMixpanelEventGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 383ECC691D1F82F5004E0B2B /* PDKMixpanelEventGenerator.m */; };
@@ -34,9 +34,9 @@
 		389DE4D31EF7492C009C8B27 /* PDKHttpTransmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D11EF7492C009C8B27 /* PDKHttpTransmitter.m */; };
 		389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */; };
-		389DE4DE1EF75ADB009C8B27 /* PDKBaseGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4DC1EF75ADB009C8B27 /* PDKBaseGenerator.h */; };
+		389DE4DE1EF75ADB009C8B27 /* PDKBaseGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4DC1EF75ADB009C8B27 /* PDKBaseGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4DF1EF75ADB009C8B27 /* PDKBaseGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4DD1EF75ADB009C8B27 /* PDKBaseGenerator.m */; };
-		38A6523C1CDA2D9B00AE8B3B /* PDKLocationGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */; };
+		38A6523C1CDA2D9B00AE8B3B /* PDKLocationGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38A6523D1CDA2D9B00AE8B3B /* PDKLocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38A6523B1CDA2D9B00AE8B3B /* PDKLocationGenerator.m */; };
 		38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38A652421CDA30DB00AE8B3B /* CoreLocation.framework */; };
 		38C666B31D0380CD00E6A6C8 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */; };
@@ -75,7 +75,7 @@
 		38C666F71D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666D61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.m */; };
 		38DC94881D23470C00552259 /* PDKLocationGeneratorViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38DC94861D23470C00552259 /* PDKLocationGeneratorViewController.h */; };
 		38DC94891D23470C00552259 /* PDKLocationGeneratorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38DC94871D23470C00552259 /* PDKLocationGeneratorViewController.m */; };
-		38DC949F1D2711C600552259 /* PDKGooglePlacesGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38DC949D1D2711C600552259 /* PDKGooglePlacesGenerator.h */; };
+		38DC949F1D2711C600552259 /* PDKGooglePlacesGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38DC949D1D2711C600552259 /* PDKGooglePlacesGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38DC94A01D2711C600552259 /* PDKGooglePlacesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38DC949E1D2711C600552259 /* PDKGooglePlacesGenerator.m */; };
 		38DC94A71D281A7300552259 /* PDKEventsGeneratorViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38DC94A51D281A7300552259 /* PDKEventsGeneratorViewController.h */; };
 		38DC94A81D281A7300552259 /* PDKEventsGeneratorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38DC94A61D281A7300552259 /* PDKEventsGeneratorViewController.m */; };
@@ -116,20 +116,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 513B0BB61C73CA35008EEE6E;
 			remoteInfo = MixpanelAppExtension;
-		};
-		389DE4B81EF726B2009C8B27 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = E1C2BEB61CFD6A010052172F;
-			remoteInfo = Mixpanel_tvOS;
-		};
-		389DE4BA1EF726B2009C8B27 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = E1F160B01E677D2200391AE3;
-			remoteInfo = Mixpanel_macOS;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -302,8 +288,6 @@
 				389DE4B31EF726B2009C8B27 /* Mixpanel.framework */,
 				389DE4B51EF726B2009C8B27 /* Mixpanel.framework */,
 				389DE4B71EF726B2009C8B27 /* MixpanelAppExtension.framework */,
-				389DE4B91EF726B2009C8B27 /* Mixpanel.framework */,
-				389DE4BB1EF726B2009C8B27 /* Mixpanel.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -435,18 +419,18 @@
 				3842F7351CDA2021007F843D /* PassiveDataKit.h in Headers */,
 				389DE4D21EF7492C009C8B27 /* PDKHttpTransmitter.h in Headers */,
 				389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */,
+				38A6523C1CDA2D9B00AE8B3B /* PDKLocationGenerator.h in Headers */,
+				38DC949F1D2711C600552259 /* PDKGooglePlacesGenerator.h in Headers */,
+				383ECC661D1F816D004E0B2B /* PDKEventsGenerator.h in Headers */,
 				38C666E61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h in Headers */,
 				38C666E41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h in Headers */,
+				389DE4DE1EF75ADB009C8B27 /* PDKBaseGenerator.h in Headers */,
 				38C666D91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h in Headers */,
-				38A6523C1CDA2D9B00AE8B3B /* PDKLocationGenerator.h in Headers */,
 				383ECC6A1D1F82F5004E0B2B /* PDKMixpanelEventGenerator.h in Headers */,
-				383ECC661D1F816D004E0B2B /* PDKEventsGenerator.h in Headers */,
-				38DC949F1D2711C600552259 /* PDKGooglePlacesGenerator.h in Headers */,
 				38C666E01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.h in Headers */,
 				38C666E21D038A8E00E6A6C8 /* PDKAFSecurityPolicy.h in Headers */,
 				38C666EA1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.h in Headers */,
 				38C666F11D038A8E00E6A6C8 /* UIKit+PDKAFNetworking.h in Headers */,
-				389DE4DE1EF75ADB009C8B27 /* PDKBaseGenerator.h in Headers */,
 				38C666E81D038A8E00E6A6C8 /* PDKAFURLSessionManager.h in Headers */,
 				38C666F61D038A8E00E6A6C8 /* UIWebView+PDKAFNetworking.h in Headers */,
 				38C666DD1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.h in Headers */,
@@ -566,20 +550,6 @@
 			fileType = wrapper.framework;
 			path = MixpanelAppExtension.framework;
 			remoteRef = 389DE4B61EF726B2009C8B27 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		389DE4B91EF726B2009C8B27 /* Mixpanel.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Mixpanel.framework;
-			remoteRef = 389DE4B81EF726B2009C8B27 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		389DE4BB1EF726B2009C8B27 /* Mixpanel.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Mixpanel.framework;
-			remoteRef = 389DE4BA1EF726B2009C8B27 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

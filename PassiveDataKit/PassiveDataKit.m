@@ -178,6 +178,10 @@ static PassiveDataKit * sharedObject = nil;
     }
 }
 
+- (void) clearTransmitters {
+    [self.transmitters removeAllObjects];
+}
+
 - (NSString *) identifierForUser {
     NSString * identifier = [[NSUserDefaults standardUserDefaults] stringForKey:PDKUserIdentifier];
     

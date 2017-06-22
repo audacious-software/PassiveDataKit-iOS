@@ -166,14 +166,18 @@ typedef enum {
 }
 
 - (NSURLRequest *) uploadRequestForPayload:(NSArray *) payload {
-    NSMutableURLRequest * request = [[PDKAFJSONRequestSerializer serializer] requestWithMethod:@"CREATE"
-                                                                                     URLString:[self.uploadUrl description]
-                                                                                    parameters:payload
-                                                                                         error:nil];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    if (payload.count > 0) {
+        NSMutableURLRequest * request = [[PDKAFJSONRequestSerializer serializer] requestWithMethod:@"CREATE"
+                                                                                         URLString:[self.uploadUrl description]
+                                                                                        parameters:payload
+                                                                                             error:nil];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+        
+        return request;
+    }
     
-    return request;
+    return nil;
 }
 
 - (NSUInteger) payloadSize {

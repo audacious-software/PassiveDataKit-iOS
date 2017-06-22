@@ -13,3 +13,7 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 
 #import "PDKAFURLRequestSerialization.h"
 #import "PDKAFURLResponseSerialization.h"
+
+#import "PDKBaseGenerator.h"
+#import "PDKLocationGenerator.h"
+#import "PDKGooglePlacesGenerator.h"
