@@ -257,9 +257,6 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
                 
                 NSDictionary * response = [NSJSONSerialization JSONObjectWithData:responseObject options:0 error:&error];
 
-                NSLog(@"response: %@", response);
-                NSLog(@"count: %d", (int) [response[@"results"] count]);
-
                 NSMutableDictionary * log = [NSMutableDictionary dictionary];
                 [log setValue:[NSDate date] forKey:@"recorded"];
                 [log setValue:response[@"results"] forKey:@"response"];
@@ -279,8 +276,6 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
                         [data setValue:placeResponse[@"result"] forKey:place[@"place_id"]];
                     }
                 }
-                
-                NSLog(@"DATA: %@", data);
                 
                 for (id<PDKDataListener> listener in weakSelf.listeners) {
                     [listener receivedData:data forGenerator:PDKGooglePlaces];

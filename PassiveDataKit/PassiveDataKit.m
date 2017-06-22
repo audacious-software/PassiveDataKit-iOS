@@ -28,6 +28,8 @@ NSString * const PDKLocationAlwaysOn = @"PDKLocationAlwaysOn"; //!OCLINT
 NSString * const PDKLocationRequestedAccuracy = @"PDKLocationRequestedAccuracy"; //!OCLINT
 NSString * const PDKLocationRequestedDistance = @"PDKLocationRequestedDistance"; //!OCLINT
 NSString * const PDKLocationInstance = @"PDKLocationInstance"; //!OCLINT
+NSString * const PDKLocationAccessDenied = @"PDKLocationAccessDenied"; //!OCLINT
+
 NSString * const PDKUserIdentifier = @"PDKUserIdentifier"; //!OCLINT
 NSString * const PDKGenerator = @"PDKGenerator"; //!OCLINT
 NSString * const PDKGeneratorIdentifier = @"PDKGeneratorIdentifier"; //!OCLINT

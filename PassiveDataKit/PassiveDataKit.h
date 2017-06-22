@@ -20,6 +20,8 @@ extern NSString *const PDKLocationAlwaysOn;
 extern NSString *const PDKLocationRequestedAccuracy;
 extern NSString *const PDKLocationRequestedDistance;
 extern NSString *const PDKLocationInstance;
+extern NSString *const PDKLocationAccessDenied;
+
 extern NSString *const PDKMixpanelToken;
 
 extern NSString *const PDKGooglePlacesSpecificLocation;

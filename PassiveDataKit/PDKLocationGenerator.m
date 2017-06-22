@@ -21,6 +21,8 @@
 @property NSDictionary * lastOptions;
 @property NSString * mode;
 
+@property (nonatomic, copy) void (^accessDeniedBlock)(void);
+
 @end
 
 NSString * const PDKLocationAccuracyMode = @"PDKLocationAccuracyMode"; //!OCLINT
@@ -117,16 +119,20 @@ static PDKLocationGenerator * sharedObject = nil;
     }
     
     self.lastOptions = options;
-    
+
+    self.accessDeniedBlock = [options valueForKey:PDKLocationAccessDenied];
+
     if (self.listeners.count == 0) {
         // Turn on sensors with options...
      
         NSNumber * alwaysOn = [options valueForKey:PDKLocationAlwaysOn];
 
         CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-        
+    
         if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
-            // Do nothing - user shut off location services...
+            if (self.accessDeniedBlock != nil) {
+                self.accessDeniedBlock();
+            }
         } else if (status == kCLAuthorizationStatusNotDetermined) {
             if (alwaysOn != nil && alwaysOn.boolValue) {
                 [self.locationManager requestAlwaysAuthorization];
