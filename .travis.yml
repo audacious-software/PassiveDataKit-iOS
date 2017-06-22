@@ -13,7 +13,7 @@ before_install:
 script:
  -  xcodebuild test -list -project 'PassiveDataKit.xcodeproj'
  - set -o pipefail && travis_retry xcodebuild test -scheme 'PassiveDataKit' -project 'PassiveDataKit.xcodeproj' -destination 'platform=iOS Simulator,name=iPhone 6s,OS=10.2'
- - xcodebuild -project 'PassiveDataKit.xcodeproj' | tee xcodebuild.log
+ - xcodebuild -project 'PassiveDataKit.xcodeproj' -scheme 'PassiveDataKit' | tee xcodebuild.log
  - oclint-xcodebuild
  - oclint-json-compilation-database
   -e Mixpanel
@@ -22,4 +22,5 @@ script:
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
   -disable-rule=LongVariableName
-
+  -disable-rule=HighCyclomaticComplexity 
+  -disable-rule=HighNPathComplexity

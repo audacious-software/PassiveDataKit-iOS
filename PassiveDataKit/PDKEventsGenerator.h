@@ -8,11 +8,17 @@
 
 @import UIKit;
 
-@interface PDKEventsGenerator : NSObject<UITableViewDataSource, UITableViewDelegate>
+#import "PassiveDataKit.h"
+
+#import "PDKBaseGenerator.h"
+
+@interface PDKEventsGenerator : PDKBaseGenerator<UITableViewDataSource, UITableViewDelegate>
 
 extern NSString *const PDKEventsGeneratorEnabled;
 extern NSString *const PDKEventsGeneratorCanDisable;
 
-+ (void) logForReview:(NSDictionary *) payload;
++ (PDKEventsGenerator *) sharedInstance;
+
+- (void) logEvent:(NSString *) eventName properties:(NSDictionary *) properties;
 
 @end

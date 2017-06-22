@@ -29,13 +29,11 @@ static PDKMixpanelEventGenerator * sharedObject = nil;
     return [self sharedInstance];
 }
 
-+ (UIView *) visualizationForSize:(CGSize) size {
-    PDKMixpanelEventGenerator * generator = [PDKMixpanelEventGenerator sharedInstance];
-    
+- (UIView *) visualizationForSize:(CGSize) size {
     UITableView * tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     
-    tableView.dataSource = generator;
-    tableView.delegate = generator;
+    tableView.dataSource = self;
+    tableView.delegate = self;
     
     return tableView;
 }

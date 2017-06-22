@@ -8,8 +8,6 @@
 
 #import "PassiveDataKit.h"
 
-#import "PDKDataPointsManager.h"
-
 #import "PDKEventsGenerator.h"
 #import "PDKLocationGenerator.h"
 #import "PDKGooglePlacesGenerator.h"
@@ -19,6 +17,7 @@
 @interface PassiveDataKit ()
 
 @property NSMutableDictionary * listeners;
+@property NSMutableArray * transmitters;
 
 @end
 
@@ -56,7 +55,6 @@ static PassiveDataKit * sharedObject = nil;
     
     dispatch_once(&_singletonPredicate, ^{
         sharedObject = [[super allocWithZone:nil] init];
-        
     });
     
     return sharedObject;
@@ -72,12 +70,19 @@ static PassiveDataKit * sharedObject = nil;
     if (self = [super init])
     {
         self.listeners = [NSMutableDictionary dictionary];
+        self.transmitters = [NSMutableArray array];
     }
     
     return self;
 }
 
-- (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options {
+- (void) addTransmitter:(id<PDKTransmitter>) transmitter {
+    if ([self.transmitters containsObject:transmitter] == NO) {
+        [self.transmitters addObject:transmitter];
+    }
+}
+
+- (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator {
     NSString * key = [PassiveDataKit keyForGenerator:dataGenerator];
     
     NSMutableArray * dataListeners = [self.listeners valueForKey:key];
@@ -90,29 +95,9 @@ static PassiveDataKit * sharedObject = nil;
     
     if ([dataListeners containsObject:listener] == NO) {
         [dataListeners addObject:listener];
-        
-        [self incrementGenerator:dataGenerator withListener:listener options:options];
-    } else {
-        [self updateGenerator:dataGenerator withOptions:options];
     }
     
     return YES;
-}
-
-- (NSArray *) activeListeners {
-    NSMutableArray * listeners = [NSMutableArray arrayWithArray:[self.listeners allKeys]];
-    
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-    
-    if ([defaults valueForKey:PDKLastEventLogged] != nil) {
-        [listeners addObject:PDKEventGenerator];
-        
-        if ([self mixpanelEnabled]) {
-            [listeners addObject:PDKMixpanelEventGenerator];
-        }
-    }
-    
-    return listeners;
 }
 
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator {
@@ -122,47 +107,29 @@ static PassiveDataKit * sharedObject = nil;
     
     if (dataListeners != nil) {
         [dataListeners removeObject:listener];
-        
-        [self decrementGenerator:dataGenerator withListener:listener];
     }
     
     return YES;
 }
 
-- (void) decrementGenerator:(PDKDataGenerator) generator withListener:(id<PDKDataListener>) listener {
-    switch(generator) { //!OCLINT
-        case PDKLocation:
-            [[PDKLocationGenerator sharedInstance] removeListener:listener];
-            break;
-        case PDKGooglePlaces:
-            [[PDKGooglePlacesGenerator sharedInstance] removeListener:listener];
-            break;
-    }
+- (NSArray *) activeListeners {
+    NSMutableArray * listeners = [NSMutableArray arrayWithArray:[self.listeners allKeys]];
+    
+    return listeners;
 }
 
-- (void) incrementGenerator:(PDKDataGenerator) generator withListener:(id<PDKDataListener>) listener options:(NSDictionary *) options {
-    switch(generator) { //!OCLINT
-        case PDKLocation:
-            [[PDKLocationGenerator sharedInstance] addListener:listener options:options];
-            break;
-        case PDKGooglePlaces:
-            [[PDKGooglePlacesGenerator sharedInstance] addListener:listener options:options];
-            break;
+- (void) receivedData:(NSDictionary *) data forGenerator:(PDKDataGenerator) dataGenerator {
+    NSString * key = [PassiveDataKit keyForGenerator:dataGenerator];
+    NSString * anyKey = [PassiveDataKit keyForGenerator:PDKAnyGenerator];
+    
+    NSMutableArray * dataListeners = [NSMutableArray arrayWithArray:[self.listeners valueForKey:key]];
+    
+    [dataListeners addObjectsFromArray:[self.listeners valueForKey:anyKey]];
+
+    for (id<PDKDataListener> listener in dataListeners) {
+        [listener receivedData:data forGenerator:dataGenerator];
     }
 }
-
-- (void) updateGenerator:(PDKDataGenerator) generator withOptions:(NSDictionary *) options {
-    switch(generator) { //!OCLINT
-        case PDKLocation:
-            [[PDKLocationGenerator sharedInstance] updateOptions:options];
-
-            break;
-        case PDKGooglePlaces:
-            [[PDKGooglePlacesGenerator sharedInstance] updateOptions:options];
-            break;
-    }
-}
-
 
 + (NSString *) keyForGenerator:(PDKDataGenerator) generator
 {
@@ -171,34 +138,44 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKLocationGenerator";
         case PDKGooglePlaces:
             return @"PDKGooglePlacesGenerator";
+        case PDKEvents:
+            return @"PDKEventsGenerator";
+        case PDKAnyGenerator:
+            return @"PDKAnyGenerator";
     }
 
     return @"PDKUnknownGenerator";
 }
 
-- (void) setMandatoryEventLogging:(BOOL) isMandatory {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setBool:(isMandatory == NO)   forKey:PDKEventsGeneratorCanDisable];
+- (id<PDKGenerator>) generatorInstance:(PDKDataGenerator) generator {
+    switch(generator) { //!OCLINT
+        case PDKLocation:
+            return [PDKLocationGenerator sharedInstance];
+        case PDKGooglePlaces:
+            return [PDKGooglePlacesGenerator sharedInstance];
+        case PDKEvents:
+            return [PDKEventsGenerator sharedInstance];
+        case PDKAnyGenerator:
+            break;
+    }
     
-    [defaults synchronize];
+    return nil;
 }
 
-
-- (BOOL) logDataPoint:(NSString *) generator generatorId:(NSString *) generatorId source:(NSString *) source properties:(NSDictionary *) properties {
-    return [[PDKDataPointsManager sharedInstance] logDataPoint:generator generatorId:generatorId source:source properties:properties];
+- (void) logEvent:(NSString *) eventName properties:(NSDictionary *) properties {
+    [[PDKEventsGenerator sharedInstance] logEvent:eventName properties:properties];
 }
 
-- (BOOL) logEvent:(NSString *) eventName properties:(NSDictionary *) properties {
-    NSUserDefaults * defaults= [NSUserDefaults standardUserDefaults];
-    
-    [defaults setValue:[NSDate date] forKey:PDKLastEventLogged];
-    [defaults synchronize];
-    
-    return [[PDKDataPointsManager sharedInstance] logEvent:eventName properties:properties];
+- (void) transmit:(BOOL) force {
+    for (id<PDKTransmitter> transmitter in self.transmitters) {
+        [transmitter transmit:force completionHandler:nil];
+    }
 }
 
-- (void) uploadDataPoints:(NSURL *) url window:(NSTimeInterval) uploadWindow complete:(void (^)(BOOL success, int uploaded)) completed {
-    [[PDKDataPointsManager sharedInstance] uploadDataPoints:url window:uploadWindow complete:completed];
+- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
+    for (id<PDKTransmitter> transmitter in self.transmitters) {
+        [transmitter transmit:NO completionHandler:completionHandler];
+    }
 }
 
 - (NSString *) identifierForUser {
@@ -225,7 +202,7 @@ static PassiveDataKit * sharedObject = nil;
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKUserIdentifier];
 }
 
-- (NSString *) generator {
+- (NSString *) userAgent {
     NSString * generator = [[NSUserDefaults standardUserDefaults] stringForKey:PDKGenerator];
     
     if (generator != nil) {
@@ -242,66 +219,7 @@ static PassiveDataKit * sharedObject = nil;
         info[@"CFBundleShortVersionString"] = @"1.0";
     }
     
-    NSOperatingSystemVersion osVer = [NSProcessInfo processInfo].operatingSystemVersion;
-    
-    NSString * version = [NSString stringWithFormat:@"%d.%d.%d", (int) osVer.majorVersion, (int) osVer.minorVersion, (int) osVer.patchVersion];
-
-    return [NSString stringWithFormat:@"%@ %@ (iOS %@)", info[@"CFBundleName"], info[@"CFBundleShortVersionString"], version, nil];
-}
-
-- (BOOL) setGenerator:(NSString *) newGenerator {
-    if (newGenerator != nil) {
-        [[NSUserDefaults standardUserDefaults] setValue:newGenerator forKey:PDKGenerator];
-        
-        return YES;
-    }
-    
-    return NO;
-}
-
-- (void) resetGenerator {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKGenerator];
-}
-
-- (NSString *) generatorId {
-    NSString * identifier = [[NSUserDefaults standardUserDefaults] stringForKey:PDKGeneratorIdentifier];
-    
-    if (identifier != nil) {
-        return identifier;
-    }
-    
-    if ([[NSBundle mainBundle] bundleIdentifier] != nil) {
-        return [[NSBundle mainBundle] bundleIdentifier];
-    }
-    
-    return @"passive-data-kit";
-}
-
-- (BOOL) setGeneratorId:(NSString *) newIdentifier
-{
-    if (newIdentifier != nil) {
-        [[NSUserDefaults standardUserDefaults] setValue:newIdentifier forKey:PDKGeneratorIdentifier];
-        
-        return YES;
-    }
-    
-    return NO;
-}
-
-- (void) resetGeneratorId {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKGeneratorIdentifier];
-}
-
-- (BOOL) mixpanelEnabled {
-    return [[NSUserDefaults standardUserDefaults] stringForKey:PDKMixpanelToken] != nil;
-}
-
-- (void) enableMixpanel:(NSString *) token {
-    [[NSUserDefaults standardUserDefaults] setValue:token forKey:PDKMixpanelToken];
-}
-
-- (void) disableMixpanel {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKMixpanelToken];
+    return [NSString stringWithFormat:@"%@/%@", info[@"CFBundleName"], info[@"CFBundleShortVersionString"], nil];
 }
 
 - (UIViewController *) dataReportController {

@@ -9,8 +9,9 @@
 #import <Foundation/Foundation.h>
 
 #import "PassiveDataKit.h"
+#import "PDKBaseGenerator.h"
 
-@interface PDKGooglePlacesGenerator : NSObject<PDKGenerator, PDKDataListener>
+@interface PDKGooglePlacesGenerator : PDKBaseGenerator<PDKDataListener>
 
 + (PDKGooglePlacesGenerator *) sharedInstance;
 
