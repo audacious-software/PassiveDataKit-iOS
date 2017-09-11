@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		382BEDC91F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 382BEDC71F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		382BEDCA1F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 382BEDC81F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.m */; };
+		382BEDCF1F01B2A800A99FA4 /* PDKPedometerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 382BEDCD1F01B2A800A99FA4 /* PDKPedometerGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		382BEDD01F01B2A800A99FA4 /* PDKPedometerGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 382BEDCE1F01B2A800A99FA4 /* PDKPedometerGenerator.m */; };
+		382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 382BEDD11F01B41500A99FA4 /* CoreMotion.framework */; };
 		383ECC531D1F4F41004E0B2B /* PDKDataReportViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 383ECC511D1F4F41004E0B2B /* PDKDataReportViewController.h */; };
 		383ECC541D1F4F41004E0B2B /* PDKDataReportViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 383ECC521D1F4F41004E0B2B /* PDKDataReportViewController.m */; };
 		383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */; };
@@ -120,6 +125,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		382BEDC71F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKAppleHealthKitGenerator.h; sourceTree = "<group>"; };
+		382BEDC81F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKAppleHealthKitGenerator.m; sourceTree = "<group>"; };
+		382BEDCD1F01B2A800A99FA4 /* PDKPedometerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKPedometerGenerator.h; sourceTree = "<group>"; };
+		382BEDCE1F01B2A800A99FA4 /* PDKPedometerGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKPedometerGenerator.m; sourceTree = "<group>"; };
+		382BEDD11F01B41500A99FA4 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		383ECC511D1F4F41004E0B2B /* PDKDataReportViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKDataReportViewController.h; sourceTree = "<group>"; };
 		383ECC521D1F4F41004E0B2B /* PDKDataReportViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKDataReportViewController.m; sourceTree = "<group>"; };
 		383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = PassiveDataKit.strings; sourceTree = "<group>"; };
@@ -203,6 +213,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */,
 				389DE4BC1EF726BB009C8B27 /* Mixpanel.framework in Frameworks */,
 				383ECC631D1F7E9F004E0B2B /* MapKit.framework in Frameworks */,
 				387F9A5C1D1B8E32007FA29A /* libicucore.tbd in Frameworks */,
@@ -304,6 +315,7 @@
 		38A652441CDA30E800AE8B3B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				382BEDD11F01B41500A99FA4 /* CoreMotion.framework */,
 				383ECC621D1F7E9F004E0B2B /* MapKit.framework */,
 				387F9A5B1D1B8E32007FA29A /* libicucore.tbd */,
 				387F9A581D1B8AF9007FA29A /* QuartzCore.framework */,
@@ -330,6 +342,10 @@
 				383ECC691D1F82F5004E0B2B /* PDKMixpanelEventGenerator.m */,
 				389DE4DC1EF75ADB009C8B27 /* PDKBaseGenerator.h */,
 				389DE4DD1EF75ADB009C8B27 /* PDKBaseGenerator.m */,
+				382BEDC71F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.h */,
+				382BEDC81F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.m */,
+				382BEDCD1F01B2A800A99FA4 /* PDKPedometerGenerator.h */,
+				382BEDCE1F01B2A800A99FA4 /* PDKPedometerGenerator.m */,
 			);
 			name = Generators;
 			sourceTree = "<group>";
@@ -424,6 +440,8 @@
 				383ECC661D1F816D004E0B2B /* PDKEventsGenerator.h in Headers */,
 				38C666E61D038A8E00E6A6C8 /* PDKAFURLResponseSerialization.h in Headers */,
 				38C666E41D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.h in Headers */,
+				382BEDC91F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.h in Headers */,
+				382BEDCF1F01B2A800A99FA4 /* PDKPedometerGenerator.h in Headers */,
 				389DE4DE1EF75ADB009C8B27 /* PDKBaseGenerator.h in Headers */,
 				38C666D91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h in Headers */,
 				383ECC6A1D1F82F5004E0B2B /* PDKMixpanelEventGenerator.h in Headers */,
@@ -578,6 +596,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				382BEDD01F01B2A800A99FA4 /* PDKPedometerGenerator.m in Sources */,
 				383ECC671D1F816D004E0B2B /* PDKEventsGenerator.m in Sources */,
 				38C666F31D038A8E00E6A6C8 /* UIProgressView+PDKAFNetworking.m in Sources */,
 				383ECC6F1D1F9915004E0B2B /* PDKLocationAnnotation.m in Sources */,
@@ -595,6 +614,7 @@
 				38C666DE1D038A8E00E6A6C8 /* PDKAFNetworkActivityIndicatorManager.m in Sources */,
 				38DC94A01D2711C600552259 /* PDKGooglePlacesGenerator.m in Sources */,
 				389DE4D31EF7492C009C8B27 /* PDKHttpTransmitter.m in Sources */,
+				382BEDCA1F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.m in Sources */,
 				383ECC6B1D1F82F5004E0B2B /* PDKMixpanelEventGenerator.m in Sources */,
 				38C666E51D038A8E00E6A6C8 /* PDKAFURLRequestSerialization.m in Sources */,
 				38C666E91D038A8E00E6A6C8 /* PDKAFURLSessionManager.m in Sources */,

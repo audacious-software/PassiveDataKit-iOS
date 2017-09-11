@@ -53,3 +53,4 @@ fastlane/report.xml
 fastlane/screenshots
 
 compile_commands.json
+.DS_Store

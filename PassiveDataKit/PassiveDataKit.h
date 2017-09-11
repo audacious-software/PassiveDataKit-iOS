@@ -36,7 +36,8 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKAnyGenerator,
     PDKLocation,
     PDKGooglePlaces,
-    PDKEvents
+    PDKEvents,
+    PDKAppleHealthKit
 };
 
 @protocol PDKDataListener
