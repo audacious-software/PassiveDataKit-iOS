@@ -11,6 +11,7 @@
 #import "PDKEventsGenerator.h"
 #import "PDKLocationGenerator.h"
 #import "PDKGooglePlacesGenerator.h"
+#import "PDKAppleHealthKitGenerator.h"
 
 #import "PDKDataReportViewController.h"
 
@@ -140,6 +141,8 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKGooglePlacesGenerator";
         case PDKEvents:
             return @"PDKEventsGenerator";
+        case PDKAppleHealthKit:
+            return @"PDKAppleHealthKit";
         case PDKAnyGenerator:
             return @"PDKAnyGenerator";
     }
@@ -155,6 +158,8 @@ static PassiveDataKit * sharedObject = nil;
             return [PDKGooglePlacesGenerator sharedInstance];
         case PDKEvents:
             return [PDKEventsGenerator sharedInstance];
+        case PDKAppleHealthKit:
+            return [PDKAppleHealthKitGenerator sharedInstance];
         case PDKAnyGenerator:
             break;
     }

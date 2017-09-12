@@ -34,7 +34,6 @@
 		387F9A591D1B8AF9007FA29A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A581D1B8AF9007FA29A /* QuartzCore.framework */; };
 		387F9A5C1D1B8E32007FA29A /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A5B1D1B8E32007FA29A /* libicucore.tbd */; };
 		388D5E401EF76CD500C9A2A2 /* PassiveDataKit-Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 388D5E3F1EF76C5000C9A2A2 /* PassiveDataKit-Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		389DE4BC1EF726BB009C8B27 /* Mixpanel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 389DE4B31EF726B2009C8B27 /* Mixpanel.framework */; };
 		389DE4D21EF7492C009C8B27 /* PDKHttpTransmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D01EF7492C009C8B27 /* PDKHttpTransmitter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D31EF7492C009C8B27 /* PDKHttpTransmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D11EF7492C009C8B27 /* PDKHttpTransmitter.m */; };
 		389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -94,34 +93,6 @@
 			remoteGlobalIDString = 3842F7301CDA2021007F843D;
 			remoteInfo = PassiveDataKit;
 		};
-		384A2A1A1EF890EF009510B1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 7C170C291A4A02F500D9E0F2;
-			remoteInfo = Mixpanel;
-		};
-		389DE4B21EF726B2009C8B27 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 7C170C2A1A4A02F500D9E0F2;
-			remoteInfo = Mixpanel;
-		};
-		389DE4B41EF726B2009C8B27 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 511FC39D1C2B74BD00DC4796;
-			remoteInfo = Mixpanel_watchOS;
-		};
-		389DE4B61EF726B2009C8B27 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 513B0BB61C73CA35008EEE6E;
-			remoteInfo = MixpanelAppExtension;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -155,7 +126,6 @@
 		387F9A581D1B8AF9007FA29A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		387F9A5B1D1B8E32007FA29A /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
 		388D5E3F1EF76C5000C9A2A2 /* PassiveDataKit-Shared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PassiveDataKit-Shared.h"; sourceTree = "<group>"; };
-		389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Mixpanel.xcodeproj; path = "mixpanel-iphone/Mixpanel.xcodeproj"; sourceTree = "<group>"; };
 		389DE4D01EF7492C009C8B27 /* PDKHttpTransmitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKHttpTransmitter.h; sourceTree = "<group>"; };
 		389DE4D11EF7492C009C8B27 /* PDKHttpTransmitter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKHttpTransmitter.m; sourceTree = "<group>"; };
 		389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RAInflections.h"; sourceTree = "<group>"; };
@@ -214,7 +184,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */,
-				389DE4BC1EF726BB009C8B27 /* Mixpanel.framework in Frameworks */,
 				383ECC631D1F7E9F004E0B2B /* MapKit.framework in Frameworks */,
 				387F9A5C1D1B8E32007FA29A /* libicucore.tbd in Frameworks */,
 				387F9A591D1B8AF9007FA29A /* QuartzCore.framework in Frameworks */,
@@ -293,16 +262,6 @@
 			path = PassiveDataKitTests;
 			sourceTree = "<group>";
 		};
-		389DE4AB1EF726B2009C8B27 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				389DE4B31EF726B2009C8B27 /* Mixpanel.framework */,
-				389DE4B51EF726B2009C8B27 /* Mixpanel.framework */,
-				389DE4B71EF726B2009C8B27 /* MixpanelAppExtension.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		389DE4CA1EF748EB009C8B27 /* Transmitters */ = {
 			isa = PBXGroup;
 			children = (
@@ -353,7 +312,6 @@
 		38C666B41D038A8E00E6A6C8 /* Third Party */ = {
 			isa = PBXGroup;
 			children = (
-				389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */,
 				38C666B51D038A8E00E6A6C8 /* AFNetworking */,
 				389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */,
 				389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */,
@@ -482,7 +440,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				384A2A1B1EF890EF009510B1 /* PBXTargetDependency */,
 			);
 			name = PassiveDataKit;
 			productName = PassiveDataKit;
@@ -513,7 +470,7 @@
 		3842F7281CDA2021007F843D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Audacious Software";
 				TargetAttributes = {
 					3842F7301CDA2021007F843D = {
@@ -534,12 +491,6 @@
 			mainGroup = 3842F7271CDA2021007F843D;
 			productRefGroup = 3842F7321CDA2021007F843D /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 389DE4AB1EF726B2009C8B27 /* Products */;
-					ProjectRef = 389DE4AA1EF726B2009C8B27 /* Mixpanel.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				3842F7301CDA2021007F843D /* PassiveDataKit */,
@@ -547,30 +498,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		389DE4B31EF726B2009C8B27 /* Mixpanel.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Mixpanel.framework;
-			remoteRef = 389DE4B21EF726B2009C8B27 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		389DE4B51EF726B2009C8B27 /* Mixpanel.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Mixpanel.framework;
-			remoteRef = 389DE4B41EF726B2009C8B27 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		389DE4B71EF726B2009C8B27 /* MixpanelAppExtension.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = MixpanelAppExtension.framework;
-			remoteRef = 389DE4B61EF726B2009C8B27 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3842F72F1CDA2021007F843D /* Resources */ = {
@@ -643,11 +570,6 @@
 			isa = PBXTargetDependency;
 			target = 3842F7301CDA2021007F843D /* PassiveDataKit */;
 			targetProxy = 3842F73D1CDA2021007F843D /* PBXContainerItemProxy */;
-		};
-		384A2A1B1EF890EF009510B1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = Mixpanel;
-			targetProxy = 384A2A1A1EF890EF009510B1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

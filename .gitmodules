@@ -1,3 +1,0 @@
-[submodule "PassiveDataKit/Third-Party/mixpanel-iphone"]
-	path = PassiveDataKit/Third-Party/mixpanel-iphone
-	url = https://github.com/mixpanel/mixpanel-iphone.git
