@@ -102,7 +102,7 @@
         return cell;
     }
     
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"DataOptionCell"];
     
@@ -203,7 +203,7 @@
             [self.detailsView addSubview:settingsTable];
         }
     } else {
-        NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+        NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
         
         if (indexPath.row == 0) {
             [defaults setValue:PDKLocationAccuracyModeBest forKey:PDKLocationAccuracyMode];

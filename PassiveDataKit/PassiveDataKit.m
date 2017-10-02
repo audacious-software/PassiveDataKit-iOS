@@ -12,6 +12,8 @@
 #import "PDKLocationGenerator.h"
 #import "PDKGooglePlacesGenerator.h"
 #import "PDKAppleHealthKitGenerator.h"
+#import "PDKPedometerGenerator.h"
+#import "PDKBatteryGenerator.h"
 
 #import "PDKDataReportViewController.h"
 
@@ -21,14 +23,6 @@
 @property NSMutableArray * transmitters;
 
 @end
-
-NSString * const PDKCapabilityRationale = @"PDKCapabilityRationale"; //!OCLINT
-NSString * const PDKLocationSignificantChangesOnly = @"PDKLocationSignificantChangesOnly"; //!OCLINT
-NSString * const PDKLocationAlwaysOn = @"PDKLocationAlwaysOn"; //!OCLINT
-NSString * const PDKLocationRequestedAccuracy = @"PDKLocationRequestedAccuracy"; //!OCLINT
-NSString * const PDKLocationRequestedDistance = @"PDKLocationRequestedDistance"; //!OCLINT
-NSString * const PDKLocationInstance = @"PDKLocationInstance"; //!OCLINT
-NSString * const PDKLocationAccessDenied = @"PDKLocationAccessDenied"; //!OCLINT
 
 NSString * const PDKUserIdentifier = @"PDKUserIdentifier"; //!OCLINT
 NSString * const PDKGenerator = @"PDKGenerator"; //!OCLINT
@@ -83,7 +77,7 @@ static PassiveDataKit * sharedObject = nil;
     }
 }
 
-- (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator {
+- (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options {
     NSString * key = [PassiveDataKit keyForGenerator:dataGenerator];
     
     NSMutableArray * dataListeners = [self.listeners valueForKey:key];
@@ -92,22 +86,29 @@ static PassiveDataKit * sharedObject = nil;
         dataListeners = [NSMutableArray array];
         
         [self.listeners setValue:dataListeners forKey:key];
+        
+        id<PDKGenerator> generator = [self generatorInstance:dataGenerator];
+        [generator addListener:self options:options];
     }
     
     if ([dataListeners containsObject:listener] == NO) {
         [dataListeners addObject:listener];
     }
-    
+
+    [self.listeners setValue:dataListeners forKey:key];
+
     return YES;
 }
 
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator {
     NSString * key = [PassiveDataKit keyForGenerator:dataGenerator];
-    
+
     NSMutableArray * dataListeners = [self.listeners valueForKey:key];
     
     if (dataListeners != nil) {
         [dataListeners removeObject:listener];
+    
+        [self.listeners setValue:dataListeners forKey:key];
     }
     
     return YES;
@@ -132,6 +133,17 @@ static PassiveDataKit * sharedObject = nil;
     }
 }
 
+- (void) receivedData:(NSDictionary *) data forCustomGenerator:(NSString *) generatorId {
+    NSMutableArray * dataListeners = [NSMutableArray arrayWithArray:[self.listeners valueForKey:generatorId]];
+
+    NSString * anyKey = [PassiveDataKit keyForGenerator:PDKAnyGenerator];
+    [dataListeners addObjectsFromArray:[self.listeners valueForKey:anyKey]];
+
+    for (id<PDKDataListener> listener in dataListeners) {
+        [listener receivedData:data forCustomGenerator:generatorId];
+    }
+}
+
 + (NSString *) keyForGenerator:(PDKDataGenerator) generator
 {
     switch(generator) { //!OCLINT
@@ -143,6 +155,10 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKEventsGenerator";
         case PDKAppleHealthKit:
             return @"PDKAppleHealthKit";
+        case PDKPedometer:
+            return @"PDKPedometer";
+        case PDKBattery:
+            return @"PDKBattery";
         case PDKAnyGenerator:
             return @"PDKAnyGenerator";
     }
@@ -160,6 +176,10 @@ static PassiveDataKit * sharedObject = nil;
             return [PDKEventsGenerator sharedInstance];
         case PDKAppleHealthKit:
             return [PDKAppleHealthKitGenerator sharedInstance];
+        case PDKPedometer:
+            return [PDKPedometerGenerator sharedInstance];
+        case PDKBattery:
+            return [PDKBatteryGenerator sharedInstance];
         case PDKAnyGenerator:
             break;
     }
@@ -188,7 +208,9 @@ static PassiveDataKit * sharedObject = nil;
 }
 
 - (NSString *) identifierForUser {
-    NSString * identifier = [[NSUserDefaults standardUserDefaults] stringForKey:PDKUserIdentifier];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    
+    NSString * identifier = [defaults stringForKey:PDKUserIdentifier];
     
     if (identifier != nil) {
         return identifier;
@@ -199,7 +221,9 @@ static PassiveDataKit * sharedObject = nil;
 
 - (BOOL) setIdentifierForUser:(NSString *) newIdentifier {
     if (newIdentifier != nil) {
-        [[NSUserDefaults standardUserDefaults] setValue:newIdentifier forKey:PDKUserIdentifier];
+        NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+
+        [defaults setValue:newIdentifier forKey:PDKUserIdentifier];
         
         return YES;
     }
@@ -208,11 +232,15 @@ static PassiveDataKit * sharedObject = nil;
 }
 
 - (void) resetIdentifierForUser {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PDKUserIdentifier];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+
+    [defaults removeObjectForKey:PDKUserIdentifier];
 }
 
 - (NSString *) userAgent {
-    NSString * generator = [[NSUserDefaults standardUserDefaults] stringForKey:PDKGenerator];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+
+    NSString * generator = [defaults stringForKey:PDKGenerator];
     
     if (generator != nil) {
         return generator;

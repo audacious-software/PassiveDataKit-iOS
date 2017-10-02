@@ -45,7 +45,7 @@ static PDKMixpanelEventGenerator * sharedObject = nil;
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"PDKMixpanelEventGeneratorCell"];
     }
     
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSString * key = @"PDKMixpanelEventGeneratorReviewPoints";
     
@@ -58,7 +58,7 @@ static PDKMixpanelEventGenerator * sharedObject = nil;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSString * key = @"PDKMixpanelEventGeneratorReviewPoints";
     
@@ -68,7 +68,7 @@ static PDKMixpanelEventGenerator * sharedObject = nil;
 }
 
 + (void) logForReview:(NSDictionary *) payload {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSString * key = @"PDKMixpanelEventGeneratorReviewPoints";
     

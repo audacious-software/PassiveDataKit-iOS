@@ -14,6 +14,33 @@
 #import "PDKLocationAnnotation.h"
 #import "PDKLocationGeneratorViewController.h"
 
+NSString * const PDKCapabilityRationale = @"PDKCapabilityRationale"; //!OCLINT
+NSString * const PDKLocationSignificantChangesOnly = @"PDKLocationSignificantChangesOnly"; //!OCLINT
+NSString * const PDKLocationAlwaysOn = @"PDKLocationAlwaysOn"; //!OCLINT
+NSString * const PDKLocationRequestedAccuracy = @"PDKLocationRequestedAccuracy"; //!OCLINT
+NSString * const PDKLocationRequestedDistance = @"PDKLocationRequestedDistance"; //!OCLINT
+NSString * const PDKLocationInstance = @"PDKLocationInstance"; //!OCLINT
+NSString * const PDKLocationAccessDenied = @"PDKLocationAccessDenied"; //!OCLINT
+
+NSString * const PDKLocationAccuracyMode = @"PDKLocationAccuracyMode"; //!OCLINT
+NSString * const PDKLocationAccuracyModeBest = @"PDKLocationAccuracyModeBest"; //!OCLINT
+NSString * const PDKLocationAccuracyModeRandomized = @"PDKLocationAccuracyModeRandomized"; //!OCLINT
+NSString * const PDKLocationAccuracyModeUserProvided = @"PDKLocationAccuracyModeUserProvided"; //!OCLINT
+NSString * const PDKLocationAccuracyModeDisabled = @"PDKLocationAccuracyModeDisabled"; //!OCLINT
+NSString * const PDKLocationAccuracyModeUserProvidedDistance = @"PDKLocationAccuracyModeUserProvidedDistance"; //!OCLINT
+NSString * const PDKLocationAccuracyModeUserProvidedLatitude = @"PDKLocationAccuracyModeUserProvidedLatitude"; //!OCLINT
+NSString * const PDKLocationAccuracyModeUserProvidedLongitude = @"PDKLocationAccuracyModeUserProvidedLongitude"; //!OCLINT
+
+NSString * const PDKLocationLatitude = @"latitude"; //!OCLINT
+NSString * const PDKLocationLongitude = @"longitude"; //!OCLINT
+NSString * const PDKLocationAltitude = @"altitude"; //!OCLINT
+NSString * const PDKLocationAccuracy = @"accuracy"; //!OCLINT
+NSString * const PDKLocationAltitudeAccuracy = @"altitude-accuracy"; //!OCLINT
+NSString * const PDKLocationFloor = @"floor"; //!OCLINT
+NSString * const PDKLocationSpeed = @"speed"; //!OCLINT
+NSString * const PDKLocationBearing = @"bearing"; //!OCLINT
+
+
 #define GENERATOR_ID @"pdk-location"
 
 @interface PDKLocationGenerator ()
@@ -26,15 +53,6 @@
 @property (nonatomic, copy) void (^accessDeniedBlock)(void);
 
 @end
-
-NSString * const PDKLocationAccuracyMode = @"PDKLocationAccuracyMode"; //!OCLINT
-NSString * const PDKLocationAccuracyModeBest = @"PDKLocationAccuracyModeBest"; //!OCLINT
-NSString * const PDKLocationAccuracyModeRandomized = @"PDKLocationAccuracyModeRandomized"; //!OCLINT
-NSString * const PDKLocationAccuracyModeUserProvided = @"PDKLocationAccuracyModeUserProvided"; //!OCLINT
-NSString * const PDKLocationAccuracyModeDisabled = @"PDKLocationAccuracyModeDisabled"; //!OCLINT
-NSString * const PDKLocationAccuracyModeUserProvidedDistance = @"PDKLocationAccuracyModeUserProvidedDistance"; //!OCLINT
-NSString * const PDKLocationAccuracyModeUserProvidedLatitude = @"PDKLocationAccuracyModeUserProvidedLatitude"; //!OCLINT
-NSString * const PDKLocationAccuracyModeUserProvidedLongitude = @"PDKLocationAccuracyModeUserProvidedLongitude"; //!OCLINT
 
 @implementation PDKLocationGenerator
 
@@ -59,19 +77,22 @@ static PDKLocationGenerator * sharedObject = nil;
 
 - (id) init
 {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+
     if (self = [super init])
     {
+
         self.listeners = [NSMutableArray array];
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
         
-        self.mode = [[NSUserDefaults standardUserDefaults] valueForKey:PDKLocationAccuracyMode];
+        self.mode = [defaults valueForKey:PDKLocationAccuracyMode];
         
         if (self.mode == nil) {
             self.mode = PDKLocationAccuracyModeBest;
         }
         
-        [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:PDKLocationAccuracyMode options:NSKeyValueObservingOptionNew context:NULL];
+        [defaults addObserver:self forKeyPath:PDKLocationAccuracyMode options:NSKeyValueObservingOptionNew context:NULL];
     }
     
     return self;
@@ -144,9 +165,12 @@ static PDKLocationGenerator * sharedObject = nil;
             [self.locationManager requestAlwaysAuthorization];
         } else if ((alwaysOn == nil || alwaysOn.boolValue == NO) && status != kCLAuthorizationStatusAuthorizedWhenInUse) {
             [self.locationManager requestWhenInUseAuthorization];
-        }
-        else { //!OCLINT
-            // Already authed -- do nothing...
+        } else if (alwaysOn != nil && alwaysOn.boolValue && status == kCLAuthorizationStatusAuthorizedAlways) {
+            self.locationManager.allowsBackgroundLocationUpdates = YES;
+            self.locationManager.pausesLocationUpdatesAutomatically = NO;
+        } else { //!OCLINT
+            self.locationManager.allowsBackgroundLocationUpdates = NO;
+            self.locationManager.pausesLocationUpdatesAutomatically = YES;
         }
     }
     
@@ -194,7 +218,9 @@ static PDKLocationGenerator * sharedObject = nil;
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    [[PassiveDataKit sharedInstance] logEvent:@"debug_location_update" properties:nil];
+
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     if ([PDKLocationAccuracyModeBest isEqualToString:self.mode] || [PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
         for (CLLocation * location in locations) {
@@ -227,14 +253,23 @@ static PDKLocationGenerator * sharedObject = nil;
 
             NSMutableDictionary * log = [NSMutableDictionary dictionary];
             [log setValue:[NSDate date] forKey:@"recorded"];
-            [log setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:@"latitude"];
-            [log setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:@"longitude"];
+            [log setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:PDKLocationLatitude];
+            [log setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:PDKLocationLongitude];
             
             [PDKLocationGenerator logForReview:log];
             
             NSMutableDictionary * data = [NSMutableDictionary dictionary];
+            [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:PDKLocationLatitude];
+            [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:PDKLocationLongitude];
+            [data setValue:[NSNumber numberWithDouble:thisLocation.altitude] forKey:PDKLocationAltitude];
+            [data setValue:[NSNumber numberWithDouble:thisLocation.horizontalAccuracy] forKey:PDKLocationAccuracy];
+            [data setValue:[NSNumber numberWithDouble:thisLocation.verticalAccuracy] forKey:PDKLocationAltitudeAccuracy];
+            [data setValue:[NSNumber numberWithInteger:thisLocation.floor.level] forKey:PDKLocationFloor];
             
-            [data setValue:location forKey:PDKLocationInstance];
+            if (thisLocation.speed >= 0) {
+                [data setValue:[NSNumber numberWithDouble:thisLocation.speed] forKey:PDKLocationSpeed];
+                [data setValue:[NSNumber numberWithInteger:thisLocation.course] forKey:PDKLocationBearing];
+            }
             
             for (id<PDKDataListener> listener in self.listeners) {
                 [listener receivedData:data forGenerator:PDKLocation];
@@ -248,25 +283,24 @@ static PDKLocationGenerator * sharedObject = nil;
         
         NSMutableDictionary * log = [NSMutableDictionary dictionary];
         [log setValue:[NSDate date] forKey:@"recorded"];
-        [log setValue:[NSNumber numberWithDouble:location.coordinate.latitude] forKey:@"latitude"];
-        [log setValue:[NSNumber numberWithDouble:location.coordinate.longitude] forKey:@"longitude"];
+        [log setValue:[NSNumber numberWithDouble:location.coordinate.latitude] forKey:PDKLocationLatitude];
+        [log setValue:[NSNumber numberWithDouble:location.coordinate.longitude] forKey:PDKLocationLongitude];
         
         [PDKLocationGenerator logForReview:log];
         
         NSMutableDictionary * data = [NSMutableDictionary dictionary];
         
-        [data setValue:location forKey:PDKLocationInstance];
-        
-        for (id<PDKDataListener> listener in self.listeners) {
-            [listener receivedData:data forGenerator:PDKLocation];
-        }
+        [data setValue:[NSNumber numberWithDouble:location.coordinate.latitude] forKey:PDKLocationLatitude];
+        [data setValue:[NSNumber numberWithDouble:location.coordinate.longitude] forKey:PDKLocationLongitude];
+
+        [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKLocation];
     } else if ([PDKLocationAccuracyModeDisabled isEqualToString:self.mode]) { //!OCLINT
         // Do nothing...
     }
 }
 
 + (void) logForReview:(NSDictionary *) payload {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSString * key = @"PDKLocationGeneratorReviewPoints";
     
@@ -325,7 +359,7 @@ static PDKLocationGenerator * sharedObject = nil;
     CLLocationDegrees minLon = 180.0;
     CLLocationDegrees maxLon = -180.0;
     
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     NSArray * points = [defaults valueForKey:@"PDKLocationGeneratorReviewPoints"];
     
     NSInteger count = 0;

@@ -12,6 +12,7 @@
 
 @interface PDKBaseGenerator : NSObject<PDKGenerator>
 
-- (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
+- (void) addListener:(id<PDKDataListener>) listener options:(NSDictionary *) options;
+- (void) removeListener:(id<PDKDataListener>) listener;
 
 @end

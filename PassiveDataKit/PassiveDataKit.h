@@ -32,17 +32,39 @@ extern NSString *const PDKGooglePlacesRadius;
 extern NSString *const PDKGooglePlacesInstance;
 extern NSString *const PDKGooglePlacesIncludeFullDetails;
 
+extern NSString *const PDKPedometerStart;
+extern NSString *const PDKPedometerEnd;
+extern NSString *const PDKPedometerStepCount;
+extern NSString *const PDKPedometerDistance;
+extern NSString *const PDKPedometerAveragePace;
+extern NSString *const PDKPedometerCurrentPace;
+extern NSString *const PDKPedometerCurrentCadence;
+extern NSString *const PDKPedometerFloorsAscended;
+extern NSString *const PDKPedometerFloorsDescended;
+
+extern NSString *const PDKLocationLatitude;
+extern NSString *const PDKLocationLongitude;
+extern NSString *const PDKLocationAltitude;
+extern NSString *const PDKLocationAccuracy;
+extern NSString *const PDKLocationAltitudeAccuracy;
+extern NSString *const PDKLocationFloor;
+extern NSString *const PDKPedometerFloorsDescended;
+extern NSString *const PDKPedometerFloorsDescended;
+
 typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKAnyGenerator,
     PDKLocation,
     PDKGooglePlaces,
     PDKEvents,
-    PDKAppleHealthKit
+    PDKAppleHealthKit,
+    PDKPedometer,
+    PDKBattery
 };
 
 @protocol PDKDataListener
 
 - (void) receivedData:(NSDictionary *) data forGenerator:(PDKDataGenerator) dataGenerator;
+- (void) receivedData:(NSDictionary *) data forCustomGenerator:(NSString *) generatorId;
 
 @end
 
@@ -52,6 +74,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 - (NSString *) generatorId;
 - (NSString *) fullGeneratorName;
 - (UIView *) visualizationForSize:(CGSize) size;
+- (void) addListener:(id<PDKDataListener>) listener options:(NSDictionary *) options;
 
 @end
 
@@ -65,11 +88,11 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 @end
 
 
-@interface PassiveDataKit : NSObject
+@interface PassiveDataKit : NSObject<PDKDataListener>
 
 + (PassiveDataKit *) sharedInstance;
 
-- (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator;
+- (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options;
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator;
 
 - (NSArray *) activeListeners;
@@ -82,6 +105,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 - (void) logEvent:(NSString *) eventName properties:(NSDictionary *) properties;
 
 - (void) receivedData:(NSDictionary *) data forGenerator:(PDKDataGenerator) dataGenerator;
+- (void) receivedData:(NSDictionary *) data forCustomGenerator:(NSString *) generatorId;
 
 - (NSString *) identifierForUser;
 - (BOOL) setIdentifierForUser:(NSString *) newIdentifier;

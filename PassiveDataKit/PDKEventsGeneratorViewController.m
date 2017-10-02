@@ -28,7 +28,7 @@
     
     [self.view addSubview:self.detailsView];
 
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSNumber * canDisable = [defaults valueForKey:PDKEventsGeneratorCanDisable];
     
@@ -105,7 +105,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSNumber * canDisable = [defaults valueForKey:PDKEventsGeneratorCanDisable];
     
@@ -133,7 +133,7 @@
         
         UISwitch * toggle = [[UISwitch alloc] init];
 
-        NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+        NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
         
         NSNumber * isEnabled = [defaults valueForKey:PDKEventsGeneratorEnabled];
         
@@ -152,7 +152,8 @@
 }
 
 - (void) dataEnabled:(UISwitch *) toggle {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+
     [defaults setBool:toggle.isOn forKey:PDKEventsGeneratorEnabled];
     
     [defaults synchronize];

@@ -12,6 +12,8 @@
 		382BEDCF1F01B2A800A99FA4 /* PDKPedometerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 382BEDCD1F01B2A800A99FA4 /* PDKPedometerGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		382BEDD01F01B2A800A99FA4 /* PDKPedometerGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 382BEDCE1F01B2A800A99FA4 /* PDKPedometerGenerator.m */; };
 		382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 382BEDD11F01B41500A99FA4 /* CoreMotion.framework */; };
+		383EAD6E1F70D84500029847 /* PDKBatteryGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 383EAD6C1F70D84500029847 /* PDKBatteryGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		383EAD6F1F70D84500029847 /* PDKBatteryGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 383EAD6D1F70D84500029847 /* PDKBatteryGenerator.m */; };
 		383ECC531D1F4F41004E0B2B /* PDKDataReportViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 383ECC511D1F4F41004E0B2B /* PDKDataReportViewController.h */; };
 		383ECC541D1F4F41004E0B2B /* PDKDataReportViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 383ECC521D1F4F41004E0B2B /* PDKDataReportViewController.m */; };
 		383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */; };
@@ -101,6 +103,8 @@
 		382BEDCD1F01B2A800A99FA4 /* PDKPedometerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKPedometerGenerator.h; sourceTree = "<group>"; };
 		382BEDCE1F01B2A800A99FA4 /* PDKPedometerGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKPedometerGenerator.m; sourceTree = "<group>"; };
 		382BEDD11F01B41500A99FA4 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		383EAD6C1F70D84500029847 /* PDKBatteryGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKBatteryGenerator.h; sourceTree = "<group>"; };
+		383EAD6D1F70D84500029847 /* PDKBatteryGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKBatteryGenerator.m; sourceTree = "<group>"; };
 		383ECC511D1F4F41004E0B2B /* PDKDataReportViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDKDataReportViewController.h; sourceTree = "<group>"; };
 		383ECC521D1F4F41004E0B2B /* PDKDataReportViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDKDataReportViewController.m; sourceTree = "<group>"; };
 		383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = PassiveDataKit.strings; sourceTree = "<group>"; };
@@ -305,6 +309,8 @@
 				382BEDC81F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.m */,
 				382BEDCD1F01B2A800A99FA4 /* PDKPedometerGenerator.h */,
 				382BEDCE1F01B2A800A99FA4 /* PDKPedometerGenerator.m */,
+				383EAD6C1F70D84500029847 /* PDKBatteryGenerator.h */,
+				383EAD6D1F70D84500029847 /* PDKBatteryGenerator.m */,
 			);
 			name = Generators;
 			sourceTree = "<group>";
@@ -401,6 +407,7 @@
 				382BEDC91F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.h in Headers */,
 				382BEDCF1F01B2A800A99FA4 /* PDKPedometerGenerator.h in Headers */,
 				389DE4DE1EF75ADB009C8B27 /* PDKBaseGenerator.h in Headers */,
+				383EAD6E1F70D84500029847 /* PDKBatteryGenerator.h in Headers */,
 				38C666D91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h in Headers */,
 				383ECC6A1D1F82F5004E0B2B /* PDKMixpanelEventGenerator.h in Headers */,
 				38C666E01D038A8E00E6A6C8 /* PDKAFNetworkReachabilityManager.h in Headers */,
@@ -470,7 +477,7 @@
 		3842F7281CDA2021007F843D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Audacious Software";
 				TargetAttributes = {
 					3842F7301CDA2021007F843D = {
@@ -552,6 +559,7 @@
 				38C666EB1D038A8E00E6A6C8 /* UIActivityIndicatorView+PDKAFNetworking.m in Sources */,
 				389DE4DF1EF75ADB009C8B27 /* PDKBaseGenerator.m in Sources */,
 				389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */,
+				383EAD6F1F70D84500029847 /* PDKBatteryGenerator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -583,14 +591,20 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -616,7 +630,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -633,14 +647,20 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;

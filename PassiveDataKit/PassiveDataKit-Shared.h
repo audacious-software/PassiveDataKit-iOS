@@ -20,3 +20,4 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 #import "PDKPedometerGenerator.h"
 #import "PDKAppleHealthKitGenerator.h"
 #import "PDKEventsGenerator.h"
+#import "PDKBatteryGenerator.h"

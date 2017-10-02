@@ -95,7 +95,7 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
         [self transmitPlacesForFreetextQuery:self.lastOptions[PDKGooglePlacesFreetextQuery]];
     } else {
         if (self.listeners.count == 1) {
-            [[PassiveDataKit sharedInstance] registerListener:self forGenerator:PDKLocation];
+            [[PassiveDataKit sharedInstance] registerListener:self forGenerator:PDKLocation options:options];
             
             [[PDKLocationGenerator sharedInstance] updateOptions:options];
         }
@@ -154,7 +154,7 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
 }
 
 + (void) logForReview:(NSDictionary *) payload {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSString * key = @"PDKGooglePlacesGeneratorReviewPoints";
     
@@ -300,6 +300,10 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
 
 - (void) receivedData:(NSDictionary *) data forGenerator:(PDKDataGenerator) dataGenerator {
     [self transmitPlacesForLocation:[data valueForKey:PDKLocationInstance]];
+}
+
+- (void) receivedData:(NSDictionary *) data forCustomGenerator:(NSString *) generatorId {
+    NSLog(@"Warning: Does not use non-standard location generator...");
 }
 
 - (UIView *) visualizationForSize:(CGSize) size {

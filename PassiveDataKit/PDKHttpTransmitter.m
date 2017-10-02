@@ -31,8 +31,7 @@ typedef enum {
 
 @implementation PDKHttpTransmitter
 
-+ (ConnectionType) connectionType
-{
++ (ConnectionType) connectionType {
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, "8.8.8.8");
     SCNetworkReachabilityFlags flags;
     BOOL success = SCNetworkReachabilityGetFlags(reachability, &flags);
@@ -82,15 +81,15 @@ typedef enum {
         }
         
         self.database = [self openDatabase];
+        self.isTransmitting = NO;
         
-        [[PassiveDataKit sharedInstance] registerListener:self forGenerator:PDKAnyGenerator];
+        [[PassiveDataKit sharedInstance] registerListener:self forGenerator:PDKAnyGenerator options:@{}];
     }
     
     return self;
 }
 
-- (NSString *) databasePath
-{
+- (NSString *) databasePath {
     NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     
     NSString * cachePath = paths[0];
@@ -111,7 +110,7 @@ typedef enum {
         
         const char * path = [dbPath UTF8String];
         
-        if (sqlite3_open(path, &database) == SQLITE_OK) {
+        if (sqlite3_open_v2(path, &database, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FILEPROTECTION_NONE, NULL) == SQLITE_OK) {
             char * error;
             
             const char * createStatement = "CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, properties TEXT)";
@@ -136,26 +135,27 @@ typedef enum {
 }
 
 - (void) transmit:(BOOL) force completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
-    if (force == NO && self.requireCharging) {
-        [UIDevice currentDevice].batteryMonitoringEnabled = YES;
-        
-        UIDeviceBatteryState batteryState = [UIDevice currentDevice].batteryState;
-
-        [UIDevice currentDevice].batteryMonitoringEnabled = NO;
-
-        if (batteryState == UIDeviceBatteryStateUnplugged || batteryState == UIDeviceBatteryStateUnknown) {
-            if (completionHandler != nil) {
-                completionHandler(UIBackgroundFetchResultNoData);
-            }
-            
-            return;
-        }
-    }
+//    if (force == NO && self.requireCharging) {
+//        [UIDevice currentDevice].batteryMonitoringEnabled = YES;
+//
+//        UIDeviceBatteryState batteryState = [UIDevice currentDevice].batteryState;
+//
+//        [UIDevice currentDevice].batteryMonitoringEnabled = NO;
+//
+//        if (batteryState == UIDeviceBatteryStateUnplugged || batteryState == UIDeviceBatteryStateUnknown) {
+//            if (completionHandler != nil) {
+//                NSLog(@"XMIT RET NEW DATA");
+//                completionHandler(UIBackgroundFetchResultNewData);
+//            }
+//
+//            return;
+//        }
+//    }
 
     if (force == NO && self.requireWiFi) {
         if ([PDKHttpTransmitter connectionType] != ConnectionTypeWiFi) {
             if (completionHandler != nil) {
-                completionHandler(UIBackgroundFetchResultNoData);
+                completionHandler(UIBackgroundFetchResultNewData);
             }
 
             return;
@@ -185,112 +185,151 @@ typedef enum {
 }
 
 - (void) transmitReadingsWithStart:(NSTimeInterval) start completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
-    if (start < 1) {
-        start = [NSDate date].timeIntervalSince1970; //!OCLINT
+    if (self.isTransmitting) {
+        completionHandler(UIBackgroundFetchResultNewData);
+
+        return;
     }
     
-    sqlite3_stmt * statement = NULL;
+    self.isTransmitting = YES;
     
-    NSString * querySQL = [NSString stringWithFormat:@"SELECT D.id, D.properties FROM data D WHERE (D.timestamp < ?) LIMIT %d", (int) [self payloadSize]];
-    
-    const char * query_stmt = [querySQL UTF8String];
-    
-    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK)
-    {
-        sqlite3_bind_double(statement, 1, start);
-        
-        NSMutableArray * payload = [NSMutableArray array];
-        NSMutableArray * uploaded = [NSMutableArray array];
-        
-        while (sqlite3_step(statement) == SQLITE_ROW)
-        {
-            NSInteger pointId = sqlite3_column_int(statement, 0);
-            NSString * jsonString = [[NSString alloc] initWithUTF8String:(const char *) sqlite3_column_text(statement, 1)];
-            
-            NSError * error = nil;
-            
-            NSMutableDictionary * dataPoint = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]
-                                                                              options:(NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves)
-                                                                                error:&error];
-            if (error == nil) {
-                [uploaded addObject:[NSNumber numberWithInteger:pointId]];
-                [payload addObject:dataPoint];
-            }
-            else {
-                NSLog(@"Error fetching from PDKHttpTranmitter database: %@", error);
-
-                if (completionHandler != nil) {
-                    completionHandler(UIBackgroundFetchResultFailed);
-                }
-
-                return;
-            }
+    @synchronized (self) {
+        if (start < 1) {
+            start = [NSDate date].timeIntervalSince1970; //!OCLINT
         }
         
-        sqlite3_finalize(statement);
+        sqlite3_stmt * statement = NULL;
         
-        NSURLRequest * request = [self uploadRequestForPayload:payload];
+        NSString * querySQL = [NSString stringWithFormat:@"SELECT D.id, D.properties FROM data D WHERE (D.timestamp < ?) LIMIT %d", (int) [self payloadSize]];
         
-        if (request != nil) {
-            PDKAFURLSessionManager * manager = [[PDKAFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        const char * query_stmt = [querySQL UTF8String];
+        
+        if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK)
+        {
+            sqlite3_bind_double(statement, 1, start);
             
-            [[manager dataTaskWithRequest:request
-                           uploadProgress:nil
-                         downloadProgress:nil
-                        completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                            if (error == nil) {
-                                for (NSNumber * identifier in uploaded) {
-                                    sqlite3_stmt * deleteStatement = NULL;
-                                    
-                                    NSString * deleteSQL = @"DELETE FROM data WHERE (id = ?)";
-                                    
-                                    const char * delete_stmt = [deleteSQL UTF8String];
-                                    
-                                    if (sqlite3_prepare_v2(self.database, delete_stmt, -1, &deleteStatement, NULL) == SQLITE_OK)
-                                    {
-                                        sqlite3_bind_int(deleteStatement, 1, [identifier intValue]);
+            NSMutableArray * payload = [NSMutableArray array];
+            NSMutableArray * uploaded = [NSMutableArray array];
+            
+            while (sqlite3_step(statement) == SQLITE_ROW)
+            {
+                NSInteger pointId = sqlite3_column_int(statement, 0);
+                
+                const unsigned char * rawJsonString = sqlite3_column_text(statement, 1);
+
+                if (rawJsonString != NULL) {
+                    NSString * jsonString = [[NSString alloc] initWithUTF8String:(const char *) rawJsonString];
+
+                    NSError * error = nil;
+
+                    if (jsonString != nil) {
+                        NSMutableDictionary * dataPoint = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]
+                                                                                          options:(NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves)
+                                                                                            error:&error];
+                        if (error == nil) {
+                            [uploaded addObject:[NSNumber numberWithInteger:pointId]];
+                            [payload addObject:dataPoint];
+                        }
+                        else {
+                            NSLog(@"Error fetching from PDKHttpTranmitter database: %@", error);
+
+                            [uploaded addObject:[NSNumber numberWithInteger:pointId]];
+
+//                            if (completionHandler != nil) {
+//                                NSLog(@"XMIT RET FAILED");
+//                                completionHandler(UIBackgroundFetchResultFailed);
+//                            }
+                            
+//                            self.isTransmitting = NO;
+                            
+//                            return;
+                        }
+                    }
+                }
+            }
+            
+            sqlite3_finalize(statement);
+            
+            NSURLRequest * request = [self uploadRequestForPayload:payload];
+
+            if (request != nil) {
+                PDKAFURLSessionManager * manager = [[PDKAFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+                
+                [[manager dataTaskWithRequest:request
+                               uploadProgress:nil
+                             downloadProgress:nil
+                            completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                if (error == nil) {
+                                    for (NSNumber * identifier in uploaded) {
+                                        sqlite3_stmt * deleteStatement = NULL;
                                         
-                                        while (sqlite3_step(deleteStatement) == SQLITE_ROW) { //!OCLINT
+                                        NSString * deleteSQL = @"DELETE FROM data WHERE (id = ?)";
+                                        
+                                        const char * delete_stmt = [deleteSQL UTF8String];
+                                        
+                                        if (sqlite3_prepare_v2(self.database, delete_stmt, -1, &deleteStatement, NULL) == SQLITE_OK)
+                                        {
+                                            sqlite3_bind_int(deleteStatement, 1, [identifier intValue]);
                                             
+                                            int retVal = sqlite3_step(deleteStatement);
+                                            
+                                            if (retVal == SQLITE_ROW || retVal == SQLITE_DONE) { //!OCLINT
+
+                                            } else {
+
+                                            }
+                                            
+                                            sqlite3_finalize(deleteStatement);
+                                        } else {
+                                            if (completionHandler != nil) {
+
+                                                completionHandler(UIBackgroundFetchResultFailed);
+                                            }
+                                            
+                                            NSLog(@"Error while deleting data. '%s'", sqlite3_errmsg(self.database));
+                                            
+                                            self.isTransmitting = NO;
+                                            
+                                            return;
                                         }
-                                        
-                                        sqlite3_finalize(deleteStatement);
+                                    }
+                                    
+                                    NSTimeInterval interval = [NSDate date].timeIntervalSince1970 - start;
+                                    
+                                    if (interval < 5 && uploaded.count > 0) {
+                                        self.isTransmitting = NO;
+                                        [self transmitReadingsWithStart:start completionHandler:completionHandler];
                                     } else {
                                         if (completionHandler != nil) {
-                                            completionHandler(UIBackgroundFetchResultFailed);
+                                            completionHandler(UIBackgroundFetchResultNewData);
                                         }
                                         
-                                        NSLog(@"Error while deleting data. '%s'", sqlite3_errmsg(self.database));
-                                        
-                                        return;
+                                        self.isTransmitting = NO;
                                     }
-                                }
-                                
-                                NSTimeInterval interval = [NSDate date].timeIntervalSince1970 - start;
-                                
-                                if (interval < 5 && uploaded.count > 0) {
-                                    [self transmitReadingsWithStart:start completionHandler:completionHandler];
                                 } else {
+                                    NSLog(@"Error: %@", error);
+
                                     if (completionHandler != nil) {
-                                        completionHandler(UIBackgroundFetchResultNewData);
+                                        completionHandler(UIBackgroundFetchResultFailed);
                                     }
+
+                                    self.isTransmitting = NO;
                                 }
-                            } else {
-                                NSLog(@"Error: %@", error);
-                                if (completionHandler != nil) {
-                                    completionHandler(UIBackgroundFetchResultFailed);
-                                }
-                            }
-                            
-                        }] resume];
+                                
+                            }] resume];
+            } else {
+                if (completionHandler != nil) {
+                    completionHandler(UIBackgroundFetchResultNewData);
+                }
+
+                self.isTransmitting = NO;
+            }
         } else {
             if (completionHandler != nil) {
-                completionHandler(UIBackgroundFetchResultNoData);
+                completionHandler(UIBackgroundFetchResultFailed);
             }
-        }
-    } else {
-        if (completionHandler != nil) {
-            completionHandler(UIBackgroundFetchResultFailed);
+
+            self.isTransmitting = NO;
         }
     }
 }
@@ -304,15 +343,19 @@ typedef enum {
 }
 
 - (NSDictionary *) processIncomingDataPoint:(NSDictionary *) dataPoint forGenerator:(PDKDataGenerator) dataGenerator {
-    NSMutableDictionary * toStore = [NSMutableDictionary dictionaryWithDictionary:dataPoint];
+    id<PDKGenerator> generator = [[PassiveDataKit sharedInstance] generatorInstance:dataGenerator];
+    
+    return [self processIncomingDataPoint:dataPoint forCustomGenerator:[generator generatorId]];
+}
 
+- (NSDictionary *) processIncomingDataPoint:(NSDictionary *) dataPoint forCustomGenerator:(NSString *) generatorId {
+    NSMutableDictionary * toStore = [NSMutableDictionary dictionaryWithDictionary:dataPoint];
+    
     if (toStore[PDK_METADATA_KEY] == nil) {
         NSMutableDictionary * metadata = [NSMutableDictionary dictionary];
         
-        id<PDKGenerator> generator = [[PassiveDataKit sharedInstance] generatorInstance:dataGenerator];
-        
-        metadata[PDK_GENERATOR_ID_KEY] = [generator generatorId];
-        metadata[PDK_GENERATOR_KEY] = [generator fullGeneratorName];
+        metadata[PDK_GENERATOR_ID_KEY] = generatorId;
+        metadata[PDK_GENERATOR_KEY] = [NSString stringWithFormat:@"%@: %@", generatorId, [[PassiveDataKit sharedInstance] userAgent]];
         
         if (self.source != nil) {
             metadata[PDK_SOURCE_KEY] = self.source;
@@ -324,14 +367,42 @@ typedef enum {
         
         toStore[PDK_METADATA_KEY] = metadata;
     }
-
+    
     return toStore;
 }
 
 
 - (void) receivedData:(NSDictionary *) dataPoint forGenerator:(PDKDataGenerator) dataGenerator {
     NSDictionary * toStore = [self processIncomingDataPoint:dataPoint forGenerator:dataGenerator];
-    
+
+    if (toStore != nil) {
+        sqlite3_stmt * stmt;
+        
+        NSString * insert = @"INSERT INTO data (timestamp, properties) VALUES (?, ?);";
+        
+        if(sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
+            sqlite3_bind_double(stmt, 1, [toStore[PDK_METADATA_KEY][PDK_TIMESTAMP_KEY] doubleValue]);
+            
+            NSError * err = nil;
+            NSData * jsonData = [NSJSONSerialization dataWithJSONObject:toStore options:0 error:&err];
+            NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            
+            sqlite3_bind_text(stmt, 2, [jsonString UTF8String], -1, SQLITE_TRANSIENT);
+            
+            int retVal = sqlite3_step(stmt);
+            
+            if (SQLITE_DONE != retVal) {
+                NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+            }
+            
+            sqlite3_finalize(stmt);
+        }
+    }
+}
+
+- (void) receivedData:(NSDictionary *) dataPoint forCustomGenerator:(NSString *) generatorId {
+    NSDictionary * toStore = [self processIncomingDataPoint:dataPoint forCustomGenerator:generatorId];
+
     if (toStore != nil) {
         sqlite3_stmt * stmt;
         

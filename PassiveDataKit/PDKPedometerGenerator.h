@@ -16,4 +16,6 @@
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
 
+- (CGFloat) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end;
+
 @end

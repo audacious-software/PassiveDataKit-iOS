@@ -53,7 +53,7 @@ static PDKEventsGenerator * sharedObject = nil;
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"PDKEventGeneratorCell"];
     }
     
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSString * key = @"PDKEventGeneratorReviewPoints";
     
@@ -66,7 +66,7 @@ static PDKEventsGenerator * sharedObject = nil;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSString * key = @"PDKEventGeneratorReviewPoints";
     
@@ -84,7 +84,7 @@ static PDKEventsGenerator * sharedObject = nil;
     event[@"event_details"] = properties;
     event[@"observed"] = @(1000 * recorded.timeIntervalSince1970);
     
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSString * key = @"PDKEventGeneratorReviewPoints";
     
@@ -111,9 +111,11 @@ static PDKEventsGenerator * sharedObject = nil;
     }
     
     [defaults setValue:newPoints forKey:key];
-    [defaults synchronize];
+    // [defaults synchronize];
     
     [[PassiveDataKit sharedInstance] receivedData:event forGenerator:PDKEvents];
+    
+    NSLog(@"LOGGED EVENT: %@", eventName);
 }
 
 + (UIViewController *) detailsController {

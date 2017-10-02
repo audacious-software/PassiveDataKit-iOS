@@ -27,5 +27,6 @@
 @property NSString * source;
 @property NSString * transmitterId;
 @property NSURL * uploadUrl;
+@property BOOL isTransmitting;
 
 @end
