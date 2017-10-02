@@ -85,7 +85,9 @@ static PDKPedometerGenerator * sharedObject = nil;
         
         const char * path = [dbPath UTF8String];
         
-        if (sqlite3_open_v2(path, &database, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FILEPROTECTION_NONE, NULL) == SQLITE_OK) {
+        int retVal = sqlite3_open_v2(path, &database, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FILEPROTECTION_NONE, NULL);
+        
+        if (retVal == SQLITE_OK) {
             char * error;
             
             const char * createStatement = "CREATE TABLE IF NOT EXISTS pedometer_data (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, interval_start REAL, interval_end REAL, step_count REAL, distance REAL, average_pace REAL, current_pace REAL, current_cadence REAL, floors_ascended REAL, floors_descended REAL)";
@@ -159,9 +161,7 @@ static PDKPedometerGenerator * sharedObject = nil;
 //        }];
         
         [self.pedometer startPedometerUpdatesFromDate:[NSDate date] withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
-            if (error != nil) {
-                [self displayError:error];
-            } else {
+            if (error == nil) {
                 NSDate * now = [NSDate date];
                 
                 NSMutableDictionary * data = [NSMutableDictionary dictionary];
@@ -200,10 +200,10 @@ static PDKPedometerGenerator * sharedObject = nil;
 
                     int retVal = sqlite3_step(stmt);
                     
-                    if (SQLITE_DONE != retVal) {
-                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
-                    } else {
+                    if (SQLITE_DONE == retVal) {
                         NSLog(@"INSERT SUCCESSFUL");
+                    } else {
+                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
                     }
                     
                     sqlite3_finalize(stmt);
@@ -212,6 +212,8 @@ static PDKPedometerGenerator * sharedObject = nil;
                 }
                 
                 [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKPedometer];
+            } else {
+                [self displayError:error];
             }
         }];
     }

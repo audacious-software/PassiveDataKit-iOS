@@ -43,13 +43,13 @@ typedef enum {
     BOOL needsConnection = ((flags & kSCNetworkReachabilityFlagsConnectionRequired) != 0);
     BOOL isNetworkReachable = (isReachable && !needsConnection);
     
-    if (!isNetworkReachable) {
+    if (!isNetworkReachable) { //!OCLINT
         return ConnectionTypeNone;
-    } else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
+    } else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) { //!OCLINT
         return ConnectionType3G;
-    } else {
-        return ConnectionTypeWiFi;
     }
+
+    return ConnectionTypeWiFi;
 }
 
 - (id<PDKTransmitter>) initWithOptions:(NSDictionary *) options {
@@ -134,7 +134,7 @@ typedef enum {
     return NULL;
 }
 
-- (void) transmit:(BOOL) force completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
+- (void) transmit:(BOOL) force completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler { //!OCLINT
 //    if (force == NO && self.requireCharging) {
 //        [UIDevice currentDevice].batteryMonitoringEnabled = YES;
 //
@@ -184,7 +184,7 @@ typedef enum {
     return 16;
 }
 
-- (void) transmitReadingsWithStart:(NSTimeInterval) start completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
+- (void) transmitReadingsWithStart:(NSTimeInterval) start completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler { //!OCLINT
     if (self.isTransmitting) {
         completionHandler(UIBackgroundFetchResultNewData);
 
@@ -252,7 +252,7 @@ typedef enum {
             
             NSURLRequest * request = [self uploadRequestForPayload:payload];
 
-            if (request != nil) {
+            if (request != nil) { //!OCLINT
                 PDKAFURLSessionManager * manager = [[PDKAFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
                 
                 [[manager dataTaskWithRequest:request
@@ -271,13 +271,7 @@ typedef enum {
                                         {
                                             sqlite3_bind_int(deleteStatement, 1, [identifier intValue]);
                                             
-                                            int retVal = sqlite3_step(deleteStatement);
-                                            
-                                            if (retVal == SQLITE_ROW || retVal == SQLITE_DONE) { //!OCLINT
-
-                                            } else {
-
-                                            }
+                                            sqlite3_step(deleteStatement);
                                             
                                             sqlite3_finalize(deleteStatement);
                                         } else {
