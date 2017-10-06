@@ -148,7 +148,7 @@ static PDKPedometerGenerator * sharedObject = nil;
         [self.listeners addObject:listener];
     }
     
-    [self.pedometer stopPedometerEventUpdates];
+    [self.pedometer stopPedometerEventUpdates]; //!OCLINT
 
     if (self.listeners.count > 0) {
 //        [self.pedometer startPedometerEventUpdatesWithHandler:^(CMPedometerEvent * _Nullable pedometerEvent, NSError * _Nullable error) {
@@ -170,7 +170,7 @@ static PDKPedometerGenerator * sharedObject = nil;
                 data[PDKPedometerEnd] = [NSNumber numberWithFloat:pedometerData.endDate.timeIntervalSince1970];
                 data[PDKPedometerStepCount] = pedometerData.numberOfSteps;
                 data[PDKPedometerDistance] = pedometerData.distance;
-                data[PDKPedometerAveragePace] = pedometerData.averageActivePace;
+                data[PDKPedometerAveragePace] = pedometerData.averageActivePace; //!OCLINT
                 data[PDKPedometerCurrentPace] = pedometerData.currentPace;
                 data[PDKPedometerCurrentCadence] = pedometerData.currentCadence;
 
@@ -191,7 +191,7 @@ static PDKPedometerGenerator * sharedObject = nil;
                     sqlite3_bind_double(stmt, 3, pedometerData.endDate.timeIntervalSince1970);
                     sqlite3_bind_double(stmt, 4, pedometerData.numberOfSteps.doubleValue);
                     sqlite3_bind_double(stmt, 5, pedometerData.distance.doubleValue);
-                    sqlite3_bind_double(stmt, 6, pedometerData.averageActivePace.doubleValue);
+                    sqlite3_bind_double(stmt, 6, pedometerData.averageActivePace.doubleValue); //!OCLINT
                     sqlite3_bind_double(stmt, 7, pedometerData.currentPace.doubleValue);
                     sqlite3_bind_double(stmt, 8, pedometerData.currentCadence.doubleValue);
                     sqlite3_bind_double(stmt, 9, pedometerData.floorsAscended.doubleValue);
