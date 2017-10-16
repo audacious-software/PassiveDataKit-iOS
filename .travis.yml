@@ -17,6 +17,7 @@ script:
  - oclint-xcodebuild
  - oclint-json-compilation-database
   -e AFNetworking
+  -e DTMHeatmap
   --
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
