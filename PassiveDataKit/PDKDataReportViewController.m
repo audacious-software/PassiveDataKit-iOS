@@ -72,12 +72,12 @@
         
         id generator = [generatorClass sharedInstance];
         
-        if (generatorClass != nil) {
-            if ([generatorClass respondsToSelector:@selector(visualizationForSize:)]) {
+        if (generator != nil) {
+            if ([generator respondsToSelector:@selector(visualizationForSize:)]) {
                 visualization = [generator visualizationForSize:self.detailsView.bounds.size];
             }
         }
-        
+
         if (visualization == nil) {
             UILabel * placeholder = [[UILabel alloc] initWithFrame:self.detailsView.bounds];
             
@@ -219,7 +219,7 @@
     if (controller != nil) {
         [self.navigationController pushViewController:controller animated:YES];
     } else {
-        NSLog(@"UNKNOWN DETAILS CONTROLLER: %@", generator);
+
     }
     
 }

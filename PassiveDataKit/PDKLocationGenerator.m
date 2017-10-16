@@ -7,12 +7,17 @@
 //
 
 #include <math.h>
+#include <sqlite3.h>
 
-@import MapKit;
+#import "DTMHeatMap.h"
+#import "DTMHeatmapRenderer.h"
 
 #import "PDKLocationGenerator.h"
 #import "PDKLocationAnnotation.h"
 #import "PDKLocationGeneratorViewController.h"
+
+#define DATABASE_VERSION @"PDKLocationGenerator.DATABASE_VERSION"
+#define CURRENT_DATABASE_VERSION @(1)
 
 NSString * const PDKCapabilityRationale = @"PDKCapabilityRationale"; //!OCLINT
 NSString * const PDKLocationSignificantChangesOnly = @"PDKLocationSignificantChangesOnly"; //!OCLINT
@@ -52,36 +57,32 @@ NSString * const PDKLocationBearing = @"bearing"; //!OCLINT
 
 @property (nonatomic, copy) void (^accessDeniedBlock)(void);
 
+@property sqlite3 * database;
+
 @end
 
 @implementation PDKLocationGenerator
 
 static PDKLocationGenerator * sharedObject = nil;
 
-+ (PDKLocationGenerator *) sharedInstance
-{
++ (PDKLocationGenerator *) sharedInstance {
     static dispatch_once_t _singletonPredicate;
     
     dispatch_once(&_singletonPredicate, ^{
         sharedObject = [[super allocWithZone:nil] init];
-        
     });
     
     return sharedObject;
 }
 
-+ (id) allocWithZone:(NSZone *) zone //!OCLINT
-{
++ (id) allocWithZone:(NSZone *) zone { //!OCLINT
     return [self sharedInstance];
 }
 
-- (id) init
-{
+- (id) init {
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
 
-    if (self = [super init])
-    {
-
+    if (self = [super init]) {
         self.listeners = [NSMutableArray array];
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
@@ -93,24 +94,100 @@ static PDKLocationGenerator * sharedObject = nil;
         }
         
         [defaults addObserver:self forKeyPath:PDKLocationAccuracyMode options:NSKeyValueObservingOptionNew context:NULL];
+
+        self.database = [self openDatabase];
     }
     
     return self;
 }
 
+- (void) refresh:(CLLocation *) location {
+    if (location != nil) {
+        [self locationManager:self.locationManager didUpdateLocations:@[location]];
+    } else {
+        [self.locationManager requestLocation];
+    }
+}
+
+- (NSString *) databasePath {
+    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    
+    NSString * documentsPath = paths[0];
+    
+    NSString * dbPath = [documentsPath stringByAppendingPathComponent:@"pdk-location.sqlite3"];
+    
+    return dbPath;
+}
+
+- (sqlite3 *) openDatabase {
+    NSString * dbPath = [self databasePath];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:dbPath] == NO)
+    {
+        sqlite3 * database = NULL;
+        
+        const char * path = [dbPath UTF8String];
+        
+        int retVal = sqlite3_open_v2(path, &database, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FILEPROTECTION_NONE, NULL);
+        
+        if (retVal == SQLITE_OK) {
+            char * error;
+            
+            const char * createStatement = "CREATE TABLE IF NOT EXISTS location_data (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, latitude REAL, longitude REAL, altitude REAL, horizontal_accuracy REAL, vertical_accuracy REAL, floor REAL, speed REAL, course REAL)";
+            
+            if (sqlite3_exec(database, createStatement, NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
+
+            }
+            
+            sqlite3_close(database);
+        }
+    }
+    
+    const char * dbpath = [dbPath UTF8String];
+    
+    sqlite3 * database = NULL;
+    
+    if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
+        NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+        
+        NSNumber * dbVersion = [defaults valueForKey:DATABASE_VERSION];
+        
+        if (dbVersion == nil) {
+            dbVersion = @(0);
+        }
+        
+//        BOOL updated = NO;
+//        char * error = NULL;
+        
+        switch (dbVersion.integerValue) {
+            default:
+                break;
+        }
+        
+//        if (updated) {
+//            [defaults setValue:CURRENT_DATABASE_VERSION forKey:DATABASE_VERSION];
+//        }
+        
+        return database;
+    } else {
+
+    }
+    
+    return NULL;
+}
+
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context {
     if ([PDKLocationAccuracyMode isEqualToString:keyPath]) {
         self.mode = change[NSKeyValueChangeNewKey];
-        
+
+        [self.locationManager stopUpdatingLocation];
+
         if ([PDKLocationAccuracyModeBest isEqualToString:self.mode]) {
             [self.locationManager startUpdatingLocation];
         } else if ([PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
             [self.locationManager startUpdatingLocation];
         } else if ([PDKLocationAccuracyModeUserProvided isEqualToString:self.mode]) {
-            [self.locationManager stopUpdatingLocation];
             [self locationManager:self.locationManager didUpdateLocations:@[]];
-        } else if ([PDKLocationAccuracyModeDisabled isEqualToString:self.mode]) {
-            [self.locationManager stopUpdatingLocation];
         }
     }
 }
@@ -131,7 +208,7 @@ static PDKLocationGenerator * sharedObject = nil;
         options = @{}; //!OCLINT
     }
     
-    NSLog(@"TODO: Update options and refresh generator!");
+//    NSLog(@"TODO: Update options and refresh generator!");
 }
 
 
@@ -220,6 +297,8 @@ static PDKLocationGenerator * sharedObject = nil;
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     [[PassiveDataKit sharedInstance] logEvent:@"debug_location_update" properties:nil];
 
+    NSDate * now = [NSDate date];
+
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     if ([PDKLocationAccuracyModeBest isEqualToString:self.mode] || [PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
@@ -250,14 +329,41 @@ static PDKLocationGenerator * sharedObject = nil;
                 
                 thisLocation = [[CLLocation alloc] initWithLatitude:foundLatitude longitude:foundLongitude];
             }
+            
+            sqlite3_stmt * stmt;
+            
+            NSString * insert = @"INSERT INTO location_data (timestamp, latitude, longitude, altitude, horizontal_accuracy, vertical_accuracy, floor, speed, course) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-            NSMutableDictionary * log = [NSMutableDictionary dictionary];
-            [log setValue:[NSDate date] forKey:@"recorded"];
-            [log setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:PDKLocationLatitude];
-            [log setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:PDKLocationLongitude];
+            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
             
-            [PDKLocationGenerator logForReview:log];
-            
+            if (retVal == SQLITE_OK) {
+                sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970);
+                sqlite3_bind_double(stmt, 2, thisLocation.coordinate.latitude);
+                sqlite3_bind_double(stmt, 3, thisLocation.coordinate.longitude);
+                sqlite3_bind_double(stmt, 4, thisLocation.altitude);
+                sqlite3_bind_double(stmt, 5, thisLocation.horizontalAccuracy);
+                sqlite3_bind_double(stmt, 6, thisLocation.verticalAccuracy);
+                sqlite3_bind_double(stmt, 7, thisLocation.floor.level);
+                
+                if (thisLocation.speed >= 0) {
+                    sqlite3_bind_double(stmt, 8, thisLocation.speed);
+                    sqlite3_bind_double(stmt, 9, thisLocation.course);
+                } else {
+                    sqlite3_bind_double(stmt, 8, 0.0);
+                    sqlite3_bind_double(stmt, 9, 0.0);
+                }
+                
+                int retVal = sqlite3_step(stmt);
+                
+                if (SQLITE_DONE == retVal) {
+
+                } else {
+                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                }
+                
+                sqlite3_finalize(stmt);
+            }
+
             NSMutableDictionary * data = [NSMutableDictionary dictionary];
             [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:PDKLocationLatitude];
             [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:PDKLocationLongitude];
@@ -280,57 +386,46 @@ static PDKLocationGenerator * sharedObject = nil;
         CLLocationDegrees longitude = [defaults doubleForKey:PDKLocationAccuracyModeUserProvidedLongitude];
 
         CLLocation * location = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+
+        sqlite3_stmt * stmt;
         
-        NSMutableDictionary * log = [NSMutableDictionary dictionary];
-        [log setValue:[NSDate date] forKey:@"recorded"];
-        [log setValue:[NSNumber numberWithDouble:location.coordinate.latitude] forKey:PDKLocationLatitude];
-        [log setValue:[NSNumber numberWithDouble:location.coordinate.longitude] forKey:PDKLocationLongitude];
+        NSString * insert = @"INSERT INTO location_data (timestamp, latitude, longitude, altitude, horizontal_accuracy, vertical_accuracy, floor, speed, course) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
         
-        [PDKLocationGenerator logForReview:log];
+        int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
         
+        if (retVal == SQLITE_OK) {
+            sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970);
+            sqlite3_bind_double(stmt, 2, location.coordinate.latitude);
+            sqlite3_bind_double(stmt, 3, location.coordinate.longitude);
+            sqlite3_bind_double(stmt, 4, 0);
+            sqlite3_bind_double(stmt, 5, 0);
+            sqlite3_bind_double(stmt, 6, 0);
+            sqlite3_bind_double(stmt, 7, 0);
+            sqlite3_bind_double(stmt, 8, 0);
+            sqlite3_bind_double(stmt, 9, 0);
+
+            int retVal = sqlite3_step(stmt);
+            
+            if (SQLITE_DONE == retVal) {
+
+            } else {
+                NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+            }
+            
+            sqlite3_finalize(stmt);
+        }
+
         NSMutableDictionary * data = [NSMutableDictionary dictionary];
         
         [data setValue:[NSNumber numberWithDouble:location.coordinate.latitude] forKey:PDKLocationLatitude];
         [data setValue:[NSNumber numberWithDouble:location.coordinate.longitude] forKey:PDKLocationLongitude];
 
-        [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKLocation];
+        for (id<PDKDataListener> listener in self.listeners) {
+            [listener receivedData:data forGenerator:PDKLocation];
+        }
     } else if ([PDKLocationAccuracyModeDisabled isEqualToString:self.mode]) { //!OCLINT
         // Do nothing...
     }
-}
-
-+ (void) logForReview:(NSDictionary *) payload {
-    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
-    
-    NSString * key = @"PDKLocationGeneratorReviewPoints";
-    
-    NSArray * reviewPoints = [defaults valueForKey:key];
-    
-    NSMutableArray * newPoints = [NSMutableArray array];
-    
-    if (reviewPoints != nil) {
-        for (NSDictionary * point in reviewPoints) {
-            if (point[@"recorded"] != nil) {
-                [newPoints addObject:point];
-            }
-        }
-    }
-    
-    NSMutableDictionary * reviewPoint = [NSMutableDictionary dictionaryWithDictionary:payload];
-    [reviewPoint setValue:[NSDate date] forKey:@"recorded"];
-    
-    [newPoints addObject:reviewPoint];
-    
-    [newPoints sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-        return [obj2[@"recorded"] compare:obj1[@"recorded"]];
-    }];
-    
-    while (newPoints.count > 50) {
-        [newPoints removeObjectAtIndex:(newPoints.count - 1)];
-    }
-    
-    [defaults setValue:newPoints forKey:key];
-    [defaults synchronize];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
@@ -353,45 +448,71 @@ static PDKLocationGenerator * sharedObject = nil;
 - (UIView *) visualizationForSize:(CGSize) size {
     MKMapView * mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     mapView.showsUserLocation = NO;
+    mapView.delegate = self;
+    mapView.mapType = MKMapTypeHybrid;
 
     CLLocationDegrees minLat = 90.0;
     CLLocationDegrees maxLat = -90.0;
     CLLocationDegrees minLon = 180.0;
     CLLocationDegrees maxLon = -180.0;
     
-    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
-    NSArray * points = [defaults valueForKey:@"PDKLocationGeneratorReviewPoints"];
-    
-    NSInteger count = 0;
-    
-    for (NSDictionary * point in points) {
-        NSDate * recorded = [point valueForKey:@"recorded"];
-        NSNumber * latitude = [point valueForKey:@"latitude"];
-        NSNumber * longitude = [point valueForKey:@"longitude"];
-        
-        if (latitude.doubleValue < minLat) {
-            minLat = latitude.doubleValue;
-        }
-        if (longitude.doubleValue < minLon) {
-            minLon = longitude.doubleValue;
-        }
-        if (latitude.doubleValue > maxLat) {
-            maxLat = latitude.doubleValue;
-        }
-        if (longitude.doubleValue > maxLon) {
-            maxLon = longitude.doubleValue;
-        }
+    NSMutableDictionary * data = [NSMutableDictionary dictionary];
 
-        CLLocation * location = [[CLLocation alloc] initWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * querySQL = @"SELECT L.latitude, L.longitude FROM location_data L";
+    
+    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+    
+    if (retVal == SQLITE_OK) {
+        while (sqlite3_step(statement) == SQLITE_ROW) {
+            CLLocationDegrees latitude = sqlite3_column_double(statement, 0);
+            CLLocationDegrees longitude = sqlite3_column_double(statement, 1);
+            
+            if (latitude != 0 && longitude != 0) {
+                if (minLat > latitude) {
+                    minLat = latitude;
+                }
+
+                if (maxLat < latitude) {
+                    maxLat = latitude;
+                }
+
+                if (minLon > longitude) {
+                    minLon = longitude;
+                }
+                
+                if (maxLon < longitude) {
+                    maxLon = longitude;
+                }
+
+                CLLocation * location = [[CLLocation alloc] initWithLatitude:latitude
+                                                                   longitude:longitude];
+                
+                MKMapPoint point = MKMapPointForCoordinate(location.coordinate);
+                
+                NSValue * pointValue = [NSValue value:&point
+                                         withObjCType:@encode(MKMapPoint)];
+
+                if (data[pointValue] == nil) {
+                    data[pointValue] = @(1);
+                } else {
+                    NSNumber * weight = data[pointValue];
+                    
+                    data[pointValue] = @(weight.integerValue + 1);
+                }
+            }
+        }
         
-        PDKLocationAnnotation * note = [[PDKLocationAnnotation alloc] initWithLocation:location forDate:recorded];
-        
-        [mapView addAnnotation:note];
-        
-        count += 1;
+        sqlite3_finalize(statement);
     }
     
-    if (count > 1) {
+    DTMHeatmap * heatMap = [[DTMHeatmap alloc] init];
+    [heatMap setData:data];
+
+    [mapView addOverlay:heatMap];
+    
+    if ([data allKeys].count > 1) {
         MKCoordinateSpan span = MKCoordinateSpanMake((maxLat - minLat) * 1.25, (maxLon - minLon) * 1.25);
         
         CLLocationCoordinate2D center = CLLocationCoordinate2DMake((maxLat - span.latitudeDelta / 4), maxLon - span.longitudeDelta / 4);
@@ -404,8 +525,38 @@ static PDKLocationGenerator * sharedObject = nil;
     return mapView;
 }
 
+#pragma mark - MKMapViewDelegate
+- (MKOverlayRenderer *)mapView:(MKMapView *)mapView rendererForOverlay:(id<MKOverlay>)overlay
+{
+    return [[DTMHeatmapRenderer alloc] initWithOverlay:overlay];
+}
+
 - (NSString *) generatorId {
     return GENERATOR_ID;
+}
+
+- (CLLocation *) lastKnownLocation {
+    CLLocationDegrees latitude = 40.7128;
+    CLLocationDegrees longitude = -74.0059;
+
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * querySQL = @"SELECT L.latitude, L.longitude FROM location_data L ORDER BY L.timestamp DESC LIMIT 1";
+    
+    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+    
+    if (retVal == SQLITE_OK)
+    {
+        if (sqlite3_step(statement) == SQLITE_ROW)
+        {
+            latitude = sqlite3_column_double(statement, 0);
+            longitude = sqlite3_column_double(statement, 1);
+        }
+        
+        sqlite3_finalize(statement);
+    }
+    
+    return [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
 }
 
 @end

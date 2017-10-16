@@ -45,7 +45,6 @@ static PDKPedometerGenerator * sharedObject = nil;
     
     dispatch_once(&_singletonPredicate, ^{
         sharedObject = [[super allocWithZone:nil] init];
-        
     });
     
     return sharedObject;
@@ -93,7 +92,7 @@ static PDKPedometerGenerator * sharedObject = nil;
             const char * createStatement = "CREATE TABLE IF NOT EXISTS pedometer_data (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, interval_start REAL, interval_end REAL, step_count REAL, distance REAL, average_pace REAL, current_pace REAL, current_cadence REAL, floors_ascended REAL, floors_descended REAL)";
             
             if (sqlite3_exec(database, createStatement, NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
-                NSLog(@"DATABASE OK");
+
             }
             
             sqlite3_close(database);
@@ -119,7 +118,7 @@ static PDKPedometerGenerator * sharedObject = nil;
         switch (dbVersion.integerValue) {
             case 0:
                 if (sqlite3_exec(database, "ALTER TABLE pedometer_data ADD COLUMN today_start REAL", NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
-                    NSLog(@"DB 0 SUCCESS");
+
                 } else {
                     NSLog(@"DB 0 ERROR: %s", error);
                 }
@@ -132,8 +131,6 @@ static PDKPedometerGenerator * sharedObject = nil;
         if (updated) {
             [defaults setValue:CURRENT_DATABASE_VERSION forKey:DATABASE_VERSION];
         }
-        
-        NSLog(@"RETURN DATABASE %@", CURRENT_DATABASE_VERSION);
         
         return database;
     } else {

@@ -49,9 +49,11 @@
     
     CGSize size = self.view.bounds.size;
     
-    self.detailsView.frame = CGRectMake(0, 0, self.view.bounds.size.width, size.height - 104);
-    self.separator.frame = CGRectMake(0, size.height - 104, self.view.bounds.size.width, 16);
-    self.parametersView.frame = CGRectMake(0, size.height - 88, self.view.bounds.size.width, 88);
+    CGFloat panelHeight = (size.height - 16) / 2;
+    
+    self.detailsView.frame = CGRectMake(0, 0, self.view.bounds.size.width, panelHeight);
+    self.separator.frame = CGRectMake(0, panelHeight, self.view.bounds.size.width, 16);
+    self.parametersView.frame = CGRectMake(0, panelHeight + 16, self.view.bounds.size.width, panelHeight);
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -207,6 +209,8 @@
         
         if (indexPath.row == 0) {
             [defaults setValue:PDKLocationAccuracyModeBest forKey:PDKLocationAccuracyMode];
+            
+            [[PDKLocationGenerator sharedInstance] refresh:nil];
         } else if (indexPath.row == 1) {
             [defaults setValue:PDKLocationAccuracyModeRandomized forKey:PDKLocationAccuracyMode];
 
@@ -235,6 +239,9 @@
                                                                       
                                                                       [defaults setValue:distance forKey:PDKLocationAccuracyModeUserProvidedDistance];
                                                                       [defaults synchronize];
+
+                                                                  
+                                                                      [[PDKLocationGenerator sharedInstance] refresh:nil];
                                                                   }];
             [alert addAction:defaultAction];
             
@@ -263,7 +270,7 @@
                                                                       UITextField * locationField = alert.textFields[0];
 
                                                                       CLGeocoder * geocoder = [[CLGeocoder alloc] init];
-
+                                                                      
                                                                       [geocoder geocodeAddressString:locationField.text completionHandler:^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
                                                                           if (placemarks.count > 0) {
                                                                               CLLocation * place = placemarks[0].location;
@@ -274,6 +281,8 @@
                                                                               [defaults setValue:PDKLocationAccuracyModeUserProvided forKey:PDKLocationAccuracyMode];
 
                                                                               [defaults synchronize];
+
+                                                                              [[PDKLocationGenerator sharedInstance] refresh:place];
                                                                           }
                                                                       }];
                                                                   }];

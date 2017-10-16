@@ -6,8 +6,9 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
+@import Foundation;
+@import CoreLocation;
+@import MapKit;
 
 #import "PassiveDataKit.h"
 
@@ -23,8 +24,12 @@ extern NSString *const PDKLocationAccuracyModeUserProvidedLatitude;
 extern NSString *const PDKLocationAccuracyModeUserProvidedLongitude;
 
 
-@interface PDKLocationGenerator : PDKBaseGenerator<CLLocationManagerDelegate>
+@interface PDKLocationGenerator : PDKBaseGenerator<CLLocationManagerDelegate, MKMapViewDelegate>
 
 + (PDKLocationGenerator *) sharedInstance;
+
+- (CLLocation *) lastKnownLocation;
+- (void) locationManager:(CLLocationManager *) manager didUpdateLocations:(NSArray<CLLocation *> *) locations;
+- (void) refresh:(CLLocation *) location;
 
 @end
