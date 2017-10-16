@@ -24,3 +24,5 @@ script:
   -disable-rule=LongVariableName
   -disable-rule=HighCyclomaticComplexity 
   -disable-rule=HighNPathComplexity
+  -disable-rule=HighNcssMethod
+
