@@ -10,7 +10,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "PassiveDataKit.h";
+#import "PassiveDataKit.h"
 
 @interface PassiveDataKitTests : XCTestCase
 
