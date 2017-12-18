@@ -559,4 +559,121 @@ static PDKLocationGenerator * sharedObject = nil;
     return [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
 }
 
+- (CLLocation *) earliestKnownLocation {
+    CLLocationDegrees latitude = 40.7128;
+    CLLocationDegrees longitude = -74.0059;
+    
+    NSTimeInterval timestamp = 0;
+    
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * querySQL = @"SELECT L.latitude, L.longitude, L.timestamp FROM location_data L ORDER BY L.timestamp LIMIT 1";
+    
+    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+    
+    if (retVal == SQLITE_OK)
+    {
+        if (sqlite3_step(statement) == SQLITE_ROW)
+        {
+            latitude = sqlite3_column_double(statement, 0);
+            longitude = sqlite3_column_double(statement, 1);
+            timestamp = sqlite3_column_double(statement, 2);
+        }
+        
+        sqlite3_finalize(statement);
+    }
+    
+    CLLocation * location = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude)
+                                                          altitude:0
+                                                horizontalAccuracy:0
+                                                  verticalAccuracy:0
+                                                         timestamp:[NSDate dateWithTimeIntervalSince1970:timestamp]];
+
+    return location;
+}
+
+- (NSArray *) locationsSince:(NSDate *) startDate {
+    NSMutableArray * locations = [NSMutableArray array];
+    
+    NSTimeInterval timestamp = [startDate timeIntervalSince1970];
+    
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * querySQL = @"SELECT L.latitude, L.longitude, L.timestamp FROM location_data L WHERE L.timestamp > ?";
+    
+    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+    
+    if (retVal == SQLITE_OK)
+    {
+        retVal = sqlite3_bind_double(statement, 1, (double) timestamp);
+        
+        if (retVal == SQLITE_OK)
+        {
+            while (sqlite3_step(statement) == SQLITE_ROW)
+            {
+                double latitude = sqlite3_column_double(statement, 0);
+                double longitude = sqlite3_column_double(statement, 1);
+                double timestamp = sqlite3_column_double(statement, 2);
+
+                CLLocation * loc = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude)
+                                                                 altitude:0
+                                                       horizontalAccuracy:0
+                                                         verticalAccuracy:0
+                                                                   course:0
+                                                                    speed:0
+                                                                timestamp:[NSDate dateWithTimeIntervalSince1970:timestamp]];
+                
+                [locations addObject:loc];
+            }
+            
+            sqlite3_finalize(statement);
+        }
+    }
+
+    return locations;
+}
+
+- (NSArray *) locationsFrom:(NSDate *) startDate to:(NSDate *) endDate {
+    NSMutableArray * locations = [NSMutableArray array];
+    
+    NSTimeInterval start = [startDate timeIntervalSince1970];
+    NSTimeInterval end = [endDate timeIntervalSince1970];
+
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * querySQL = @"SELECT L.latitude, L.longitude, L.timestamp FROM location_data L WHERE (L.timestamp >= ? AND L.timestamp <= ?)";
+    
+    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+    
+    if (retVal == SQLITE_OK)
+    {
+        retVal = sqlite3_bind_double(statement, 1, (double) start);
+        retVal = sqlite3_bind_double(statement, 2, (double) end);
+
+        if (retVal == SQLITE_OK)
+        {
+            while (sqlite3_step(statement) == SQLITE_ROW)
+            {
+                double latitude = sqlite3_column_double(statement, 0);
+                double longitude = sqlite3_column_double(statement, 1);
+                double timestamp = sqlite3_column_double(statement, 2);
+                
+                CLLocation * loc = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude)
+                                                                 altitude:0
+                                                       horizontalAccuracy:0
+                                                         verticalAccuracy:0
+                                                                   course:0
+                                                                    speed:0
+                                                                timestamp:[NSDate dateWithTimeIntervalSince1970:timestamp]];
+                
+                [locations addObject:loc];
+            }
+            
+            sqlite3_finalize(statement);
+        }
+    }
+    
+    return locations;
+}
+
 @end
