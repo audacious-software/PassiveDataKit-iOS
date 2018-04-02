@@ -46,3 +46,7 @@
 
 "title_pdk_events_generator_enable" = "Application Event Collection";
 "subtitle_pdk_events_generator_enable" = "Enable or disable this data source.";
+
+"error_generator_pedometer_unavailable" = "Pedometer is unavailable.";
+"title_generator_pedometer_unavailable" = "Pedometer Unavailable";
+"message_generator_pedometer_unavailable" = "This device does not include the necessary hardware to track steps. Please use an updated device that supports Core Motion.";

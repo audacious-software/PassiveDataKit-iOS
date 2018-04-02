@@ -7,6 +7,7 @@
 //
 
 @import Foundation;
+@import CoreMotion;
 
 #import "PDKBaseGenerator.h"
 
@@ -17,5 +18,8 @@
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
 
 - (CGFloat) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end;
+- (void) historicalStepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end withHandler:(CMPedometerHandler)handler;
+
+- (void) refresh;
 
 @end

@@ -220,14 +220,14 @@ static PDKLocationGenerator * sharedObject = nil;
     self.lastOptions = options;
 
     self.accessDeniedBlock = [options valueForKey:PDKLocationAccessDenied];
-
+    
     if (self.listeners.count == 0) {
         // Turn on sensors with options...
      
         NSNumber * alwaysOn = [options valueForKey:PDKLocationAlwaysOn];
 
         CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
+
         if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
             if (self.accessDeniedBlock != nil) {
                 self.accessDeniedBlock();
@@ -294,6 +294,14 @@ static PDKLocationGenerator * sharedObject = nil;
     }
 }
 
+- (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager {
+    [[PassiveDataKit sharedInstance] logEvent:@"debug_location_updates_paused" properties:nil];
+}
+
+- (void)locationManagerDidResumeLocationUpdates:(CLLocationManager *)manager {
+    [[PassiveDataKit sharedInstance] logEvent:@"debug_location_updates_resumed" properties:nil];
+}
+
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     [[PassiveDataKit sharedInstance] logEvent:@"debug_location_update" properties:nil];
 
@@ -337,28 +345,29 @@ static PDKLocationGenerator * sharedObject = nil;
             int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
             
             if (retVal == SQLITE_OK) {
-                sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970);
-                sqlite3_bind_double(stmt, 2, thisLocation.coordinate.latitude);
-                sqlite3_bind_double(stmt, 3, thisLocation.coordinate.longitude);
-                sqlite3_bind_double(stmt, 4, thisLocation.altitude);
-                sqlite3_bind_double(stmt, 5, thisLocation.horizontalAccuracy);
-                sqlite3_bind_double(stmt, 6, thisLocation.verticalAccuracy);
-                sqlite3_bind_double(stmt, 7, thisLocation.floor.level);
-                
-                if (thisLocation.speed >= 0) {
-                    sqlite3_bind_double(stmt, 8, thisLocation.speed);
-                    sqlite3_bind_double(stmt, 9, thisLocation.course);
-                } else {
-                    sqlite3_bind_double(stmt, 8, 0.0);
-                    sqlite3_bind_double(stmt, 9, 0.0);
-                }
-                
-                int retVal = sqlite3_step(stmt);
-                
-                if (SQLITE_DONE == retVal) {
-
-                } else {
-                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                if (sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 2, thisLocation.coordinate.latitude) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 3, thisLocation.coordinate.longitude) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 4, thisLocation.altitude) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 5, thisLocation.horizontalAccuracy) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 6, thisLocation.verticalAccuracy) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 7, thisLocation.floor.level) == SQLITE_OK) {
+                    
+                    if (thisLocation.speed >= 0) {
+                        sqlite3_bind_double(stmt, 8, thisLocation.speed);
+                        sqlite3_bind_double(stmt, 9, thisLocation.course);
+                    } else {
+                        sqlite3_bind_double(stmt, 8, 0.0);
+                        sqlite3_bind_double(stmt, 9, 0.0);
+                    }
+                    
+                    int retVal = sqlite3_step(stmt);
+                    
+                    if (SQLITE_DONE == retVal) {
+                        
+                    } else {
+                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                    }
                 }
                 
                 sqlite3_finalize(stmt);

@@ -21,6 +21,7 @@
 
 @property NSMutableDictionary * listeners;
 @property NSMutableArray * transmitters;
+@property NSMutableArray * activeAlerts;
 
 @end
 
@@ -39,6 +40,9 @@ NSString * const PDKGooglePlacesType = @"PDKGooglePlacesType"; //!OCLINT
 NSString * const PDKGooglePlacesRadius = @"PDKGooglePlacesRadius"; //!OCLINT
 NSString * const PDKGooglePlacesIncludeFullDetails = @"PDKGooglePlacesIncludeFullDetails"; //!OCLINT
 NSString * const PDKGooglePlacesFreetextQuery = @"PDKGooglePlacesFreetextQuery"; //!OCLINT
+
+@implementation PDKAlert
+@end
 
 @implementation PassiveDataKit
 
@@ -60,12 +64,11 @@ static PassiveDataKit * sharedObject = nil;
     return [self sharedInstance];
 }
 
-- (id) init
-{
-    if (self = [super init])
-    {
+- (id) init {
+    if (self = [super init]) {
         self.listeners = [NSMutableDictionary dictionary];
         self.transmitters = [NSMutableArray array];
+        self.activeAlerts = [NSMutableArray array];
     }
     
     return self;
@@ -261,6 +264,34 @@ static PassiveDataKit * sharedObject = nil;
 
 - (UIViewController *) dataReportController {
     return [[PDKDataReportViewController alloc] init];
+}
+
+- (NSArray *) alerts {
+    return [NSArray arrayWithArray:self.activeAlerts];
+}
+
+- (void) cancelAlertWithTag:(NSString *) alertTag {
+    PDKAlert * toDelete = nil;
+    
+    for (PDKAlert * alert in self.activeAlerts) {
+        if ([alertTag isEqualToString:alert.alertTag]) {
+            toDelete = alert;
+        }
+    }
+    
+    [self.activeAlerts removeObject:toDelete];
+}
+
+- (void) updateAlertWithTag:(NSString *) alertTag message:(NSString *) message level:(PDKAlertLevel) level action:(void(^)(void)) action  {
+    [self cancelAlertWithTag:alertTag];
+    
+    PDKAlert * alert = [[PDKAlert alloc] init];
+    alert.alertTag = alertTag;
+    alert.message = message;
+    alert.level = level;
+    alert.action = action;
+    
+    [self.activeAlerts addObject:alert];
 }
 
 @end

@@ -87,6 +87,21 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 
 @end
 
+typedef NS_ENUM(NSInteger, PDKAlertLevel) {
+    PDKAlertLevelError,
+    PDKAlertLevelWarning,
+    PDKAlertLevelOkay
+};
+
+@interface PDKAlert : NSObject
+
+@property (nonatomic, copy) NSString * message;
+@property (nonatomic, copy) NSString * alertTag;
+@property (nonatomic, copy) NSDate * generated;
+@property (nonatomic, copy) void (^action)(void);
+@property PDKAlertLevel level;
+
+@end
 
 @interface PassiveDataKit : NSObject<PDKDataListener>
 
@@ -119,5 +134,11 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 + (NSString *) keyForGenerator:(PDKDataGenerator) generator;
 
 - (void) addTransmitter:(id<PDKTransmitter>) transmitter;
+
+- (NSArray *) alerts;
+- (void) updateAlertWithTag:(NSString *) alertTag message:(NSString *) message level:(PDKAlertLevel) level action:(void(^)(void)) action;
+- (void) cancelAlertWithTag:(NSString *) alertTag;
+
+// - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
 
 @end
