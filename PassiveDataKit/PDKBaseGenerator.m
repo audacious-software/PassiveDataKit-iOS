@@ -34,7 +34,7 @@
     NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
 }
 
-- (void) removeListener:(id<PDKDataListener>) listener {
+- (void) removeListener:(id<PDKDataListener>) listener { //!OCLINT
     NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
 }
 

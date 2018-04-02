@@ -200,7 +200,7 @@ static PassiveDataKit * sharedObject = nil;
     }
 }
 
-- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
+- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler { //!OCLINT
     for (id<PDKTransmitter> transmitter in self.transmitters) {
         [transmitter transmit:NO completionHandler:completionHandler];
     }

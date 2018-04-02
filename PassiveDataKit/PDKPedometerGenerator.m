@@ -130,6 +130,8 @@ static PDKPedometerGenerator * sharedObject = nil;
                 }
                 
                 updated = YES;
+                
+                break;
             default:
                 break;
         }
@@ -139,9 +141,9 @@ static PDKPedometerGenerator * sharedObject = nil;
         }
         
         return database;
-    } else {
-        NSLog(@"UNABLE TO OPEN DATABASE");
     }
+    
+    NSLog(@"UNABLE TO OPEN DATABASE");
     
     return NULL;
 }

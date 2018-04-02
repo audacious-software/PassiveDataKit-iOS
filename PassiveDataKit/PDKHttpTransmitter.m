@@ -110,7 +110,7 @@ typedef enum {
         
         const char * path = [dbPath UTF8String];
         
-        if (sqlite3_open_v2(path, &database, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FILEPROTECTION_NONE, NULL) == SQLITE_OK) {
+        if (sqlite3_open_v2(path, &database, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FILEPROTECTION_NONE, NULL) == SQLITE_OK) { //!OCLINT
             char * error;
             
             const char * createStatement = "CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, properties TEXT)";

@@ -83,7 +83,7 @@ static PDKBatteryGenerator * sharedObject = nil;
 }
 
 
-- (void) batteryDidChange:(NSNotification *) theNote {
+- (void) batteryDidChange:(NSNotification *) theNote { //!OCLINT
     NSMutableDictionary * data = [NSMutableDictionary dictionary];
 
     float level = [UIDevice currentDevice].batteryLevel * 100.0;
