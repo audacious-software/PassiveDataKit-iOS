@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		381F1C041FE78832008DCE52 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */; };
 		382BEDC91F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 382BEDC71F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		382BEDCA1F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 382BEDC81F01A9CD00A99FA4 /* PDKAppleHealthKitGenerator.m */; };
 		382BEDCF1F01B2A800A99FA4 /* PDKPedometerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 382BEDCD1F01B2A800A99FA4 /* PDKPedometerGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -29,16 +30,16 @@
 		3842F73C1CDA2021007F843D /* PassiveDataKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3842F7311CDA2021007F843D /* PassiveDataKit.framework */; };
 		3842F7411CDA2021007F843D /* PassiveDataKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3842F7401CDA2021007F843D /* PassiveDataKitTests.m */; };
 		3842F7571CDA20FE007F843D /* PassiveDataKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 3842F7551CDA20FE007F843D /* PassiveDataKit.m */; };
-		385BC45C1F9432190093157F /* DTMColorProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4541F9431610093157F /* DTMColorProvider.h */; };
-		385BC45D1F9432190093157F /* DTMDiffColorProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4561F9431610093157F /* DTMDiffColorProvider.h */; };
-		385BC45E1F9432190093157F /* DTMHeatmapRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4551F9431610093157F /* DTMHeatmapRenderer.h */; };
+		385BC45C1F9432190093157F /* DTMColorProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4541F9431610093157F /* DTMColorProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		385BC45D1F9432190093157F /* DTMDiffColorProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4561F9431610093157F /* DTMDiffColorProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		385BC45E1F9432190093157F /* DTMHeatmapRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4551F9431610093157F /* DTMHeatmapRenderer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		385BC45F1F9432270093157F /* DTMColorProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 385BC4581F9431610093157F /* DTMColorProvider.m */; };
 		385BC4601F9432270093157F /* DTMDiffColorProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 385BC4591F9431610093157F /* DTMDiffColorProvider.m */; };
 		385BC4611F9432270093157F /* DTMHeatmapRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 385BC4571F9431610093157F /* DTMHeatmapRenderer.m */; };
 		385BC4661F9433470093157F /* DTMDiffHeatmap.m in Sources */ = {isa = PBXBuildFile; fileRef = 385BC4621F9433470093157F /* DTMDiffHeatmap.m */; };
 		385BC4671F9433470093157F /* DTMHeatmap.m in Sources */ = {isa = PBXBuildFile; fileRef = 385BC4641F9433470093157F /* DTMHeatmap.m */; };
-		385BC4681F9433710093157F /* DTMDiffHeatmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4631F9433470093157F /* DTMDiffHeatmap.h */; };
-		385BC4691F9433710093157F /* DTMHeatmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4651F9433470093157F /* DTMHeatmap.h */; };
+		385BC4681F9433710093157F /* DTMDiffHeatmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4631F9433470093157F /* DTMDiffHeatmap.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		385BC4691F9433710093157F /* DTMHeatmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 385BC4651F9433470093157F /* DTMHeatmap.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		387F9A511D1B8ACD007FA29A /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A501D1B8ACD007FA29A /* SystemConfiguration.framework */; };
 		387F9A531D1B8AD7007FA29A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A521D1B8AD7007FA29A /* CoreTelephony.framework */; };
 		387F9A551D1B8ADE007FA29A /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A541D1B8ADE007FA29A /* Accelerate.framework */; };
@@ -55,7 +56,6 @@
 		38A6523C1CDA2D9B00AE8B3B /* PDKLocationGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38A6523A1CDA2D9B00AE8B3B /* PDKLocationGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38A6523D1CDA2D9B00AE8B3B /* PDKLocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38A6523B1CDA2D9B00AE8B3B /* PDKLocationGenerator.m */; };
 		38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38A652421CDA30DB00AE8B3B /* CoreLocation.framework */; };
-		38C666B31D0380CD00E6A6C8 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */; };
 		38C666D71D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666B61D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.h */; };
 		38C666D81D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 38C666B71D038A8E00E6A6C8 /* PDKAFAutoPurgingImageCache.m */; };
 		38C666D91D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 38C666B81D038A8E00E6A6C8 /* PDKAFHTTPSessionManager.h */; };
@@ -207,6 +207,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				381F1C041FE78832008DCE52 /* libsqlite3.tbd in Frameworks */,
 				382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */,
 				383ECC631D1F7E9F004E0B2B /* MapKit.framework in Frameworks */,
 				387F9A5C1D1B8E32007FA29A /* libicucore.tbd in Frameworks */,
@@ -215,7 +216,6 @@
 				387F9A551D1B8ADE007FA29A /* Accelerate.framework in Frameworks */,
 				387F9A531D1B8AD7007FA29A /* CoreTelephony.framework in Frameworks */,
 				387F9A511D1B8ACD007FA29A /* SystemConfiguration.framework in Frameworks */,
-				38C666B31D0380CD00E6A6C8 /* libsqlite3.tbd in Frameworks */,
 				38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -748,6 +748,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				COPY_PHASE_STRIP = NO;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -760,6 +761,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.audacious-software.PassiveDataKit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
 			};
 			name = Debug;
 		};
@@ -768,6 +770,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				COPY_PHASE_STRIP = NO;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -780,6 +783,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.audacious-software.PassiveDataKit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
 			};
 			name = Release;
 		};

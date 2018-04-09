@@ -72,10 +72,8 @@
         
         id generator = [generatorClass sharedInstance];
         
-        if (generator != nil) {
-            if ([generator respondsToSelector:@selector(visualizationForSize:)]) {
-                visualization = [generator visualizationForSize:self.detailsView.bounds.size];
-            }
+        if (generator != nil && [generator respondsToSelector:@selector(visualizationForSize:)]) {
+            visualization = [generator visualizationForSize:self.detailsView.bounds.size];
         }
 
         if (visualization == nil) {
@@ -180,10 +178,8 @@
     } else {
         Class generatorClass = NSClassFromString(key);
         
-        if (generatorClass != nil) {
-            if ([generatorClass respondsToSelector:@selector(title)]) {
-                return [generatorClass performSelector:@selector(title)];
-            }
+        if (generatorClass != nil && [generatorClass respondsToSelector:@selector(title)]) {
+            return [generatorClass performSelector:@selector(title)];
         }
     }
     
@@ -218,8 +214,6 @@
     
     if (controller != nil) {
         [self.navigationController pushViewController:controller animated:YES];
-    } else {
-
     }
     
 }

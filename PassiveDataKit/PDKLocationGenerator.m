@@ -102,10 +102,10 @@ static PDKLocationGenerator * sharedObject = nil;
 }
 
 - (void) refresh:(CLLocation *) location {
-    if (location != nil) {
-        [self locationManager:self.locationManager didUpdateLocations:@[location]];
-    } else {
+    if (location == nil) {
         [self.locationManager requestLocation];
+    } else {
+        [self locationManager:self.locationManager didUpdateLocations:@[location]];
     }
 }
 
@@ -159,7 +159,7 @@ static PDKLocationGenerator * sharedObject = nil;
 //        BOOL updated = NO;
 //        char * error = NULL;
         
-        switch (dbVersion.integerValue) {
+        switch (dbVersion.integerValue) { //!OCLINT
             default:
                 break;
         }
@@ -169,8 +169,6 @@ static PDKLocationGenerator * sharedObject = nil;
 //        }
         
         return database;
-    } else {
-
     }
     
     return NULL;
@@ -220,14 +218,14 @@ static PDKLocationGenerator * sharedObject = nil;
     self.lastOptions = options;
 
     self.accessDeniedBlock = [options valueForKey:PDKLocationAccessDenied];
-
+    
     if (self.listeners.count == 0) {
         // Turn on sensors with options...
      
         NSNumber * alwaysOn = [options valueForKey:PDKLocationAlwaysOn];
 
         CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
+
         if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
             if (self.accessDeniedBlock != nil) {
                 self.accessDeniedBlock();
@@ -294,6 +292,14 @@ static PDKLocationGenerator * sharedObject = nil;
     }
 }
 
+- (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager {
+    [[PassiveDataKit sharedInstance] logEvent:@"debug_location_updates_paused" properties:nil];
+}
+
+- (void)locationManagerDidResumeLocationUpdates:(CLLocationManager *)manager {
+    [[PassiveDataKit sharedInstance] logEvent:@"debug_location_updates_resumed" properties:nil];
+}
+
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     [[PassiveDataKit sharedInstance] logEvent:@"debug_location_update" properties:nil];
 
@@ -337,28 +343,27 @@ static PDKLocationGenerator * sharedObject = nil;
             int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
             
             if (retVal == SQLITE_OK) {
-                sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970);
-                sqlite3_bind_double(stmt, 2, thisLocation.coordinate.latitude);
-                sqlite3_bind_double(stmt, 3, thisLocation.coordinate.longitude);
-                sqlite3_bind_double(stmt, 4, thisLocation.altitude);
-                sqlite3_bind_double(stmt, 5, thisLocation.horizontalAccuracy);
-                sqlite3_bind_double(stmt, 6, thisLocation.verticalAccuracy);
-                sqlite3_bind_double(stmt, 7, thisLocation.floor.level);
-                
-                if (thisLocation.speed >= 0) {
-                    sqlite3_bind_double(stmt, 8, thisLocation.speed);
-                    sqlite3_bind_double(stmt, 9, thisLocation.course);
-                } else {
-                    sqlite3_bind_double(stmt, 8, 0.0);
-                    sqlite3_bind_double(stmt, 9, 0.0);
-                }
-                
-                int retVal = sqlite3_step(stmt);
-                
-                if (SQLITE_DONE == retVal) {
-
-                } else {
-                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                if (sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 2, thisLocation.coordinate.latitude) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 3, thisLocation.coordinate.longitude) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 4, thisLocation.altitude) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 5, thisLocation.horizontalAccuracy) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 6, thisLocation.verticalAccuracy) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 7, thisLocation.floor.level) == SQLITE_OK) {
+                    
+                    if (thisLocation.speed >= 0) {
+                        sqlite3_bind_double(stmt, 8, thisLocation.speed);
+                        sqlite3_bind_double(stmt, 9, thisLocation.course);
+                    } else {
+                        sqlite3_bind_double(stmt, 8, 0.0);
+                        sqlite3_bind_double(stmt, 9, 0.0);
+                    }
+                    
+                    int retVal = sqlite3_step(stmt);
+                    
+                    if (SQLITE_DONE != retVal) {
+                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                    }
                 }
                 
                 sqlite3_finalize(stmt);
@@ -406,9 +411,7 @@ static PDKLocationGenerator * sharedObject = nil;
 
             int retVal = sqlite3_step(stmt);
             
-            if (SQLITE_DONE == retVal) {
-
-            } else {
+            if (SQLITE_DONE != retVal) {
                 NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
             }
             
@@ -557,6 +560,125 @@ static PDKLocationGenerator * sharedObject = nil;
     }
     
     return [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+}
+
+- (CLLocation *) earliestKnownLocation {
+    CLLocationDegrees latitude = 40.7128;
+    CLLocationDegrees longitude = -74.0059;
+    
+    NSTimeInterval timestamp = 0;
+    
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * querySQL = @"SELECT L.latitude, L.longitude, L.timestamp FROM location_data L ORDER BY L.timestamp LIMIT 1";
+    
+    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+    
+    if (retVal == SQLITE_OK)
+    {
+        if (sqlite3_step(statement) == SQLITE_ROW)
+        {
+            latitude = sqlite3_column_double(statement, 0);
+            longitude = sqlite3_column_double(statement, 1);
+            timestamp = sqlite3_column_double(statement, 2);
+        }
+        
+        sqlite3_finalize(statement);
+    }
+    
+    CLLocation * location = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude)
+                                                          altitude:0
+                                                horizontalAccuracy:0
+                                                  verticalAccuracy:0
+                                                         timestamp:[NSDate dateWithTimeIntervalSince1970:timestamp]];
+
+    return location;
+}
+
+- (NSArray *) locationsSince:(NSDate *) startDate {
+    NSMutableArray * locations = [NSMutableArray array];
+    
+    NSTimeInterval timestamp = [startDate timeIntervalSince1970];
+    
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * querySQL = @"SELECT L.latitude, L.longitude, L.timestamp FROM location_data L WHERE L.timestamp > ?";
+    
+    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+    
+    if (retVal == SQLITE_OK)
+    {
+        retVal = sqlite3_bind_double(statement, 1, (double) timestamp);
+        
+        if (retVal == SQLITE_OK)
+        {
+            while (sqlite3_step(statement) == SQLITE_ROW)
+            {
+                double latitude = sqlite3_column_double(statement, 0);
+                double longitude = sqlite3_column_double(statement, 1);
+                double timestamp = sqlite3_column_double(statement, 2);
+
+                CLLocation * loc = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude)
+                                                                 altitude:0
+                                                       horizontalAccuracy:0
+                                                         verticalAccuracy:0
+                                                                   course:0
+                                                                    speed:0
+                                                                timestamp:[NSDate dateWithTimeIntervalSince1970:timestamp]];
+                
+                [locations addObject:loc];
+            }
+            
+            sqlite3_finalize(statement);
+        }
+    }
+
+    return locations;
+}
+
+- (NSArray *) locationsFrom:(NSDate *) startDate to:(NSDate *) endDate {
+    NSMutableArray * locations = [NSMutableArray array];
+    
+    NSTimeInterval start = [startDate timeIntervalSince1970];
+    NSTimeInterval end = [endDate timeIntervalSince1970];
+
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * querySQL = @"SELECT L.latitude, L.longitude, L.timestamp FROM location_data L WHERE (L.timestamp >= ? AND L.timestamp <= ?)";
+    
+    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+    
+    if (retVal == SQLITE_OK) {
+        retVal = sqlite3_bind_double(statement, 1, (double) start);
+        
+        if (retVal == SQLITE_OK) {
+            retVal = sqlite3_bind_double(statement, 2, (double) end);
+            
+            if (retVal == SQLITE_OK)
+            {
+                while (sqlite3_step(statement) == SQLITE_ROW)
+                {
+                    double latitude = sqlite3_column_double(statement, 0);
+                    double longitude = sqlite3_column_double(statement, 1);
+                    double timestamp = sqlite3_column_double(statement, 2);
+                    
+                    CLLocation * loc = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude)
+                                                                     altitude:0
+                                                           horizontalAccuracy:0
+                                                             verticalAccuracy:0
+                                                                       course:0
+                                                                        speed:0
+                                                                    timestamp:[NSDate dateWithTimeIntervalSince1970:timestamp]];
+                    
+                    [locations addObject:loc];
+                }
+                
+                sqlite3_finalize(statement);
+            }
+        }
+    }
+    
+    return locations;
 }
 
 @end

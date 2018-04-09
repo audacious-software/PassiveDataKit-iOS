@@ -111,9 +111,9 @@
     
     if (canDisable == nil || [canDisable boolValue]) {
         return 1;
-    } else {
-        return 0;
     }
+
+    return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

@@ -637,7 +637,7 @@ NSTimeInterval const kPDKAFUploadStream3GSuggestedDelay = 0.2;
 #pragma mark -
 
 @interface PDKAFStreamingMultipartFormData ()
-@property (readwrite, nonatomic, copy) NSMutableURLRequest *request;
+@property (readwrite, nonatomic) NSMutableURLRequest *request;
 @property (readwrite, nonatomic, assign) NSStringEncoding stringEncoding;
 @property (readwrite, nonatomic, copy) NSString *boundary;
 @property (readwrite, nonatomic, strong) PDKAFMultipartBodyStream *bodyStream;

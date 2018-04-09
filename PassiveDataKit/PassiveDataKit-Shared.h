@@ -1,14 +1,11 @@
 #import <UIKit/UIKit.h>
 
-//! Project version number for IntelliCare-Shared.
 FOUNDATION_EXPORT double PassiveDataKit_SharedVersionNumber;
 
-//! Project version string for IntelliCare-Shared.
 FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <IntelliCare_Shared/PublicHeader.h>
-
 #import "PassiveDataKit.h"
+
 #import "PDKHttpTransmitter.h"
 
 #import "PDKAFURLRequestSerialization.h"
@@ -21,3 +18,10 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 #import "PDKAppleHealthKitGenerator.h"
 #import "PDKEventsGenerator.h"
 #import "PDKBatteryGenerator.h"
+
+#import "DTMHeatmap.h"
+#import "DTMDiffHeatmap.h"
+#import "DTMColorProvider.h"
+#import "DTMDiffColorProvider.h"
+#import "DTMHeatmapRenderer.h"
+

@@ -29,7 +29,10 @@ extern NSString *const PDKLocationAccuracyModeUserProvidedLongitude;
 + (PDKLocationGenerator *) sharedInstance;
 
 - (CLLocation *) lastKnownLocation;
+- (CLLocation *) earliestKnownLocation;
 - (void) locationManager:(CLLocationManager *) manager didUpdateLocations:(NSArray<CLLocation *> *) locations;
 - (void) refresh:(CLLocation *) location;
+- (NSArray *) locationsSince:(NSDate *) startDate;
+- (NSArray *) locationsFrom:(NSDate *) startDate to:(NSDate *) endDate;
 
 @end

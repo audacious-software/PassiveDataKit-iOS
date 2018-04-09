@@ -133,9 +133,7 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
     [charSet formUnionWithCharacterSet:[NSCharacterSet URLQueryAllowedCharacterSet]];
     [charSet removeCharactersInString:@"?&="];
     
-    query = [query stringByAddingPercentEncodingWithAllowedCharacters:charSet];
-    
-    [urlString appendFormat:@"query=%@&", query];
+    [urlString appendFormat:@"query=%@&", [query stringByAddingPercentEncodingWithAllowedCharacters:charSet]];
     
     if (self.lastOptions[PDKGooglePlacesType] != nil) {
         [urlString appendFormat:@"type=%@&", self.lastOptions[PDKGooglePlacesType]];
