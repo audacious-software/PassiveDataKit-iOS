@@ -219,6 +219,8 @@ typedef enum {
                     if (rawJsonString != NULL) {
                         NSString * jsonString = [[NSString alloc] initWithUTF8String:(const char *) rawJsonString];
                         
+                        NSLog(@"XMITTING: %@", jsonString);
+                        
                         NSError * error = nil;
                         
                         if (jsonString != nil) {
