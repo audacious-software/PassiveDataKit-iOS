@@ -11,7 +11,10 @@
 
 #import "PDKBaseGenerator.h"
 
+extern NSString *const PDKPedometerDailySummaryDataEnabled;
+
 @interface PDKPedometerGenerator : PDKBaseGenerator
+
 
 + (PDKPedometerGenerator *) sharedInstance;
 
