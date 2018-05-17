@@ -186,7 +186,9 @@ typedef enum {
 
 - (void) transmitReadingsWithStart:(NSTimeInterval) start completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler { //!OCLINT
     if (self.isTransmitting) {
-        completionHandler(UIBackgroundFetchResultNewData);
+        if (completionHandler != nil) {
+            completionHandler(UIBackgroundFetchResultNewData);
+        }
 
         return;
     }
