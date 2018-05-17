@@ -41,6 +41,7 @@ extern NSString *const PDKPedometerCurrentPace;
 extern NSString *const PDKPedometerCurrentCadence;
 extern NSString *const PDKPedometerFloorsAscended;
 extern NSString *const PDKPedometerFloorsDescended;
+extern NSString *const PDKPedometerDailySummaryDataEnabled;
 
 extern NSString *const PDKLocationLatitude;
 extern NSString *const PDKLocationLongitude;
