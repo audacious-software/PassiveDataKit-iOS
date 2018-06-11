@@ -186,7 +186,9 @@ typedef enum {
 
 - (void) transmitReadingsWithStart:(NSTimeInterval) start completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler { //!OCLINT
     if (self.isTransmitting) {
-        completionHandler(UIBackgroundFetchResultNewData);
+        if (completionHandler != nil) {
+            completionHandler(UIBackgroundFetchResultNewData);
+        }
 
         return;
     }
@@ -218,6 +220,8 @@ typedef enum {
                     
                     if (rawJsonString != NULL) {
                         NSString * jsonString = [[NSString alloc] initWithUTF8String:(const char *) rawJsonString];
+                        
+                        NSLog(@"XMITTING: %@", jsonString);
                         
                         NSError * error = nil;
                         
