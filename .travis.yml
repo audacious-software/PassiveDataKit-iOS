@@ -17,6 +17,7 @@ script:
  - oclint-json-compilation-database
   -e AFNetworking
   -e DTMHeatmap
+  -e PassiveDataKit.h
   --
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
