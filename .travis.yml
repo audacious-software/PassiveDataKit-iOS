@@ -11,8 +11,8 @@ before_install:
  - brew install oclint
 
 script:
- - xcodebuild test -scheme 'PassiveDataKit' -project 'PassiveDataKit.xcodeproj' -destination 'platform=iOS Simulator,name=iPhone 8,OS=11.3' ARCHS='x86_64 arm64 arm7s arm7' VALID_ARCHS='x86_64 arm64 arm7s arm7' ONLY_ACTIVE_ARCH=NO  | xcpretty
- - xcodebuild -project 'PassiveDataKit.xcodeproj' -scheme 'PassiveDataKit' ARCHS='x86_64 arm64 arm7s arm7' VALID_ARCHS='x86_64 arm64 arm7s arm7' ONLY_ACTIVE_ARCH=NO | tee xcodebuild.log  | xcpretty
+ - xcodebuild test -scheme 'PassiveDataKit' -project 'PassiveDataKit.xcodeproj' -destination 'platform=iOS Simulator,name=iPhone 8,OS=11.3' ARCHS='x86_64 arm64 arm7s arm7' VALID_ARCHS='x86_64 arm64 arm7' ONLY_ACTIVE_ARCH=NO  | xcpretty
+ - xcodebuild -project 'PassiveDataKit.xcodeproj' -scheme 'PassiveDataKit' ARCHS='x86_64 arm64 arm7s arm7' VALID_ARCHS='x86_64 arm64 arm7' ONLY_ACTIVE_ARCH=NO | tee xcodebuild.log  | xcpretty
  - oclint-xcodebuild
  - oclint-json-compilation-database
   -e AFNetworking
