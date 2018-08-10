@@ -13,7 +13,7 @@
 
 extern NSString *const PDKPedometerDailySummaryDataEnabled;
 
-@interface PDKPedometerGenerator : PDKBaseGenerator
+@interface PDKPedometerGenerator : PDKBaseGenerator<UITableViewDelegate, UITableViewDataSource>
 
 
 + (PDKPedometerGenerator *) sharedInstance;

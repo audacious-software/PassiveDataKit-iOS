@@ -8,6 +8,9 @@
 
 #import <sqlite3.h>
 
+@import Charts;
+
+#import "PDKPedometerGeneratorViewController.h"
 #import "PDKPedometerGenerator.h"
 
 #define DATABASE_VERSION @"PDKPedometerGenerator.DATABASE_VERSION"
@@ -45,6 +48,8 @@ NSString * const PDKPedometerDailySummaryDataEnabled = @"PDKPedometerDailySummar
 @property NSDate * lastUpdate;
 
 @property BOOL includeDailySummary;
+@property NSDateFormatter * dateDisplayFormatter;
+@property CMPedometerHandler updateHandler;
 
 @end
 
@@ -76,6 +81,10 @@ static PDKPedometerGenerator * sharedObject = nil;
         self.database = [self openDatabase];
         
         self.includeDailySummary = YES;
+
+        self.dateDisplayFormatter = [[NSDateFormatter alloc] init];
+        self.dateDisplayFormatter.timeStyle = NSDateFormatterNoStyle;
+        self.dateDisplayFormatter.dateStyle = NSDateFormatterShortStyle;
     }
     
     return self;
@@ -477,6 +486,217 @@ static PDKPedometerGenerator * sharedObject = nil;
     }
     
     return totalSteps;
+}
+
++ (NSString *) title {
+    return NSLocalizedStringFromTableInBundle(@"name_generator_pedometer", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+}
+
++ (UIViewController *) detailsController {
+    return [[PDKPedometerGeneratorViewController alloc] init];
+}
+
+- (UIView *) visualizationForSize:(CGSize) size {
+    UITableView * tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height) style:UITableViewStylePlain];
+    
+    tableView.dataSource = self;
+    tableView.delegate = self;
+    tableView.separatorStyle = UITableViewCellSelectionStyleNone;
+    tableView.backgroundColor = [UIColor darkGrayColor];
+    tableView.bounces = NO;
+    
+    return tableView;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 7;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 88;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"PDKBatteryDataSourceCell"];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"PDKBatteryDataSourceCell"];
+        
+        cell.accessoryType = UITableViewCellAccessoryNone;
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+        LineChartView * chartView = [[LineChartView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, [self tableView:tableView heightForRowAtIndexPath:indexPath])];
+        chartView.backgroundColor = UIColor.blackColor;
+        chartView.legend.enabled = NO;
+        chartView.rightAxis.enabled = NO;
+        chartView.chartDescription.enabled = NO;
+        chartView.dragEnabled = NO;
+        chartView.pinchZoomEnabled = NO;
+        
+        chartView.leftAxis.drawGridLinesEnabled = YES;
+        chartView.leftAxis.axisMinimum = 0;
+        chartView.leftAxis.drawLabelsEnabled = YES;
+        chartView.leftAxis.labelTextColor = UIColor.lightGrayColor;
+
+        chartView.xAxis.drawGridLinesEnabled = NO;
+        chartView.xAxis.labelPosition = XAxisLabelPositionBottom;
+        chartView.xAxis.axisMinimum = 0;
+        chartView.xAxis.axisMaximum = 24;
+        chartView.xAxis.drawGridLinesEnabled = YES;
+        chartView.xAxis.labelTextColor = UIColor.lightGrayColor;
+        chartView.xAxis.drawLabelsEnabled = NO;
+        
+        chartView.tag = 1000;
+        
+        [cell.contentView addSubview:chartView];
+        
+        UILabel * dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(tableView.frame.size.width - 40, 8, 32, 32)];
+        dateLabel.textColor = [UIColor whiteColor];
+        dateLabel.font = [UIFont boldSystemFontOfSize:14];
+        dateLabel.backgroundColor = [UIColor darkGrayColor];
+        dateLabel.textAlignment = NSTextAlignmentCenter;
+        dateLabel.layer.cornerRadius = 5;
+        dateLabel.layer.masksToBounds = YES;
+        dateLabel.layer.opacity = 0.5;
+        
+        dateLabel.tag = 1001;
+        
+        [cell.contentView addSubview:dateLabel];
+    }
+    
+    __block LineChartView * chartView = [cell.contentView viewWithTag:1000];
+    
+    NSCalendar * calendar = [NSCalendar currentCalendar];
+    
+    NSDate * date = [calendar dateByAddingUnit:NSCalendarUnitDay
+                                         value:(0 - indexPath.row)
+                                        toDate:[NSDate date]
+                                       options:NSCalendarSearchBackwards];
+    
+    NSDate * startDate = [[NSCalendar currentCalendar] startOfDayForDate:date];
+    
+    __block NSTimeInterval start = startDate.timeIntervalSince1970;
+    __block NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+
+    __block int index = 0;
+    __block NSMutableArray * values = [[NSMutableArray alloc] init];
+    __block CGFloat totalSteps = 0;
+
+    __block CMPedometerHandler updateHandler = ^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
+        NSLog(@"GOT %@ for %d", pedometerData, index);
+        
+        if (pedometerData != nil) {
+            totalSteps += pedometerData.numberOfSteps.doubleValue;
+        }
+        
+        [values addObject:[[BarChartDataEntry alloc] initWithX:index y:totalSteps]];
+        
+        if (values.count == 24 || (start + (60 * 60) > now)) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSMutableArray * displayValues = [[NSMutableArray alloc] init];
+
+                [displayValues addObject:[[BarChartDataEntry alloc] initWithX:(values.count - 1) y:totalSteps]];
+                
+                LineChartDataSet * dataSet = [[LineChartDataSet alloc] initWithValues:values label:@""];
+                dataSet.drawIconsEnabled = NO;
+                dataSet.drawValuesEnabled = NO;
+                dataSet.drawCirclesEnabled = NO;
+                dataSet.fillAlpha = 1.0;
+                dataSet.drawFilledEnabled = YES;
+                dataSet.lineWidth = 0.0;
+                dataSet.fillColor = UIColor.redColor;
+                
+                LineChartDataSet * displayDataSet = [[LineChartDataSet alloc] initWithValues:displayValues label:@""];
+                displayDataSet.drawCirclesEnabled = YES;
+                displayDataSet.drawValuesEnabled = YES;
+                displayDataSet.fillAlpha = 0.0;
+                displayDataSet.drawFilledEnabled = NO;
+                displayDataSet.lineWidth = 1.0;
+                displayDataSet.circleHoleColor = UIColor.greenColor;
+                displayDataSet.circleColors = @[UIColor.greenColor];
+                displayDataSet.drawCircleHoleEnabled = YES;
+                displayDataSet.circleRadius = 2.0;
+                displayDataSet.circleHoleRadius = 2.0;
+                displayDataSet.valueTextColor = UIColor.whiteColor;
+                displayDataSet.valueFont = [UIFont boldSystemFontOfSize:10.f];
+                
+                NSMutableArray * dataSets = [[NSMutableArray alloc] init];
+                [dataSets addObject:dataSet];
+                [dataSets addObject:displayDataSet];
+                
+                float yMax = 10;
+                
+                if (totalSteps >= yMax) {
+                    yMax = 100;
+                }
+                
+                if (totalSteps >= yMax) {
+                    yMax = 500;
+                }
+
+                if (totalSteps >= yMax) {
+                    yMax = 1000;
+                }
+
+                if (totalSteps >= yMax) {
+                    yMax = 5000;
+                }
+
+                if (totalSteps >= yMax) {
+                    yMax = 10000;
+                }
+
+                if (totalSteps >= yMax) {
+                    yMax = 25000;
+                }
+
+                if (totalSteps >= yMax) {
+                    yMax = 50000;
+                }
+
+                if (totalSteps >= yMax) {
+                    yMax = 100000;
+                }
+
+                if (totalSteps >= yMax) {
+                    yMax = totalSteps;
+                }
+
+                chartView.leftAxis.axisMaximum = yMax;
+                
+                LineChartData * data = [[LineChartData alloc] initWithDataSets:dataSets];
+                [data setValueFont:[UIFont systemFontOfSize:10.f]];
+                
+                chartView.data = data;
+                
+                [chartView animateWithXAxisDuration:0.01];
+                
+                updateHandler = nil;
+            });
+        } else {
+            start += (60 * 60);
+            
+            [self historicalStepsBetweenStart:start end:(start + (60 * 60)) withHandler:updateHandler];
+        }
+        
+        index += 1;
+    };
+    
+    [self historicalStepsBetweenStart:start end:(start + (60 * 60)) withHandler:updateHandler];
+    NSString * dateString = [self.dateDisplayFormatter stringFromDate:date];
+    
+    UILabel * dateLabel = [cell.contentView viewWithTag:1001];
+    
+    CGSize dateSize = [dateString sizeWithAttributes:@{NSFontAttributeName:dateLabel.font}];
+    dateSize.width += 10;
+    dateSize.height += 10;
+    
+    CGRect viewFrame = chartView.frame;
+    
+    dateLabel.text = dateString;
+    dateLabel.frame = CGRectMake(floor((viewFrame.size.width - dateSize.width) / 2), floor((viewFrame.size.height - dateSize.height) / 2), dateSize.width, dateSize.height);
+    
+    return cell;
 }
 
 @end

@@ -23,6 +23,8 @@
 @property NSMutableArray * transmitters;
 @property NSMutableArray * activeAlerts;
 
+@property NSMutableDictionary * customGenerators;
+
 @end
 
 NSString * const PDKUserIdentifier = @"PDKUserIdentifier"; //!OCLINT
@@ -69,6 +71,8 @@ static PassiveDataKit * sharedObject = nil;
         self.listeners = [NSMutableDictionary dictionary];
         self.transmitters = [NSMutableArray array];
         self.activeAlerts = [NSMutableArray array];
+        
+        self.customGenerators = [NSMutableDictionary dictionary];
     }
     
     return self;
@@ -117,8 +121,56 @@ static PassiveDataKit * sharedObject = nil;
     return YES;
 }
 
+- (BOOL) registerListener:(id<PDKDataListener>) listener forCustomGenerator:(NSString *) generatorId options:(NSDictionary *) options {
+    NSMutableArray * dataListeners = [self.listeners valueForKey:generatorId];
+    
+    if (dataListeners == nil) {
+        dataListeners = [NSMutableArray array];
+        
+        [self.listeners setValue:dataListeners forKey:generatorId];
+        
+        id<PDKGenerator> generator = [self customGeneratorInstance:generatorId];
+        
+        if (generator != nil) {
+            [generator addListener:self options:options];
+        }
+    }
+    
+    if ([dataListeners containsObject:listener] == NO) {
+        [dataListeners addObject:listener];
+    }
+    
+    [self.listeners setValue:dataListeners forKey:generatorId];
+    
+    return YES;
+}
+
+- (BOOL) unregisterListener:(id<PDKDataListener>) listener forCustomGenerator:(NSString *) generatorId {
+    NSMutableArray * dataListeners = [self.listeners valueForKey:generatorId];
+    
+    if (dataListeners != nil) {
+        [dataListeners removeObject:listener];
+        
+        [self.listeners setValue:dataListeners forKey:generatorId];
+    }
+    
+    return YES;
+}
+
+- (id<PDKGenerator>) customGeneratorInstance:(NSString *) generatorId {
+    return self.customGenerators[generatorId];
+}
+
+- (void) registerCustomGeneratorInstance:(id<PDKGenerator>) generator forId:(NSString *) generatorId {
+    self.customGenerators[generatorId] = generator;
+}
+
 - (NSArray *) activeListeners {
     NSMutableArray * listeners = [NSMutableArray arrayWithArray:[self.listeners allKeys]];
+    
+    [listeners addObjectsFromArray:self.customGenerators.allKeys];
+    
+    [listeners removeObject:[PassiveDataKit keyForGenerator:PDKAnyGenerator]];
     
     return listeners;
 }
@@ -157,11 +209,11 @@ static PassiveDataKit * sharedObject = nil;
         case PDKEvents:
             return @"PDKEventsGenerator";
         case PDKAppleHealthKit:
-            return @"PDKAppleHealthKit";
+            return @"PDKAppleHealthKitGenerator";
         case PDKPedometer:
-            return @"PDKPedometer";
+            return @"PDKPedometerGenerator";
         case PDKBattery:
-            return @"PDKBattery";
+            return @"PDKBatteryGenerator";
         case PDKAnyGenerator:
             return @"PDKAnyGenerator";
     }

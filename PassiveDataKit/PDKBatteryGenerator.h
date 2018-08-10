@@ -6,12 +6,12 @@
 //  Copyright © 2017 Audacious Software. All rights reserved.
 //
 
-@import Foundation;
+@import UIKit;
 
 #import "PDKBaseGenerator.h"
 
 
-@interface PDKBatteryGenerator : PDKBaseGenerator
+@interface PDKBatteryGenerator : PDKBaseGenerator<UITableViewDelegate, UITableViewDataSource>
 
 + (PDKBatteryGenerator *) sharedInstance;
 

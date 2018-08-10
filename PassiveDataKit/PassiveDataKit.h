@@ -111,8 +111,10 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 - (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options;
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator;
 
-- (NSArray *) activeListeners;
+- (BOOL) registerListener:(id<PDKDataListener>) listener forCustomGenerator:(NSString *) generatorId options:(NSDictionary *) options;
+- (BOOL) unregisterListener:(id<PDKDataListener>) listener forCustomGenerator:(NSString *) generatorId;
 
+- (NSArray *) activeListeners;
 
 - (void) transmit:(BOOL) force;
 - (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
@@ -130,6 +132,9 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 - (NSString *) userAgent;
 
 - (id<PDKGenerator>) generatorInstance:(PDKDataGenerator) generator;
+
+- (void) registerCustomGeneratorInstance:(id<PDKGenerator>) generator forId:(NSString *) generatorId;
+- (id<PDKGenerator>) customGeneratorInstance:(NSString *) generatorId;
 
 - (UIViewController *) dataReportController;
 + (NSString *) keyForGenerator:(PDKDataGenerator) generator;

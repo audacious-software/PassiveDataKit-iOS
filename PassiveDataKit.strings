@@ -50,3 +50,7 @@
 "error_generator_pedometer_unavailable" = "Pedometer is unavailable.";
 "title_generator_pedometer_unavailable" = "Pedometer Unavailable";
 "message_generator_pedometer_unavailable" = "This device does not include the necessary hardware to track steps. Please use an updated device that supports Core Motion.";
+
+"name_generator_battery" = "Battery Status";
+
+"name_generator_pedometer" = "Step Counts & Physical Activity";

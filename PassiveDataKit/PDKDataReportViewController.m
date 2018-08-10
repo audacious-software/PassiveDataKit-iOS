@@ -18,7 +18,7 @@
 @property BOOL initialized;
 @property BOOL tableInited;
 
-@property NSArray * listeners;
+@property NSMutableArray * listeners;
 
 @end
 
@@ -51,13 +51,13 @@
     
     [self.view addSubview:self.separatorView];
     
-    self.listeners = [[PassiveDataKit sharedInstance] activeListeners];
+    self.listeners = [NSMutableArray arrayWithArray:[[PassiveDataKit sharedInstance] activeListeners]];
 }
 
-- (void) loadVisualization:(NSString *) generator {
+- (void) loadVisualization:(NSString *) generatorId {
     UIView * visualization = nil;
     
-    if (generator == nil) {
+    if (generatorId == nil) {
         UILabel * placeholder = [[UILabel alloc] initWithFrame:self.detailsView.bounds];
         
         placeholder.text = NSLocalizedStringFromTableInBundle(@"placeholder_select_generator", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
@@ -68,7 +68,15 @@
         
         visualization = placeholder;
     } else {
-        Class generatorClass = NSClassFromString(generator);
+        Class generatorClass = NSClassFromString(generatorId);
+
+        if (generatorClass == nil) {
+            NSObject<PDKGenerator> * generator = (NSObject<PDKGenerator> *) [[PassiveDataKit sharedInstance] customGeneratorInstance:generatorId];
+            
+            if (generator != nil) {
+                generatorClass = [generator class];
+            }
+        }
         
         id generator = [generatorClass sharedInstance];
         
@@ -154,17 +162,21 @@
     cell.accessoryType = UITableViewCellAccessoryNone;
     cell.selectionStyle = UITableViewCellSelectionStyleBlue;
     
-    UIImage * gear = [UIImage imageNamed:@"Icon - Generator Settings" inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil];
-    
-    UIButton * settingsButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [settingsButton setImage:gear forState:UIControlStateNormal];
-    settingsButton.frame = CGRectMake(0, 0, 44, 44);
-    settingsButton.tag = indexPath.row;
-    
-    [settingsButton addTarget:self action:@selector(tappedSettings:) forControlEvents:UIControlEventTouchUpInside];
-   
-    cell.accessoryView = settingsButton;
-    
+    if ([self detailsControllerForGenerator:self.listeners[indexPath.row]] != nil) {
+        UIImage * gear = [UIImage imageNamed:@"Icon - Generator Settings" inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil];
+        
+        UIButton * settingsButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [settingsButton setImage:gear forState:UIControlStateNormal];
+        settingsButton.frame = CGRectMake(0, 0, 44, 44);
+        settingsButton.tag = indexPath.row;
+        
+        [settingsButton addTarget:self action:@selector(tappedSettings:) forControlEvents:UIControlEventTouchUpInside];
+
+        cell.accessoryView = settingsButton;
+    } else {
+        cell.accessoryView = nil;
+    }
+        
     cell.textLabel.text = [self titleForGenerator:self.listeners[indexPath.row]];
     
     return cell;
@@ -178,6 +190,14 @@
     } else {
         Class generatorClass = NSClassFromString(key);
         
+        if (generatorClass == nil) {
+            NSObject<PDKGenerator> * generator = (NSObject<PDKGenerator> *) [[PassiveDataKit sharedInstance] customGeneratorInstance:key];
+            
+            if (generator != nil) {
+                generatorClass = [generator class];
+            }
+        }
+
         if (generatorClass != nil && [generatorClass respondsToSelector:@selector(title)]) {
             return [generatorClass performSelector:@selector(title)];
         }
@@ -191,9 +211,17 @@
     
     Class generatorClass = NSClassFromString(key);
     
+    if (generatorClass == nil) {
+        NSObject<PDKGenerator> * generator = (NSObject<PDKGenerator> *) [[PassiveDataKit sharedInstance] customGeneratorInstance:key];
+        
+        if (generator != nil) {
+            generatorClass = [generator class];
+        }
+    }
+
     if (generatorClass != nil) {
         SEL details = NSSelectorFromString(@"detailsController");
-        
+
         if ([generatorClass respondsToSelector:details]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -201,8 +229,8 @@
 #pragma clang diagnostic pop
         }
     }
-    return controller;
     
+    return controller;
 }
 
 - (void) tappedSettings:(UIButton *) button {

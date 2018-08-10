@@ -19,6 +19,8 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 #import "PDKEventsGenerator.h"
 #import "PDKBatteryGenerator.h"
 
+#import "PDKGeneratorDetailsViewController.h"
+
 #import "DTMHeatmap.h"
 #import "DTMDiffHeatmap.h"
 #import "DTMColorProvider.h"
