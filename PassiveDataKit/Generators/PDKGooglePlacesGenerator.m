@@ -8,15 +8,14 @@
 
 @import CoreLocation;
 
-#import "PDKAFNetworkReachabilityManager.h"
-#import "PDKAFHTTPSessionManager.h"
+@import AFNetworking;
 
 #import "PDKGooglePlacesGenerator.h"
 #import "PDKLocationGenerator.h"
 
 @interface PDKGooglePlacesGenerator ()
 
-@property PDKAFNetworkReachabilityManager * reach;
+@property AFNetworkReachabilityManager * reach;
 
 @property NSMutableArray * listeners;
 @property NSDictionary * lastOptions;
@@ -186,16 +185,16 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
 }
 
 - (void) transmitPlacesForLocation:(CLLocation *) location {
-    self.reach = [PDKAFNetworkReachabilityManager managerForDomain:@"maps.googleapis.com"];
+    self.reach = [AFNetworkReachabilityManager managerForDomain:@"maps.googleapis.com"];
     
     __unsafe_unretained PDKGooglePlacesGenerator * weakSelf = self;
     
-    [self.reach setReachabilityStatusChangeBlock:^(PDKAFNetworkReachabilityStatus status){
-        if (status == PDKAFNetworkReachabilityStatusReachableViaWWAN || status == PDKAFNetworkReachabilityStatusReachableViaWiFi)
+    [self.reach setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status){
+        if (status == AFNetworkReachabilityStatusReachableViaWWAN || status == AFNetworkReachabilityStatusReachableViaWiFi)
         {
-            PDKAFHTTPSessionManager *manager = [PDKAFHTTPSessionManager manager];
+            AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
 
-            manager.responseSerializer = [PDKAFHTTPResponseSerializer serializer];
+            manager.responseSerializer = [AFHTTPResponseSerializer serializer];
             manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript", nil];
             
             [manager GET:[weakSelf urlForLocation:location].absoluteString parameters:nil progress:nil success:^(NSURLSessionTask *task, id responseObject) {
@@ -240,16 +239,16 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
 }
 
 - (void) transmitPlacesForFreetextQuery:(NSString *) query {
-    self.reach = [PDKAFNetworkReachabilityManager managerForDomain:@"maps.googleapis.com"];
+    self.reach = [AFNetworkReachabilityManager managerForDomain:@"maps.googleapis.com"];
     
     __unsafe_unretained PDKGooglePlacesGenerator * weakSelf = self;
     
-    [self.reach setReachabilityStatusChangeBlock:^(PDKAFNetworkReachabilityStatus status){
-        if (status == PDKAFNetworkReachabilityStatusReachableViaWWAN || status == PDKAFNetworkReachabilityStatusReachableViaWiFi)
+    [self.reach setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status){
+        if (status == AFNetworkReachabilityStatusReachableViaWWAN || status == AFNetworkReachabilityStatusReachableViaWiFi)
         {
-            PDKAFHTTPSessionManager *manager = [PDKAFHTTPSessionManager manager];
+            AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
             
-            manager.responseSerializer = [PDKAFHTTPResponseSerializer serializer];
+            manager.responseSerializer = [AFHTTPResponseSerializer serializer];
             manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript", nil];
             
             [manager GET:[weakSelf urlForFreetextQuery:query].absoluteString parameters:nil progress:nil success:^(NSURLSessionTask *task, id responseObject) {

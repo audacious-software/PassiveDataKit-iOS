@@ -1,3 +1,6 @@
 [submodule "PassiveDataKit/Third-Party/Charts"]
 	path = PassiveDataKit/Third-Party/Charts
 	url = https://github.com/audaciouscode/Charts.git
+[submodule "PassiveDataKit/Third-Party/AFNetworking"]
+	path = PassiveDataKit/Third-Party/AFNetworking
+	url = https://github.com/audaciouscode/AFNetworking.git

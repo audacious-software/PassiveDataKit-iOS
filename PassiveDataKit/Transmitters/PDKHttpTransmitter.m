@@ -9,7 +9,7 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <sqlite3.h>
 
-#import "PDKAFURLSessionManager.h"
+@import AFNetworking;
 
 #import "PDKHttpTransmitter.h"
 
@@ -167,10 +167,10 @@ typedef enum {
 
 - (NSURLRequest *) uploadRequestForPayload:(NSArray *) payload {
     if (payload.count > 0) {
-        NSMutableURLRequest * request = [[PDKAFJSONRequestSerializer serializer] requestWithMethod:@"CREATE"
-                                                                                         URLString:[self.uploadUrl description]
-                                                                                        parameters:payload
-                                                                                             error:nil];
+        NSMutableURLRequest * request = [[AFJSONRequestSerializer serializer] requestWithMethod:@"CREATE"
+                                                                                      URLString:[self.uploadUrl description]
+                                                                                     parameters:payload
+                                                                                          error:nil];
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         
@@ -254,8 +254,8 @@ typedef enum {
                 NSURLRequest * request = [self uploadRequestForPayload:payload];
                 
                 if (request != nil) { //!OCLINT
-                    PDKAFURLSessionManager * manager = [[PDKAFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-                    
+                    AFURLSessionManager * manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+
                     [[manager dataTaskWithRequest:request
                                    uploadProgress:nil
                                  downloadProgress:nil
