@@ -5,10 +5,10 @@ xcode_project: PassiveDataKit.xcodeproj
 xcode_scheme: PassiveDataKit
 xcode_sdk: iphonesimulator9.3
 
-before_install:
-- brew cask uninstall oclint
-- brew tap oclint/formulae
-- brew install oclint
+# before_install:
+# - brew cask uninstall oclint
+# - brew tap oclint/formulae
+# - brew install oclint
 
 script:
 # - xcodebuild test -scheme "PassiveDataKit" -project "PassiveDataKit.xcodeproj" -destination 'platform=iOS Simulator,name=iPhone 8,OS=11.3' ARCHS='x86_64' VALID_ARCHS='x86_64' ONLY_ACTIVE_ARCH=NO | xcpretty
