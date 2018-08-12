@@ -23,4 +23,3 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 #import "DTMColorProvider.h"
 #import "DTMDiffColorProvider.h"
 #import "DTMHeatmapRenderer.h"
-
