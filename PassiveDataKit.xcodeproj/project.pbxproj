@@ -72,6 +72,8 @@
 		38FDC10D211E0EBE00D2E51C /* PDKLocationAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC101211E0EBD00D2E51C /* PDKLocationAnnotation.m */; };
 		38FDC10E211E0EBE00D2E51C /* PDKBatteryGeneratorViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC102211E0EBE00D2E51C /* PDKBatteryGeneratorViewController.h */; };
 		38FDC12F211E2FD200D2E51C /* AFNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38FDC122211E2FB500D2E51C /* AFNetworking.framework */; };
+		38FDC16621207B6100D2E51C /* NSArray+Statistics.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC15B21207B6100D2E51C /* NSArray+Statistics.m */; };
+		38FDC16721207B6100D2E51C /* NSArray+Statistics.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC16521207B6100D2E51C /* NSArray+Statistics.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -217,6 +219,8 @@
 		38FDC101211E0EBD00D2E51C /* PDKLocationAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PDKLocationAnnotation.m; path = "Generators/View Controllers/PDKLocationAnnotation.m"; sourceTree = "<group>"; };
 		38FDC102211E0EBE00D2E51C /* PDKBatteryGeneratorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PDKBatteryGeneratorViewController.h; path = "Generators/View Controllers/PDKBatteryGeneratorViewController.h"; sourceTree = "<group>"; };
 		38FDC117211E2FB500D2E51C /* AFNetworking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AFNetworking.xcodeproj; path = AFNetworking/AFNetworking.xcodeproj; sourceTree = "<group>"; };
+		38FDC15B21207B6100D2E51C /* NSArray+Statistics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Statistics.m"; sourceTree = "<group>"; };
+		38FDC16521207B6100D2E51C /* NSArray+Statistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Statistics.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -389,6 +393,8 @@
 				385BC4531F94314D0093157F /* DTMHeatmap */,
 				389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */,
 				389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */,
+				38FDC16521207B6100D2E51C /* NSArray+Statistics.h */,
+				38FDC15B21207B6100D2E51C /* NSArray+Statistics.m */,
 			);
 			name = "Third Party";
 			path = "Third-Party";
@@ -458,6 +464,7 @@
 				385BC45D1F9432190093157F /* DTMDiffColorProvider.h in Headers */,
 				385BC45E1F9432190093157F /* DTMHeatmapRenderer.h in Headers */,
 				38FDC10A211E0EBE00D2E51C /* PDKEventsGeneratorViewController.h in Headers */,
+				38FDC16721207B6100D2E51C /* NSArray+Statistics.h in Headers */,
 				38FDC106211E0EBE00D2E51C /* PDKLocationAnnotation.h in Headers */,
 				38FDC0F2211E0E9600D2E51C /* PDKDataReportViewController.h in Headers */,
 				38FDC105211E0EBE00D2E51C /* PDKGeneratorViewController.h in Headers */,
@@ -640,6 +647,7 @@
 			files = (
 				38FDC0E3211E0E8B00D2E51C /* PDKMixpanelEventGenerator.m in Sources */,
 				385BC45F1F9432270093157F /* DTMColorProvider.m in Sources */,
+				38FDC16621207B6100D2E51C /* NSArray+Statistics.m in Sources */,
 				38FDC0EE211E0E8B00D2E51C /* PDKBaseGenerator.m in Sources */,
 				385BC4601F9432270093157F /* DTMDiffColorProvider.m in Sources */,
 				38FDC104211E0EBE00D2E51C /* PDKGeneratorViewController.m in Sources */,

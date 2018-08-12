@@ -58,11 +58,11 @@
     {
         if (sortedArray.count % 2 == 0)
         {
-            median = @(([[sortedArray objectAtIndex:sortedArray.count / 2] integerValue]) + ([[sortedArray objectAtIndex:sortedArray.count / 2 + 1] integerValue]) / 2);
+            median = @(([sortedArray[sortedArray.count / 2] integerValue]) + ([sortedArray[sortedArray.count / 2 + 1] integerValue]) / 2);
         }
         else
         {
-            median = @([[sortedArray objectAtIndex:sortedArray.count / 2] integerValue]);
+            median = @([sortedArray[sortedArray.count / 2] integerValue]);
         }
     }
     else
