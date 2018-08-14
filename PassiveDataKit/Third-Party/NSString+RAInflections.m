@@ -19,7 +19,7 @@
 - (NSString *)slugalize
 {
     NSString        *separator        = @"-";
-    NSMutableString *slugalizedString = [NSMutableString string];
+    NSMutableString *slugalizedString = nil;
     NSRange         replaceRange      = NSMakeRange(0, self.length);
     
     // Remove all non ASCII characters
