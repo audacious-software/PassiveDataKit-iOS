@@ -16,6 +16,7 @@
 #import "PDKBatteryGenerator.h"
 
 #import "PDKDataReportViewController.h"
+#import "PDKAlertsTableViewController.h"
 
 @interface PassiveDataKit ()
 
@@ -318,6 +319,10 @@ static PassiveDataKit * sharedObject = nil;
     return [[PDKDataReportViewController alloc] init];
 }
 
+- (UIViewController *) alertsController {
+    return [[PDKAlertsTableViewController alloc] initWithStyle:UITableViewStylePlain];
+}
+
 - (NSArray *) alerts {
     return [NSArray arrayWithArray:self.activeAlerts];
 }
@@ -345,5 +350,56 @@ static PassiveDataKit * sharedObject = nil;
     
     [self.activeAlerts addObject:alert];
 }
+
+- (BOOL) application:(UIApplication *) app openURL:(NSURL *) url options:(NSDictionary<NSString *, id> *) options {
+    SEL openUrl = NSSelectorFromString(@"application:openURL:options:");
+    
+    for (NSString * key in [self activeListeners]) {
+        Class generatorClass = NSClassFromString(key);
+        
+        if (generatorClass == nil) {
+            NSObject<PDKGenerator> * generator = (NSObject<PDKGenerator> *) [[PassiveDataKit sharedInstance] customGeneratorInstance:key];
+            
+            if (generator != nil) {
+                generatorClass = [generator class];
+            }
+        }
+        
+        if (generatorClass != nil) {
+            SEL sharedInstance = NSSelectorFromString(@"sharedInstance");
+            
+            if ([generatorClass respondsToSelector:sharedInstance]) {
+                BOOL responded = NO;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                id instance = [generatorClass performSelector:sharedInstance];
+#pragma clang diagnostic pop
+                
+                if ([instance respondsToSelector:openUrl]) {
+                    NSInvocation * invoke = [NSInvocation invocationWithMethodSignature:[instance methodSignatureForSelector:openUrl]];
+
+                    [invoke setSelector:openUrl];
+                    [invoke setTarget:instance];
+                    
+                    [invoke setArgument:&(app) atIndex:2]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+                    [invoke setArgument:&(url) atIndex:3]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+                    [invoke setArgument:&(options) atIndex:4]; //arguments 0 and 1 are self and _cmd respectively, automatically set by NSInvocation
+
+                    [invoke setReturnValue:&(responded)];
+                    
+                    [invoke invoke];
+                    
+                    if (responded) {
+                        return YES;
+                    }
+                }
+            }
+        }
+    }
+    
+    return NO;
+}
+
 
 @end

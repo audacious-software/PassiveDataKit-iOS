@@ -4,3 +4,6 @@
 [submodule "PassiveDataKit/Third-Party/AFNetworking"]
 	path = PassiveDataKit/Third-Party/AFNetworking
 	url = https://github.com/audaciouscode/AFNetworking.git
+[submodule "PassiveDataKit/Third-Party/AppAuth-iOS"]
+	path = PassiveDataKit/Third-Party/AppAuth-iOS
+	url = https://github.com/openid/AppAuth-iOS.git

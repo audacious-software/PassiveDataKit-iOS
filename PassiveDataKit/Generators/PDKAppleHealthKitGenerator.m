@@ -23,27 +23,22 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
 
 @implementation PDKAppleHealthKitGenerator
 
-+ (PDKAppleHealthKitGenerator *) sharedInstance
-{
++ (PDKAppleHealthKitGenerator *) sharedInstance {
     static dispatch_once_t _singletonPredicate;
     
     dispatch_once(&_singletonPredicate, ^{
         sharedObject = [[super allocWithZone:nil] init];
-        
     });
     
     return sharedObject;
 }
 
-+ (id) allocWithZone:(NSZone *) zone //!OCLINT
-{
-    return [self sharedInstance];
++ (id) allocWithZone:(NSZone *) zone  { //!OCLINT
+    return [PDKAppleHealthKitGenerator sharedInstance];
 }
 
-- (id) init
-{
-    if (self = [super init])
-    {
+- (id) init {
+    if (self = [super init]) {
         self.listeners = [NSMutableArray array];
 
     }

@@ -54,3 +54,6 @@
 "name_generator_battery" = "Battery Status";
 
 "name_generator_pedometer" = "Step Counts & Physical Activity";
+
+"message_generator_fitbit_needs_auth" = "Please authenticate with Fitbit to permit this app access to your fitness data.";
+"message_generator_fitbit_app_misconfigured" = "This app is misconfigured for communicating with Fitbit. Please contact the developer for an update.";

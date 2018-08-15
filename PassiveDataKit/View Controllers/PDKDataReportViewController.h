@@ -6,7 +6,7 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import UIKit;
 
 @interface PDKDataReportViewController : UIViewController<UITableViewDelegate, UITableViewDataSource>
 

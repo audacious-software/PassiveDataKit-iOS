@@ -37,6 +37,11 @@
 		389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */; };
 		38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38A652421CDA30DB00AE8B3B /* CoreLocation.framework */; };
+		38F3333A21236D670096D54B /* PDKFitbitGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F3333821236D670096D54B /* PDKFitbitGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		38F3333B21236D670096D54B /* PDKFitbitGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F3333921236D670096D54B /* PDKFitbitGenerator.m */; };
+		38F3333C212378AA0096D54B /* AppAuth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38F3332821236D0B0096D54B /* AppAuth.framework */; };
+		38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F3336921238F190096D54B /* PDKAlertsTableViewController.h */; };
+		38F3336C21238F190096D54B /* PDKAlertsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F3336A21238F190096D54B /* PDKAlertsTableViewController.m */; };
 		38FDC0C8211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC0C6211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.h */; };
 		38FDC0C9211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC0C7211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.m */; };
 		38FDC0DF211E0E8B00D2E51C /* PDKLocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC0CF211E0E8A00D2E51C /* PDKLocationGenerator.m */; };
@@ -97,6 +102,104 @@
 			proxyType = 1;
 			remoteGlobalIDString = 3842F7301CDA2021007F843D;
 			remoteInfo = PassiveDataKit;
+		};
+		38F3331921236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 340E737C1C5D819B0076B1F6;
+			remoteInfo = "AppAuth-iOS";
+		};
+		38F3331B21236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 341741F01C5D8283000EF209;
+			remoteInfo = "AppAuth-iOSTests";
+		};
+		38F3331D21236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 340DAE4E1D58216A00EC285B;
+			remoteInfo = "AppAuth-macOS";
+		};
+		38F3331F21236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 341AA4CE1E7F392C00FCA5C6;
+			remoteInfo = "AppAuth-macOSTests";
+		};
+		38F3332121236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 341E707E1DE18744004353C1;
+			remoteInfo = "AppAuth-tvOS";
+		};
+		38F3332321236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 341AA4ED1E7F39F100FCA5C6;
+			remoteInfo = "AppAuth-tvOSTests";
+		};
+		38F3332521236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 347423F61E7F4B5600D3E6D6;
+			remoteInfo = "AppAuth-watchOS";
+		};
+		38F3332721236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 343AAA541E83463400F9D36E;
+			remoteInfo = AppAuth_iOS;
+		};
+		38F3332921236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 343AAA5C1E83463400F9D36E;
+			remoteInfo = AppAuth_iOSTests;
+		};
+		38F3332B21236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 343AAA991E83487200F9D36E;
+			remoteInfo = AppAuth_watchOS;
+		};
+		38F3332D21236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 343AAAA61E83489A00F9D36E;
+			remoteInfo = AppAuth_tvOS;
+		};
+		38F3332F21236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 343AAAAE1E83489A00F9D36E;
+			remoteInfo = AppAuth_tvOSTests;
+		};
+		38F3333121236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 343AAAC21E8348A900F9D36E;
+			remoteInfo = AppAuth_macOS;
+		};
+		38F3333321236D0B0096D54B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 343AAACA1E8348AA00F9D36E;
+			remoteInfo = AppAuth_macOSTests;
 		};
 		38FDC121211E2FB500D2E51C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -184,6 +287,11 @@
 		389DE4E01EF76597009C8B27 /* PassiveDataKit.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = PassiveDataKit.modulemap; sourceTree = "<group>"; };
 		38A652421CDA30DB00AE8B3B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		38F3330121236D0B0096D54B /* AppAuth.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AppAuth.xcodeproj; path = "AppAuth-iOS/AppAuth.xcodeproj"; sourceTree = "<group>"; };
+		38F3333821236D670096D54B /* PDKFitbitGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKFitbitGenerator.h; path = Generators/PDKFitbitGenerator.h; sourceTree = "<group>"; };
+		38F3333921236D670096D54B /* PDKFitbitGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKFitbitGenerator.m; path = Generators/PDKFitbitGenerator.m; sourceTree = "<group>"; };
+		38F3336921238F190096D54B /* PDKAlertsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKAlertsTableViewController.h; path = "View Controllers/PDKAlertsTableViewController.h"; sourceTree = "<group>"; };
+		38F3336A21238F190096D54B /* PDKAlertsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKAlertsTableViewController.m; path = "View Controllers/PDKAlertsTableViewController.m"; sourceTree = "<group>"; };
 		38FDC0C6211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKPedometerGeneratorViewController.h; path = "Generators/View Controllers/PDKPedometerGeneratorViewController.h"; sourceTree = "<group>"; };
 		38FDC0C7211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKPedometerGeneratorViewController.m; path = "Generators/View Controllers/PDKPedometerGeneratorViewController.m"; sourceTree = "<group>"; };
 		38FDC0CF211E0E8A00D2E51C /* PDKLocationGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PDKLocationGenerator.m; path = Generators/PDKLocationGenerator.m; sourceTree = "<group>"; };
@@ -228,6 +336,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				38F3333C212378AA0096D54B /* AppAuth.framework in Frameworks */,
 				38FDC12F211E2FD200D2E51C /* AFNetworking.framework in Frameworks */,
 				3822E334211CDA8200CA31DA /* Charts.framework in Frameworks */,
 				381F1C041FE78832008DCE52 /* libsqlite3.tbd in Frameworks */,
@@ -296,8 +405,6 @@
 		3842F7331CDA2021007F843D /* PassiveDataKit */ = {
 			isa = PBXGroup;
 			children = (
-				389DE4E01EF76597009C8B27 /* PassiveDataKit.modulemap */,
-				388D5E3F1EF76C5000C9A2A2 /* PassiveDataKit-Shared.h */,
 				38C666B41D038A8E00E6A6C8 /* Third Party */,
 				38C666AD1D037FA700E6A6C8 /* Generators */,
 				389DE4CA1EF748EB009C8B27 /* Transmitters */,
@@ -305,6 +412,10 @@
 				3842F7551CDA20FE007F843D /* PassiveDataKit.m */,
 				38FDC0F0211E0E9600D2E51C /* PDKDataReportViewController.h */,
 				38FDC0EF211E0E9600D2E51C /* PDKDataReportViewController.m */,
+				389DE4E01EF76597009C8B27 /* PassiveDataKit.modulemap */,
+				388D5E3F1EF76C5000C9A2A2 /* PassiveDataKit-Shared.h */,
+				38F3336921238F190096D54B /* PDKAlertsTableViewController.h */,
+				38F3336A21238F190096D54B /* PDKAlertsTableViewController.m */,
 			);
 			path = PassiveDataKit;
 			sourceTree = "<group>";
@@ -364,6 +475,7 @@
 		38C666AD1D037FA700E6A6C8 /* Generators */ = {
 			isa = PBXGroup;
 			children = (
+				38F3333721236D400096D54B /* Fitness Services & Devices */,
 				38FDC0D6211E0E8A00D2E51C /* PDKAppleHealthKitGenerator.h */,
 				38FDC0D2211E0E8A00D2E51C /* PDKAppleHealthKitGenerator.m */,
 				38FDC0DA211E0E8B00D2E51C /* PDKBaseGenerator.h */,
@@ -389,6 +501,7 @@
 			isa = PBXGroup;
 			children = (
 				38FDC117211E2FB500D2E51C /* AFNetworking.xcodeproj */,
+				38F3330121236D0B0096D54B /* AppAuth.xcodeproj */,
 				3822E32B211CDA6300CA31DA /* Charts.xcodeproj */,
 				385BC4531F94314D0093157F /* DTMHeatmap */,
 				389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */,
@@ -419,6 +532,36 @@
 				38FDC0C7211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.m */,
 			);
 			name = "View Controllers";
+			sourceTree = "<group>";
+		};
+		38F3330221236D0B0096D54B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				38F3331A21236D0B0096D54B /* libAppAuth-iOS.a */,
+				38F3331C21236D0B0096D54B /* AppAuth-iOSTests.xctest */,
+				38F3331E21236D0B0096D54B /* libAppAuth-macOS.a */,
+				38F3332021236D0B0096D54B /* AppAuth-macOSTests.xctest */,
+				38F3332221236D0B0096D54B /* libAppAuth-tvOS.a */,
+				38F3332421236D0B0096D54B /* AppAuth-tvOSTests.xctest */,
+				38F3332621236D0B0096D54B /* libAppAuth-watchOS.a */,
+				38F3332821236D0B0096D54B /* AppAuth.framework */,
+				38F3332A21236D0B0096D54B /* AppAuth_iOSTests.xctest */,
+				38F3332C21236D0B0096D54B /* AppAuth.framework */,
+				38F3332E21236D0B0096D54B /* AppAUth.framework */,
+				38F3333021236D0B0096D54B /* AppAuth_tvOSTests.xctest */,
+				38F3333221236D0B0096D54B /* AppAuth.framework */,
+				38F3333421236D0B0096D54B /* AppAuth_macOSTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		38F3333721236D400096D54B /* Fitness Services & Devices */ = {
+			isa = PBXGroup;
+			children = (
+				38F3333821236D670096D54B /* PDKFitbitGenerator.h */,
+				38F3333921236D670096D54B /* PDKFitbitGenerator.m */,
+			);
+			name = "Fitness Services & Devices";
 			sourceTree = "<group>";
 		};
 		38FDC118211E2FB500D2E51C /* Products */ = {
@@ -455,8 +598,10 @@
 				38FDC0E4211E0E8B00D2E51C /* PDKGooglePlacesGenerator.h in Headers */,
 				385BC4691F9433710093157F /* DTMHeatmap.h in Headers */,
 				38FDC0E7211E0E8B00D2E51C /* PDKPedometerGenerator.h in Headers */,
+				38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */,
 				38FDC0E6211E0E8B00D2E51C /* PDKAppleHealthKitGenerator.h in Headers */,
 				38FDC0E8211E0E8B00D2E51C /* PDKEventsGenerator.h in Headers */,
+				38F3333A21236D670096D54B /* PDKFitbitGenerator.h in Headers */,
 				38FDC0ED211E0E8B00D2E51C /* PDKBatteryGenerator.h in Headers */,
 				38FDC10B211E0EBE00D2E51C /* PDKGeneratorDetailsViewController.h in Headers */,
 				385BC45C1F9432190093157F /* DTMColorProvider.h in Headers */,
@@ -543,6 +688,10 @@
 					ProjectRef = 38FDC117211E2FB500D2E51C /* AFNetworking.xcodeproj */;
 				},
 				{
+					ProductGroup = 38F3330221236D0B0096D54B /* Products */;
+					ProjectRef = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+				},
+				{
 					ProductGroup = 3822E32C211CDA6300CA31DA /* Products */;
 					ProjectRef = 3822E32B211CDA6300CA31DA /* Charts.xcodeproj */;
 				},
@@ -568,6 +717,104 @@
 			fileType = wrapper.cfbundle;
 			path = ChartsTests.xctest;
 			remoteRef = 3822E332211CDA6300CA31DA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3331A21236D0B0096D54B /* libAppAuth-iOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libAppAuth-iOS.a";
+			remoteRef = 38F3331921236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3331C21236D0B0096D54B /* AppAuth-iOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "AppAuth-iOSTests.xctest";
+			remoteRef = 38F3331B21236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3331E21236D0B0096D54B /* libAppAuth-macOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libAppAuth-macOS.a";
+			remoteRef = 38F3331D21236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3332021236D0B0096D54B /* AppAuth-macOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "AppAuth-macOSTests.xctest";
+			remoteRef = 38F3331F21236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3332221236D0B0096D54B /* libAppAuth-tvOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libAppAuth-tvOS.a";
+			remoteRef = 38F3332121236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3332421236D0B0096D54B /* AppAuth-tvOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "AppAuth-tvOSTests.xctest";
+			remoteRef = 38F3332321236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3332621236D0B0096D54B /* libAppAuth-watchOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libAppAuth-watchOS.a";
+			remoteRef = 38F3332521236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3332821236D0B0096D54B /* AppAuth.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = AppAuth.framework;
+			remoteRef = 38F3332721236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3332A21236D0B0096D54B /* AppAuth_iOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = AppAuth_iOSTests.xctest;
+			remoteRef = 38F3332921236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3332C21236D0B0096D54B /* AppAuth.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = AppAuth.framework;
+			remoteRef = 38F3332B21236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3332E21236D0B0096D54B /* AppAUth.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = AppAUth.framework;
+			remoteRef = 38F3332D21236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3333021236D0B0096D54B /* AppAuth_tvOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = AppAuth_tvOSTests.xctest;
+			remoteRef = 38F3332F21236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3333221236D0B0096D54B /* AppAuth.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = AppAuth.framework;
+			remoteRef = 38F3333121236D0B0096D54B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		38F3333421236D0B0096D54B /* AppAuth_macOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = AppAuth_macOSTests.xctest;
+			remoteRef = 38F3333321236D0B0096D54B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		38FDC122211E2FB500D2E51C /* AFNetworking.framework */ = {
@@ -646,6 +893,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				38FDC0E3211E0E8B00D2E51C /* PDKMixpanelEventGenerator.m in Sources */,
+				38F3333B21236D670096D54B /* PDKFitbitGenerator.m in Sources */,
 				385BC45F1F9432270093157F /* DTMColorProvider.m in Sources */,
 				38FDC16621207B6100D2E51C /* NSArray+Statistics.m in Sources */,
 				38FDC0EE211E0E8B00D2E51C /* PDKBaseGenerator.m in Sources */,
@@ -654,6 +902,7 @@
 				385BC4611F9432270093157F /* DTMHeatmapRenderer.m in Sources */,
 				385BC4661F9433470093157F /* DTMDiffHeatmap.m in Sources */,
 				38FDC0F1211E0E9600D2E51C /* PDKDataReportViewController.m in Sources */,
+				38F3336C21238F190096D54B /* PDKAlertsTableViewController.m in Sources */,
 				38FDC0E9211E0E8B00D2E51C /* PDKPedometerGenerator.m in Sources */,
 				38FDC0DF211E0E8B00D2E51C /* PDKLocationGenerator.m in Sources */,
 				38FDC10C211E0EBE00D2E51C /* PDKGeneratorDetailsViewController.m in Sources */,

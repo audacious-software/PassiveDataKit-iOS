@@ -108,6 +108,8 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 
 + (PassiveDataKit *) sharedInstance;
 
+- (BOOL)application:(UIApplication *) app openURL:(NSURL *) url options:(NSDictionary<NSString *, id> *) options;
+
 - (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options;
 - (BOOL) unregisterListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator;
 
@@ -138,6 +140,8 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 
 - (UIViewController *) dataReportController;
 + (NSString *) keyForGenerator:(PDKDataGenerator) generator;
+
+- (UIViewController *) alertsController;
 
 - (void) addTransmitter:(id<PDKTransmitter>) transmitter;
 
