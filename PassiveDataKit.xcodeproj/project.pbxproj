@@ -42,6 +42,8 @@
 		38F3333C212378AA0096D54B /* AppAuth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38F3332821236D0B0096D54B /* AppAuth.framework */; };
 		38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F3336921238F190096D54B /* PDKAlertsTableViewController.h */; };
 		38F3336C21238F190096D54B /* PDKAlertsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F3336A21238F190096D54B /* PDKAlertsTableViewController.m */; };
+		38F33394212EEAF20096D54B /* PDKNokiaHealthGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F33392212EEAF20096D54B /* PDKNokiaHealthGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		38F33395212EEAF20096D54B /* PDKNokiaHealthGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F33393212EEAF20096D54B /* PDKNokiaHealthGenerator.m */; };
 		38FDC0C8211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC0C6211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.h */; };
 		38FDC0C9211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC0C7211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.m */; };
 		38FDC0DF211E0E8B00D2E51C /* PDKLocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC0CF211E0E8A00D2E51C /* PDKLocationGenerator.m */; };
@@ -292,6 +294,8 @@
 		38F3333921236D670096D54B /* PDKFitbitGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKFitbitGenerator.m; path = Generators/PDKFitbitGenerator.m; sourceTree = "<group>"; };
 		38F3336921238F190096D54B /* PDKAlertsTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKAlertsTableViewController.h; path = "View Controllers/PDKAlertsTableViewController.h"; sourceTree = "<group>"; };
 		38F3336A21238F190096D54B /* PDKAlertsTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKAlertsTableViewController.m; path = "View Controllers/PDKAlertsTableViewController.m"; sourceTree = "<group>"; };
+		38F33392212EEAF20096D54B /* PDKNokiaHealthGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKNokiaHealthGenerator.h; path = Generators/PDKNokiaHealthGenerator.h; sourceTree = "<group>"; };
+		38F33393212EEAF20096D54B /* PDKNokiaHealthGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKNokiaHealthGenerator.m; path = Generators/PDKNokiaHealthGenerator.m; sourceTree = "<group>"; };
 		38FDC0C6211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKPedometerGeneratorViewController.h; path = "Generators/View Controllers/PDKPedometerGeneratorViewController.h"; sourceTree = "<group>"; };
 		38FDC0C7211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKPedometerGeneratorViewController.m; path = "Generators/View Controllers/PDKPedometerGeneratorViewController.m"; sourceTree = "<group>"; };
 		38FDC0CF211E0E8A00D2E51C /* PDKLocationGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PDKLocationGenerator.m; path = Generators/PDKLocationGenerator.m; sourceTree = "<group>"; };
@@ -560,6 +564,8 @@
 			children = (
 				38F3333821236D670096D54B /* PDKFitbitGenerator.h */,
 				38F3333921236D670096D54B /* PDKFitbitGenerator.m */,
+				38F33392212EEAF20096D54B /* PDKNokiaHealthGenerator.h */,
+				38F33393212EEAF20096D54B /* PDKNokiaHealthGenerator.m */,
 			);
 			name = "Fitness Services & Devices";
 			sourceTree = "<group>";
@@ -598,6 +604,7 @@
 				38FDC0E4211E0E8B00D2E51C /* PDKGooglePlacesGenerator.h in Headers */,
 				385BC4691F9433710093157F /* DTMHeatmap.h in Headers */,
 				38FDC0E7211E0E8B00D2E51C /* PDKPedometerGenerator.h in Headers */,
+				38F33394212EEAF20096D54B /* PDKNokiaHealthGenerator.h in Headers */,
 				38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */,
 				38FDC0E6211E0E8B00D2E51C /* PDKAppleHealthKitGenerator.h in Headers */,
 				38FDC0E8211E0E8B00D2E51C /* PDKEventsGenerator.h in Headers */,
@@ -918,6 +925,7 @@
 				38FDC0E1211E0E8B00D2E51C /* PDKBatteryGenerator.m in Sources */,
 				38FDC109211E0EBE00D2E51C /* PDKBatteryGeneratorViewController.m in Sources */,
 				38FDC108211E0EBE00D2E51C /* PDKLocationGeneratorViewController.m in Sources */,
+				38F33395212EEAF20096D54B /* PDKNokiaHealthGenerator.m in Sources */,
 				389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

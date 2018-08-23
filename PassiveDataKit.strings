@@ -55,5 +55,12 @@
 
 "name_generator_pedometer" = "Step Counts & Physical Activity";
 
+"title_generator_fitbit_needs_auth" = "Fitbit Not Authenticated";
 "message_generator_fitbit_needs_auth" = "Please authenticate with Fitbit to permit this app access to your fitness data.";
+
+"title_generator_fitbit_app_misconfigured" = "Fitbit Generator Misconfigured";
 "message_generator_fitbit_app_misconfigured" = "This app is misconfigured for communicating with Fitbit. Please contact the developer for an update.";
+
+"alerts_title_ready" = "App Ready For Use";
+"alerts_title_single_alert" = "1 Action Item";
+"alerts_title_multiple_alerts" = "%d Action Items";

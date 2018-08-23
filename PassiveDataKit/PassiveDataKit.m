@@ -14,6 +14,8 @@
 #import "PDKAppleHealthKitGenerator.h"
 #import "PDKPedometerGenerator.h"
 #import "PDKBatteryGenerator.h"
+#import "PDKFitbitGenerator.h"
+#import "PDKNokiaHealthGenerator.h"
 
 #import "PDKDataReportViewController.h"
 #import "PDKAlertsTableViewController.h"
@@ -215,6 +217,10 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKPedometerGenerator";
         case PDKBattery:
             return @"PDKBatteryGenerator";
+        case PDKFitbit:
+            return @"PDKFitbitGenerator";
+        case PDKNokiaHealth:
+            return @"PDKNokiaHealthGenerator";
         case PDKAnyGenerator:
             return @"PDKAnyGenerator";
     }
@@ -236,6 +242,10 @@ static PassiveDataKit * sharedObject = nil;
             return [PDKPedometerGenerator sharedInstance];
         case PDKBattery:
             return [PDKBatteryGenerator sharedInstance];
+        case PDKFitbit:
+            return [PDKFitbitGenerator sharedInstance];
+        case PDKNokiaHealth:
+            return [PDKNokiaHealthGenerator sharedInstance];
         case PDKAnyGenerator:
             break;
     }
@@ -339,11 +349,12 @@ static PassiveDataKit * sharedObject = nil;
     [self.activeAlerts removeObject:toDelete];
 }
 
-- (void) updateAlertWithTag:(NSString *) alertTag message:(NSString *) message level:(PDKAlertLevel) level action:(void(^)(void)) action  {
+- (void) updateAlertWithTag:(NSString *) alertTag title:(NSString *) title message:(NSString *) message level:(PDKAlertLevel) level action:(void(^)(void)) action  {
     [self cancelAlertWithTag:alertTag];
     
     PDKAlert * alert = [[PDKAlert alloc] init];
     alert.alertTag = alertTag;
+    alert.title = title;
     alert.message = message;
     alert.level = level;
     alert.action = action;

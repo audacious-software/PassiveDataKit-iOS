@@ -14,10 +14,18 @@
 
 #import "PDKFitbitGenerator.h"
 
+#define DATABASE_VERSION @"PDKFitbitGenerator.DATABASE_VERSION"
+#define CURRENT_DATABASE_VERSION @(1)
 
 NSString * const PDKFitbitClientID = @"PDKFitbitClientID"; //!OCLINT
 NSString * const PDKFitbitCallbackURL = @"PDKFitbitCallbackURL"; //!OCLINT
 NSString * const PDKFitbitClientSecret = @"PDKFitbitClientSecret"; //!OCLINT
+NSString * const PDKFitbitLoginMandatory = @"PDKFitbitLoginMandatory"; //!OCLINT
+
+NSString * const PDKFitbitActivityEnabled = @"PDKFitbitActivityEnabled"; //!OCLINT
+NSString * const PDKFitbitHeartRateEnabled = @"PDKFitbitHeartRateEnabled"; //!OCLINT
+NSString * const PDKFitbitSleepEnabled = @"PDKFitbitSleepEnabled"; //!OCLINT
+NSString * const PDKFitbitWeightEnabled = @"PDKFitbitWeightEnabled"; //!OCLINT
 
 NSString * const PDKFitbitAuthState = @"PDKFitbitAuthState"; //!OCLINT
 
@@ -33,14 +41,85 @@ NSString * const PDKFitbitScopeSleep = @"sleep"; //!OCLINT
 NSString * const PDKFitbitScopeSocial = @"social"; //!OCLINT
 NSString * const PDKFitbitScopeWeight = @"weight"; //!OCLINT
 
+NSString * const PDKFitbitAlertMisconfigured = @"pdk-fitbit-misconfigured-alert"; //!OCLINT
 NSString * const PDKFitbitAlert = @"pdk-fitbit-alert"; //!OCLINT
+
+NSString * const PDKFitbitDataType = @"fitbit_type";
+
+NSString * const PDKFitbitFetched = @"fetched"; //!OCLINT
+NSString * const PDKFitbitObserved = @"observed"; //!OCLINT
+
+NSString * const PDKFitbitDataTypeActivity = @"activity";
+NSString * const PDKFitbitDateStart = @"date_start"; //!OCLINT
+NSString * const PDKFitbitSteps = @"steps"; //!OCLINT
+NSString * const PDKFitbitDistance = @"distance"; //!OCLINT
+NSString * const PDKFitbitFloors = @"floors"; //!OCLINT
+NSString * const PDKFitbitElevation = @"elevation"; //!OCLINT
+NSString * const PDKFitbitActivityCalories = @"calories_activity"; //!OCLINT
+NSString * const PDKFitbitBMRCalories = @"calories_bmr"; //!OCLINT
+NSString * const PDKFitbitMarginalCalories = @"calories_marginal"; //!OCLINT
+NSString * const PDKFitbitVeryActiveMinutes = @"minutes_very_active"; //!OCLINT
+NSString * const PDKFitbitFairlyActiveMinutes = @"minutes_fairly_active"; //!OCLINT
+NSString * const PDKFitbitLightlyActiveMinutes = @"minutes_lightly_active"; //!OCLINT
+NSString * const PDKFitbitSedentaryMinutes = @"minutes_sedentary"; //!OCLINT
+
+NSString * const PDKFitbitDataTypeSleep = @"sleep";
+NSString * const PDKFitbitStartTime = @"start"; //!OCLINT
+NSString * const PDKFitbitDuration = @"duration"; //!OCLINT
+NSString * const PDKFitbitIsMainSleep = @"is_main_sleep"; //!OCLINT
+NSString * const PDKFitbitMinutesAsleep = @"minutes_asleep"; //!OCLINT
+NSString * const PDKFitbitMinutesAwake = @"minutes_awake"; //!OCLINT
+NSString * const PDKFitbitMinutesAfterWake = @"minutes_after_wake"; //!OCLINT
+NSString * const PDKFitbitMinutesToSleep = @"minutes_to_sleep"; //!OCLINT
+NSString * const PDKFitbitMinutesInBed = @"minutes_in_bed"; //!OCLINT
+NSString * const PDKFitbitSleepType = @"sleep_type"; //!OCLINT
+NSString * const PDKFitbitDeepPeriods = @"deep_periods"; //!OCLINT
+NSString * const PDKFitbitDeepMinutes = @"deep_minutes"; //!OCLINT
+NSString * const PDKFitbitLightPeriods = @"light_periods"; //!OCLINT
+NSString * const PDKFitbitLightMinutes = @"light_minutes"; //!OCLINT
+NSString * const PDKFitbitREMPeriods = @"rem_periods"; //!OCLINT
+NSString * const PDKFitbitREMMinutes = @"rem_minutes"; //!OCLINT
+NSString * const PDKFitbitWakePeriods = @"wake_periods"; //!OCLINT
+NSString * const PDKFitbitWakeMinutes = @"wake_minutes"; //!OCLINT
+NSString * const PDKFitbitAsleepPeriods = @"asleep_periods"; //!OCLINT
+NSString * const PDKFitbitAsleepMinutes = @"asleep_minutes"; //!OCLINT
+NSString * const PDKFitbitAwakePeriods = @"awake_periods"; //!OCLINT
+NSString * const PDKFitbitAwakeMinutes = @"awake_minutes"; //!OCLINT
+NSString * const PDKFitbitRestlessPeriods = @"restless_periods"; //!OCLINT
+NSString * const PDKFitbitRestlessMinutes = @"restless_minutes"; //!OCLINT
+
+NSString * const PDKFitbitDataTypeHeartRate = @"heart_rate";
+NSString * const PDKFitbitHeartRateOutMin = @"out_min";
+NSString * const PDKFitbitHeartRateOutMax = @"out_max";
+NSString * const PDKFitbitHeartRateOutMinutes = @"out_minutes";
+NSString * const PDKFitbitHeartRateOutCalories = @"out_calories";
+NSString * const PDKFitbitHeartRateFatBurnMin = @"fat_burn_min";
+NSString * const PDKFitbitHeartRateFatBurnMax = @"fat_burn_max";
+NSString * const PDKFitbitHeartRateFatBurnMinutes = @"fat_burn_minutes";
+NSString * const PDKFitbitHeartRateFatBurnCalories = @"fat_burn_calories";
+NSString * const PDKFitbitHeartRateCardioMin = @"cardio_min";
+NSString * const PDKFitbitHeartRateCardioMax = @"cardio_max";
+NSString * const PDKFitbitHeartRateCardioMinutes = @"cardio_minutes";
+NSString * const PDKFitbitHeartRateCardioCalories = @"cardio_calories";
+NSString * const PDKFitbitHeartRatePeakMin = @"peak_min";
+NSString * const PDKFitbitHeartRatePeakMax = @"peak_max";
+NSString * const PDKFitbitHeartRatePeakMinutes = @"peak_minutes";
+NSString * const PDKFitbitHeartRatePeakCalories = @"peak_calories";
+NSString * const PDKFitbitHeartRateRestingRate = @"resting_rate";
+
+NSString * const PDKFitbitDataTypeWeight = @"weight";
+NSString * const PDKFitbitWeightWeight = @"weight";
+NSString * const PDKFitbitWeightBMI = @"bmi";
+NSString * const PDKFitbitWeightLogID = @"log_id";
+NSString * const PDKFitbitWeightSource = @"source";
+
 
 @interface PDKFitbitGenerator()
 
-@property NSMutableArray * listeners;
-
 @property id<OIDExternalUserAgentSession> currentExternalUserAgentFlow;
 @property NSDictionary * options;
+
+@property sqlite3 * database;
 
 @end
 
@@ -64,11 +143,9 @@ static PDKFitbitGenerator * sharedObject = nil;
 
 - (id) init {
     if (self = [super init]) {
-        self.listeners = [NSMutableArray array];
-        
         self.options = @{};
         
-//        self.database = [self openDatabase];
+        self.database = [self openDatabase];
     }
     
     return self;
@@ -92,15 +169,17 @@ static PDKFitbitGenerator * sharedObject = nil;
     BOOL authed = YES;
     
     if (self.options[PDKFitbitClientID] == nil || self.options[PDKFitbitCallbackURL] == nil || self.options[PDKFitbitClientSecret] == nil) {
-        NSLog(@"FB OPTIONS: %@", self.options);
+        NSString * title = NSLocalizedStringFromTableInBundle(@"title_generator_fitbit_app_misconfigured", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
 
         NSString * message = NSLocalizedStringFromTableInBundle(@"message_generator_fitbit_app_misconfigured", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
 
-        [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKFitbitAlert message:message level:PDKAlertLevelError action:^{
+        [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKFitbitAlertMisconfigured title:title message:message level:PDKAlertLevelError action:^{
 
         }];
+    } else {
+        [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKFitbitAlertMisconfigured];
     }
-
+    
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
@@ -108,83 +187,542 @@ static PDKFitbitGenerator * sharedObject = nil;
     if (authed && authStateData == nil) {
         authed = NO;
     }
+    
+    NSNumber * isMandatory = self.options[PDKFitbitLoginMandatory];
+    
+    if (isMandatory == nil) {
+        isMandatory = @(YES);
+    }
 
+    if (isMandatory.boolValue && authed == NO) {
+        NSString * title = NSLocalizedStringFromTableInBundle(@"title_generator_fitbit_needs_auth", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+        NSString * message = NSLocalizedStringFromTableInBundle(@"message_generator_fitbit_needs_auth", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
 
+        [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKFitbitAlert title:title message:message level:PDKAlertLevelError action:^{
+            [[PDKFitbitGenerator sharedInstance] loginToService];
+        }];
+    } else {
+        [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKFitbitAlert];
+    }
+    
     if (authed) {
         OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
 
         [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
-            AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
-
-            NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.fitbit.com/1/user/-/activities.json"]];
-            [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
- 
-            NSURLSessionDataTask * task = [manager dataTaskWithRequest:request
-                                                        uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-                                                            
-                                                        } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-                                                            
-                                                        } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                                            [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKFitbitAlert];
-
-                                                            NSLog(@"GOT RESPONSE: %@", responseObject);
-                                                        }];
-            [task resume];
-        }];
-    } else {
-        NSString * message = NSLocalizedStringFromTableInBundle(@"message_generator_fitbit_needs_auth", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
-
-        [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKFitbitAlert message:message level:PDKAlertLevelError action:^{
-            NSURL * authorizationEndpoint = [NSURL URLWithString:@"https://www.fitbit.com/oauth2/authorize"];
-            NSURL * tokenEndpoint = [NSURL URLWithString:@"https://api.fitbit.com/oauth2/token"];
-
-            OIDServiceConfiguration * configuration = [[OIDServiceConfiguration alloc] initWithAuthorizationEndpoint:authorizationEndpoint
-                                                                                                       tokenEndpoint:tokenEndpoint];
+            NSNumber * activitiesEnabled = self.options[PDKFitbitActivityEnabled];
             
-            NSArray * scopes = self.options[PDKFitbitScopes];
+            if (activitiesEnabled == nil) {
+                activitiesEnabled = @(YES);
+            }
             
-            if (scopes == nil || scopes.count == 0) {
-                scopes = @[PDKFitbitScopeActivity];
+            if (activitiesEnabled.boolValue) {
+                [self fetchActivityWithAccessToken:accessToken];
             }
 
-            OIDAuthorizationRequest *request = [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
-                                                                                             clientId:self.options[PDKFitbitClientID]
-                                                                                         clientSecret:self.options[PDKFitbitClientSecret]
-                                                                                               scopes:scopes
-                                                                                          redirectURL:[NSURL URLWithString:self.options[PDKFitbitCallbackURL]]
-                                                                                         responseType:OIDResponseTypeCode
-                                                                                 additionalParameters:nil];
+            NSNumber * sleepEnabled = self.options[PDKFitbitSleepEnabled];
+            
+            if (sleepEnabled == nil) {
+                sleepEnabled = @(YES);
+            }
 
-            NSLog(@"FB 11");
+            if (sleepEnabled.boolValue) {
+                [self fetchSleepWithAccessToken:accessToken];
+            }
 
-            UIWindow * window = [[[UIApplication sharedApplication] delegate] window];
+            NSNumber * heartRateEnabled = self.options[PDKFitbitHeartRateEnabled];
+            
+            if (heartRateEnabled == nil) {
+                heartRateEnabled = @(YES);
+            }
+            
+            if (heartRateEnabled.boolValue) {
+                [self fetchHeartRateWithAccessToken:accessToken];
+            }
 
-            NSLog(@"FB 12");
+            NSNumber * weightEnabled = self.options[PDKFitbitWeightEnabled];
+            
+            if (weightEnabled == nil) {
+                weightEnabled = @(YES);
+            }
+            
+            if (weightEnabled.boolValue) {
+                [self fetchWeightWithAccessToken:accessToken];
+            }
 
-            self.currentExternalUserAgentFlow = [OIDAuthState authStateByPresentingAuthorizationRequest:request
-                                                                               presentingViewController:window.rootViewController
-                                                                                               callback:^(OIDAuthState *_Nullable authState, NSError *_Nullable error) {
-                                                                                                   if (authState) {
-                                                                                                       NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
-                                                                                                       
-                                                                                                       NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-                                                                                                       
-                                                                                                       [defaults setValue:authData
-                                                                                                                   forKey:PDKFitbitAuthState];
-                                                                                                       [defaults synchronize];
-                                                                                                       
-                                                                                                       [[PDKFitbitGenerator sharedInstance] refresh];
-                                                                                                   } else {
-                                                                                                       NSLog(@"Authorization error: %@", [error localizedDescription]);
-                                                                                                   }
-                                                                                               }];
+            [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKFitbitAlert];
         }];
     }
 }
 
-- (BOOL)application:(UIApplication *) app openURL:(NSURL *) url options:(NSDictionary<NSString *, id> *) options {
-    NSLog(@"FB HANDLE URL: %@", url);
+- (void) fetchActivityWithAccessToken:(NSString *) accessToken {
+    __weak __typeof(self) weakSelf = self;
+
+    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+
+    NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.fitbit.com/1/user/-/activities/date/today.json"]];
+    [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
     
+    NSURLSessionDataTask * task = [manager dataTaskWithRequest:request
+                                                uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+                                                    
+                                                } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+                                                    
+                                                } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                                    
+                                                    if (error != nil) {
+                                                        NSLog(@"FB ACTIVITY ERROR: %@", error);
+                                                        [[PDKFitbitGenerator sharedInstance] logout];
+                                                    } else {
+                                                        [weakSelf logActivity:responseObject];
+                                                    }
+                                                }];
+    [task resume];
+}
+
+- (void) logActivity:(NSDictionary *) responseObject {
+    NSDictionary * summary = responseObject[@"summary"];
+    
+    if (summary != nil) {
+        NSNumber * now = @([[NSDate date] timeIntervalSince1970] * 1000);
+        
+        NSMutableDictionary * data = [NSMutableDictionary dictionary];
+        [data setValue:now forKey:PDKFitbitFetched];
+        [data setValue:now forKey:PDKFitbitObserved];
+        
+        NSCalendar * calendar = [NSCalendar currentCalendar];
+        
+        NSDate * start = [calendar startOfDayForDate:[NSDate date]];
+        
+        [data setValue:@([start timeIntervalSince1970] * 1000) forKey:PDKFitbitDateStart];
+        [data setValue:summary[@"steps"] forKey:PDKFitbitSteps];
+        [data setValue:summary[@"floors"] forKey:PDKFitbitFloors];
+        [data setValue:summary[@"elevation"] forKey:PDKFitbitElevation];
+        [data setValue:summary[@"activityCalories"] forKey:PDKFitbitActivityCalories];
+        [data setValue:summary[@"caloriesBMR"] forKey:PDKFitbitBMRCalories];
+        [data setValue:summary[@"marginalCalories"] forKey:PDKFitbitMarginalCalories];
+        [data setValue:summary[@"veryActiveMinutes"] forKey:PDKFitbitVeryActiveMinutes];
+        [data setValue:summary[@"fairlyActiveMinutes"] forKey:PDKFitbitFairlyActiveMinutes];
+        [data setValue:summary[@"lightlyActiveMinutes"] forKey:PDKFitbitLightlyActiveMinutes];
+        [data setValue:summary[@"sedentaryMinutes"] forKey:PDKFitbitSedentaryMinutes];
+        
+        NSArray * distances = summary[@"distances"];
+        
+        double totalDistance = 0;
+        
+        for (NSDictionary * distanceObj in distances) {
+            NSNumber * distanceValue = distanceObj[@"distance"];
+            
+            totalDistance += distanceValue.doubleValue;
+        }
+
+        [data setValue:@(totalDistance) forKey:PDKFitbitDistance];
+        
+        data[PDKFitbitDataType] = PDKFitbitDataTypeActivity;
+        
+        [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
+
+        sqlite3_stmt * stmt;
+
+        NSString * insert = @"INSERT INTO activity_history (fetched, observed, date_start, steps, distance, floors, elevation, calories_activity, calories_bmr, calories_marginal, minutes_very_active, minutes_fairly_active, minutes_lightly_active, minutes_sedentary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+        int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+
+        if (retVal == SQLITE_OK) {
+            if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 3, [data[PDKFitbitDateStart] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 4, [data[PDKFitbitSteps] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 5, [data[PDKFitbitDistance] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 6, [data[PDKFitbitFloors] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 7, [data[PDKFitbitElevation] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 8, [data[PDKFitbitActivityCalories] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 9, [data[PDKFitbitBMRCalories] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 10, [data[PDKFitbitMarginalCalories] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 11, [data[PDKFitbitVeryActiveMinutes] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 12, [data[PDKFitbitLightlyActiveMinutes] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 13, [data[PDKFitbitFairlyActiveMinutes] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 14, [data[PDKFitbitSedentaryMinutes] doubleValue]) == SQLITE_OK) {
+                
+                int retVal = sqlite3_step(stmt);
+                
+                if (SQLITE_DONE != retVal) {
+                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                }
+            }
+            
+            sqlite3_finalize(stmt);
+        }
+    }
+}
+
+- (void) fetchSleepWithAccessToken:(NSString *) accessToken {
+    __weak __typeof(self) weakSelf = self;
+
+    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+    
+    NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.fitbit.com/1.2/user/-/sleep/date/today.json"]];
+    [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
+    
+    NSURLSessionDataTask * task = [manager dataTaskWithRequest:request
+                                                uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+                                                    
+                                                } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+                                                    
+                                                } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                                    
+                                                    if (error != nil) {
+                                                        NSLog(@"FB SLEEP ERROR: %@", error);
+                                                        [[PDKFitbitGenerator sharedInstance] logout];
+                                                    } else {
+                                                        [weakSelf logSleep:responseObject];
+                                                    }
+                                                }];
+    [task resume];
+}
+
+- (void) logSleep:(id) responseObject {
+    NSArray * sleeps = responseObject[@"sleep"];
+    
+    if (sleeps != nil) {
+        NSNumber * now = @([[NSDate date] timeIntervalSince1970] * 1000);
+        
+        NSDateFormatter * dateParser = [[NSDateFormatter alloc] init];
+        dateParser.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS";
+        
+        for (NSDictionary * sleep in sleeps) {
+            NSMutableDictionary * data = [NSMutableDictionary dictionary];
+            
+            data[PDKFitbitFetched] = now;
+            data[PDKFitbitObserved] = now;
+            
+            NSDate * sleepDate = [dateParser dateFromString:sleep[@"startTime"]];
+
+            data[PDKFitbitStartTime] = @(sleepDate.timeIntervalSince1970 * 1000);
+            data[PDKFitbitDuration] = sleep[@"duration"];
+            data[PDKFitbitIsMainSleep] = sleep[@"isMainSleep"];
+            data[PDKFitbitMinutesAsleep] = sleep[@"minutesAsleep"];
+            data[PDKFitbitMinutesAwake] = sleep[@"minutesAwake"];
+            data[PDKFitbitMinutesAfterWake] = sleep[@"minutesAfterWakeup"];
+            data[PDKFitbitMinutesToSleep] = sleep[@"minutesToFallAsleep"];
+            data[PDKFitbitMinutesInBed] = sleep[@"timeInBed"];
+            data[PDKFitbitSleepType] = sleep[@"type"];
+            
+            if ([@"stages" isEqualToString:sleep[@"type"]]) {
+                NSDictionary * summary = sleep[@"levels"][@"summary"];
+                
+                data[PDKFitbitDeepPeriods] = summary[@"deep"][@"count"];
+                data[PDKFitbitDeepMinutes] = summary[@"deep"][@"minutes"];
+
+                data[PDKFitbitLightPeriods] = summary[@"light"][@"count"];
+                data[PDKFitbitLightMinutes] = summary[@"light"][@"minutes"];
+
+                data[PDKFitbitREMPeriods] = summary[@"rem"][@"count"];
+                data[PDKFitbitREMMinutes] = summary[@"rem"][@"minutes"];
+
+                data[PDKFitbitWakePeriods] = summary[@"wake"][@"count"];
+                data[PDKFitbitWakeMinutes] = summary[@"wake"][@"minutes"];
+
+                data[PDKFitbitAsleepPeriods] = @(-1);
+                data[PDKFitbitAsleepMinutes] = @(-1);
+                
+                data[PDKFitbitAwakePeriods] = @(-1);
+                data[PDKFitbitAwakeMinutes] = @(-1);
+                
+                data[PDKFitbitRestlessPeriods] = @(-1);
+                data[PDKFitbitRestlessMinutes] = @(-1);
+            } else if ([@"classic" isEqualToString:sleep[@"type"]]) {
+                NSDictionary * summary = sleep[@"levels"][@"summary"];
+                
+                data[PDKFitbitAsleepPeriods] = summary[@"asleep"][@"count"];
+                data[PDKFitbitAsleepMinutes] = summary[@"asleep"][@"minutes"];
+
+                data[PDKFitbitAwakePeriods] = summary[@"awake"][@"count"];
+                data[PDKFitbitAwakeMinutes] = summary[@"awake"][@"minutes"];
+
+                data[PDKFitbitRestlessPeriods] = summary[@"restless"][@"count"];
+                data[PDKFitbitRestlessMinutes] = summary[@"restless"][@"minutes"];
+
+                data[PDKFitbitDeepPeriods] = @(-1);
+                data[PDKFitbitDeepMinutes] = @(-1);
+                
+                data[PDKFitbitLightPeriods] = @(-1);
+                data[PDKFitbitLightMinutes] = @(-1);
+                
+                data[PDKFitbitREMPeriods] = @(-1);
+                data[PDKFitbitREMMinutes] = @(-1);
+                
+                data[PDKFitbitWakePeriods] = @(-1);
+                data[PDKFitbitWakeMinutes] = @(-1);
+            }
+
+            data[PDKFitbitDataType] = PDKFitbitDataTypeSleep;
+            
+            [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
+
+
+            sqlite3_stmt * stmt;
+            
+            NSString * insert = @"INSERT INTO sleep_history (fetched, observed, start, duration, is_main_sleep, minutes_asleep, minutes_awake, minutes_after_wake, minutes_to_sleep, minutes_in_bed, sleep_type, deep_periods, deep_minutes, light_periods, light_minutes, rem_periods, rem_minutes, wake_periods, wake_minutes, asleep_minutes, asleep_periods, restless_minutes, restless_periods, awake_minutes, awake_periods) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+            
+            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+            
+            if (retVal == SQLITE_OK) {
+                if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 3, [data[PDKFitbitStartTime] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 4, [data[PDKFitbitDuration] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 5, [data[PDKFitbitIsMainSleep] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 6, [data[PDKFitbitMinutesAsleep] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 7, [data[PDKFitbitMinutesAwake] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 8, [data[PDKFitbitMinutesAfterWake] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 9, [data[PDKFitbitMinutesToSleep] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 10, [data[PDKFitbitMinutesInBed] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_text(stmt, 12, [data[PDKFitbitSleepType] cStringUsingEncoding:NSUTF8StringEncoding], -1, SQLITE_TRANSIENT) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 12, [data[PDKFitbitDeepPeriods] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 13, [data[PDKFitbitDeepMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 14, [data[PDKFitbitLightPeriods] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 15, [data[PDKFitbitLightMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 16, [data[PDKFitbitREMPeriods] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 17, [data[PDKFitbitREMMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 18, [data[PDKFitbitWakePeriods] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 19, [data[PDKFitbitWakeMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 20, [data[PDKFitbitAsleepPeriods] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 21, [data[PDKFitbitAsleepMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 22, [data[PDKFitbitAwakePeriods] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 23, [data[PDKFitbitAwakeMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 24, [data[PDKFitbitRestlessPeriods] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 25, [data[PDKFitbitRestlessMinutes] doubleValue]) == SQLITE_OK) {
+                    
+                    int retVal = sqlite3_step(stmt);
+                    
+                    if (SQLITE_DONE != retVal) {
+                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                    }
+                }
+                
+                sqlite3_finalize(stmt);
+            }
+        }
+    }
+}
+
+- (void) fetchHeartRateWithAccessToken:(NSString *) accessToken {
+    __weak __typeof(self) weakSelf = self;
+
+    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+    
+    NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.fitbit.com/1/user/-/activities/heart/date/today/1d.json"]];
+    [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
+    
+    NSURLSessionDataTask * task = [manager dataTaskWithRequest:request
+                                                uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+                                                    
+                                                } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+                                                    
+                                                } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                                    
+                                                    if (error != nil) {
+                                                        NSLog(@"FB HEART RATE ERROR: %@", error);
+                                                        [[PDKFitbitGenerator sharedInstance] logout];
+                                                    } else {
+                                                        NSLog(@"GOT RESPONSE: %@", responseObject);
+                                                        
+                                                        [weakSelf logHeartRate:responseObject];
+                                                    }
+                                                }];
+    [task resume];
+}
+
+- (void) logHeartRate:(id) responseObject {
+    NSArray * summary = responseObject[@"activities-heart"];
+    
+    if (summary != nil) {
+        NSNumber * now = @([[NSDate date] timeIntervalSince1970] * 1000);
+        
+        NSMutableDictionary * data = [NSMutableDictionary dictionary];
+        [data setValue:now forKey:PDKFitbitFetched];
+        [data setValue:now forKey:PDKFitbitObserved];
+        
+        NSArray * zones = summary[0][@"value"][@"heartRateZones"];
+        
+        for (NSDictionary * zone in zones) {
+            if ([@"Out of Range" isEqualToString:zone[@"name"]]) {
+                data[PDKFitbitHeartRateOutMin] = zone[@"min"];
+                data[PDKFitbitHeartRateOutMax] = zone[@"max"];
+                data[PDKFitbitHeartRateOutMinutes] = zone[@"minutes"];
+                data[PDKFitbitHeartRateOutCalories] = zone[@"caloriesOut"];
+            } else if ([@"Fat Burn" isEqualToString:zone[@"name"]]) {
+                data[PDKFitbitHeartRateFatBurnMin] = zone[@"min"];
+                data[PDKFitbitHeartRateFatBurnMax] = zone[@"max"];
+                data[PDKFitbitHeartRateFatBurnMinutes] = zone[@"minutes"];
+                data[PDKFitbitHeartRateFatBurnCalories] = zone[@"caloriesOut"];
+            } else if ([@"Cardio" isEqualToString:zone[@"name"]]) {
+                data[PDKFitbitHeartRateCardioMin] = zone[@"min"];
+                data[PDKFitbitHeartRateCardioMax] = zone[@"max"];
+                data[PDKFitbitHeartRateCardioMinutes] = zone[@"minutes"];
+                data[PDKFitbitHeartRateCardioCalories] = zone[@"caloriesOut"];
+            } else if ([@"Peak" isEqualToString:zone[@"name"]]) {
+                data[PDKFitbitHeartRatePeakMin] = zone[@"min"];
+                data[PDKFitbitHeartRatePeakMax] = zone[@"max"];
+                data[PDKFitbitHeartRatePeakMinutes] = zone[@"minutes"];
+                data[PDKFitbitHeartRatePeakCalories] = zone[@"caloriesOut"];
+            }
+        }
+        
+        data[PDKFitbitHeartRateRestingRate] = summary[0][@"value"][@"restingHeartRate"];
+        
+        data[PDKFitbitDataType] = PDKFitbitDataTypeHeartRate;
+        
+        [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
+        
+        sqlite3_stmt * stmt;
+        
+        NSString * insert = @"INSERT INTO heart_rate_history (fetched, observed, out_min, out_max, out_minutes, out_calories, fat_burn_min, fat_burn_max, fat_burn_minutes, fat_burn_calories, cardio_min, cardio_max, cardio_minutes, cardio_calories, peak_min, peak_max, peak_minutes, peak_calories, resting_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+        int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+        
+        if (retVal == SQLITE_OK) {
+            if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 3, [data[PDKFitbitHeartRateOutMin] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 4, [data[PDKFitbitHeartRateOutMax] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 5, [data[PDKFitbitHeartRateOutMinutes] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 6, [data[PDKFitbitHeartRateOutCalories] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 7, [data[PDKFitbitHeartRateFatBurnMin] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 8, [data[PDKFitbitHeartRateFatBurnMax] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 9, [data[PDKFitbitHeartRateFatBurnMinutes] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 10, [data[PDKFitbitHeartRateFatBurnCalories] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 11, [data[PDKFitbitHeartRateCardioMin] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 12, [data[PDKFitbitHeartRateCardioMax] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 13, [data[PDKFitbitHeartRateCardioMinutes] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 14, [data[PDKFitbitHeartRateCardioCalories] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 15, [data[PDKFitbitHeartRatePeakMin] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 16, [data[PDKFitbitHeartRatePeakMax] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 17, [data[PDKFitbitHeartRatePeakMinutes] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 18, [data[PDKFitbitHeartRatePeakCalories] doubleValue]) == SQLITE_OK &&
+                sqlite3_bind_double(stmt, 19, [data[PDKFitbitHeartRateRestingRate] doubleValue]) == SQLITE_OK) {
+                
+                int retVal = sqlite3_step(stmt);
+                
+                if (SQLITE_DONE != retVal) {
+                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                }
+            }
+            
+            sqlite3_finalize(stmt);
+        }
+    }
+}
+
+- (void) fetchWeightWithAccessToken:(NSString *) accessToken {
+    __weak __typeof(self) weakSelf = self;
+
+    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+    
+    NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.fitbit.com/1/user/-/body/log/weight/date/today.json"]];
+    [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
+    
+    NSURLSessionDataTask * task = [manager dataTaskWithRequest:request
+                                                uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+                                                    
+                                                } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+                                                    
+                                                } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                                    
+                                                    if (error != nil) {
+                                                        NSLog(@"FB WEIGHT ERROR: %@", error);
+                                                        [[PDKFitbitGenerator sharedInstance] logout];
+                                                    } else {
+                                                        NSLog(@"GOT RESPONSE: %@", responseObject);
+                                                        
+                                                        [weakSelf logWeight:responseObject];
+                                                    }
+                                                }];
+    [task resume];
+}
+
+- (void) logWeight:(id) responseObject {
+    NSArray * weights = responseObject[@"weight"];
+    
+    if (weights != nil) {
+        NSNumber * now = @([[NSDate date] timeIntervalSince1970] * 1000);
+
+        NSDateFormatter * dateParser = [[NSDateFormatter alloc] init];
+        dateParser.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss";
+
+        for (NSDictionary * weight in weights) {
+            NSNumber * logId = weight[@"logId"];
+
+            BOOL logNew = YES;
+
+            sqlite3_stmt * statement = NULL;
+            
+            NSString * querySQL = @"SELECT W.log_id FROM weight_history W WHERE W.log_id = ?";
+            
+            const char * query_stmt = [querySQL UTF8String];
+            
+            if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+                sqlite3_bind_int64(statement, 1, logId.longValue);
+
+                int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+                
+                if (retVal == SQLITE_OK) {
+                    if (sqlite3_step(statement) == SQLITE_ROW) {
+                        logNew = NO;
+                    }
+                    
+                    sqlite3_finalize(statement);
+                }
+            } else {
+                NSLog(@"ERROR WEIGHT QUERYING");
+            }
+            
+            if (logNew) {
+                NSMutableDictionary * data = [NSMutableDictionary dictionary];
+
+                data[PDKFitbitFetched] = now;
+                data[PDKFitbitObserved] = now;
+
+                data[PDKFitbitWeightWeight] = weight[@"weight"];
+                data[PDKFitbitWeightBMI] = weight[@"bmi"];
+                data[PDKFitbitWeightLogID] = logId;
+                data[PDKFitbitWeightSource] = weight[@"source"];
+
+                data[PDKFitbitDataType] = PDKFitbitDataTypeWeight;
+                
+                [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
+                
+                sqlite3_stmt * stmt;
+                
+                NSString * insert = @"INSERT INTO weight_history (fetched, observed, weight, bmi, log_id, source) VALUES (?, ?, ?, ?, ?, ?);";
+                
+                int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+                
+                if (retVal == SQLITE_OK) {
+                    if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 3, [data[PDKFitbitDateStart] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 4, [data[PDKFitbitSteps] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 5, [data[PDKFitbitDistance] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_text(stmt, 6, [data[PDKFitbitWeightSource] cStringUsingEncoding:NSUTF8StringEncoding], -1, SQLITE_TRANSIENT) == SQLITE_OK) {
+                        
+                        int retVal = sqlite3_step(stmt);
+                        
+                        if (SQLITE_DONE != retVal) {
+                            NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                        } else {
+                            NSLog(@"WEIGHT LOGGED TO DB!");
+                        }
+                    }
+                    
+                    sqlite3_finalize(stmt);
+                }
+            }
+        }
+    }
+}
+
+- (BOOL)application:(UIApplication *) app openURL:(NSURL *) url options:(NSDictionary<NSString *, id> *) options {
     if (self.currentExternalUserAgentFlow == nil) {
         return NO;
     }
@@ -211,43 +749,7 @@ static PDKFitbitGenerator * sharedObject = nil;
 }
 
 - (sqlite3 *) openDatabase {
-/*
-    Activities
-        Calories
-            BMR
-            activity
-            goal
-        Steps
-            Distance
-        Floors
-            Elevation
-        Minutes
-            very active
-            fairly active
-            lightly active
-            sedentary
- 
-    Body
-        fat %
-            source
-        weight
-            bmi
-            source
- 
-    Heart Rate (since last check)
-        mins unknown
-        mins resting
-        mins fat burn
-        mins cardio
-        mins peak
- 
-    Sleep
-        level
-        duration
-        interval start
- */
-    
-/*    NSString * dbPath = [self databasePath];
+    NSString * dbPath = [self databasePath];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:dbPath] == NO)
     {
@@ -259,10 +761,28 @@ static PDKFitbitGenerator * sharedObject = nil;
         
         if (retVal == SQLITE_OK) {
             char * error;
+ 
+            const char * createActivityStatement = "CREATE TABLE activity_history(_id INTEGER PRIMARY KEY AUTOINCREMENT, fetched INTEGER, transmitted INTEGER, observed INTEGER, date_start INTEGER, steps REAL, distance REAL, floors REAL, elevation REAL, calories_activity REAL, calories_bmr REAL, calories_marginal REAL, minutes_very_active REAL, minutes_fairly_active REAL, minutes_lightly_active REAL, minutes_sedentary REAL);";
+
+            if (sqlite3_exec(database, createActivityStatement, NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
+                
+            }
+
+            const char * createSleepStatement = "CREATE TABLE sleep_history(_id INTEGER PRIMARY KEY AUTOINCREMENT, fetched INTEGER, transmitted INTEGER, observed INTEGER, start INTEGER, duration REAL, is_main_sleep INTEGER, minutes_asleep REAL, minutes_awake REAL, minutes_after_wake REAL, minutes_to_sleep REAL, minutes_in_bed REAL, sleep_type TEXT, deep_periods REAL, deep_minutes REAL, light_periods REAL, light_minutes REAL, rem_periods REAL, rem_minutes REAL, wake_periods REAL, wake_minutes REAL, asleep_minutes REAL, asleep_periods REAL, restless_minutes REAL, restless_periods REAL, awake_minutes REAL, awake_periods REAL);";
             
-            const char * createStatement = "CREATE TABLE IF NOT EXISTS battery_data (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, level REAL, status TEXT)";
+            if (sqlite3_exec(database, createSleepStatement, NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
+                
+            }
+
+            const char * createWeightStatement = "CREATE TABLE weight_history(_id INTEGER PRIMARY KEY AUTOINCREMENT, fetched INTEGER, transmitted INTEGER, observed INTEGER, weight REAL, bmi REAL, log_id INTEGER, source TEXT);";
             
-            if (sqlite3_exec(database, createStatement, NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
+            if (sqlite3_exec(database, createWeightStatement, NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
+                
+            }
+
+            const char * createHeartRateStatement = "CREATE TABLE heart_rate_history(_id INTEGER PRIMARY KEY AUTOINCREMENT, fetched INTEGER, transmitted INTEGER, observed INTEGER, out_min REAL, out_max REAL, out_minutes REAL, out_calories REAL, fat_burn_min REAL, fat_burn_max REAL, fat_burn_minutes REAL, fat_burn_calories REAL, cardio_min REAL, cardio_max REAL, cardio_minutes REAL, cardio_calories REAL, peak_min REAL, peak_max REAL, peak_minutes REAL, peak_calories REAL, resting_rate REAL);";
+            
+            if (sqlite3_exec(database, createHeartRateStatement, NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
                 
             }
             
@@ -296,185 +816,72 @@ static PDKFitbitGenerator * sharedObject = nil;
         //        }
         
         return database;
-    } */
-    
-    return NULL;
-}
-
-- (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
-    if ([self.listeners containsObject:listener] == NO) {
-        [self.listeners addObject:listener];
-    }
-}
-
-- (void) removeListener:(id<PDKDataListener>)listener {
-    [self.listeners removeObject:listener];
-}
-
-
-// + (UIViewController *) detailsController {
-//    return [[PDKBatteryGeneratorViewController alloc] init];
-// }
-
-/* - (UIView *) visualizationForSize:(CGSize) size {
-    sqlite3_stmt * statement = NULL;
-    
-    NSString * querySQL = @"SELECT B.timestamp FROM battery_data B";
-    
-    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
-    
-    self.batteryDays = [NSMutableArray array];
-    
-    if (retVal == SQLITE_OK) {
-        while (sqlite3_step(statement) == SQLITE_ROW) {
-            NSTimeInterval timestamp = (NSTimeInterval) sqlite3_column_double(statement, 0);
-            
-            NSString * key = [self.dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:timestamp]];
-            
-            if ([self.batteryDays containsObject:key] == NO) {
-                [self.batteryDays addObject:key];
-            }
-        }
-        
-        sqlite3_finalize(statement);
-    };
-    
-    [self.batteryDays sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-        return [obj2 compare:obj1];
-    }];
-    
-    UITableView * tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height) style:UITableViewStylePlain];
-    
-    tableView.dataSource = self;
-    tableView.delegate = self;
-    tableView.separatorStyle = UITableViewCellSelectionStyleNone;
-    tableView.backgroundColor = [UIColor darkGrayColor];
-    tableView.bounces = NO;
-    
-    return tableView;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.batteryDays.count;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 88;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"PDKBatteryDataSourceCell"];
-    
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"PDKBatteryDataSourceCell"];
-        
-        cell.accessoryType = UITableViewCellAccessoryNone;
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        
-        LineChartView * chartView = [[LineChartView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, [self tableView:tableView heightForRowAtIndexPath:indexPath])];
-        chartView.backgroundColor = UIColor.blackColor;
-        chartView.legend.enabled = NO;
-        chartView.rightAxis.enabled = NO;
-        chartView.chartDescription.enabled = NO;
-        chartView.dragEnabled = NO;
-        chartView.pinchZoomEnabled = NO;
-        
-        chartView.leftAxis.drawGridLinesEnabled = YES;
-        chartView.leftAxis.axisMinimum = 0;
-        chartView.leftAxis.axisMaximum = 100;
-        chartView.leftAxis.drawLabelsEnabled = NO;
-        
-        chartView.xAxis.drawGridLinesEnabled = NO;
-        chartView.xAxis.labelPosition = XAxisLabelPositionBottom;
-        chartView.xAxis.axisMinimum = 0;
-        chartView.xAxis.axisMaximum = 24;
-        chartView.xAxis.drawGridLinesEnabled = YES;
-        chartView.xAxis.labelTextColor = UIColor.lightGrayColor;
-        chartView.xAxis.drawLabelsEnabled = NO;
-        
-        chartView.tag = 1000;
-        
-        [cell.contentView addSubview:chartView];
-        
-        UILabel * dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(tableView.frame.size.width - 40, 8, 32, 32)];
-        dateLabel.textColor = [UIColor whiteColor];
-        dateLabel.font = [UIFont boldSystemFontOfSize:14];
-        dateLabel.backgroundColor = [UIColor darkGrayColor];
-        dateLabel.textAlignment = NSTextAlignmentCenter;
-        dateLabel.layer.cornerRadius = 5;
-        dateLabel.layer.masksToBounds = YES;
-        dateLabel.layer.opacity = 0.5;
-        
-        dateLabel.tag = 1001;
-        
-        [cell.contentView addSubview:dateLabel];
     }
     
-    LineChartView * chartView = [cell.contentView viewWithTag:1000];
+    return database;
+}
+
+- (BOOL) isAuthenticated {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
-    NSString * key = self.batteryDays[indexPath.row];
+    NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
     
-    NSDate * date = [self.dateFormatter dateFromString:key];
+    return authStateData != nil;
+}
+
+- (void) loginToService {
+    NSURL * authorizationEndpoint = [NSURL URLWithString:@"https://www.fitbit.com/oauth2/authorize"];
+    NSURL * tokenEndpoint = [NSURL URLWithString:@"https://api.fitbit.com/oauth2/token"];
     
-    NSDate * startDate = [[NSCalendar currentCalendar] startOfDayForDate:date];
+    OIDServiceConfiguration * configuration = [[OIDServiceConfiguration alloc] initWithAuthorizationEndpoint:authorizationEndpoint
+                                                                                               tokenEndpoint:tokenEndpoint];
     
-    NSTimeInterval start = startDate.timeIntervalSince1970;
-    NSTimeInterval end = start + (24 * 60 * 60);
+    NSArray * scopes = self.options[PDKFitbitScopes];
     
-    NSString * querySQL = @"SELECT B.timestamp, B.level FROM battery_data B WHERE (B.timestamp >= ? AND B.timestamp < ?)";
-    sqlite3_stmt * statement = NULL;
-    
-    NSMutableArray * levels = [[NSMutableArray alloc] init];
-    
-    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
-    
-    if (retVal == SQLITE_OK) {
-        sqlite3_bind_double(statement, 1, (double) start);
-        
-        retVal = sqlite3_bind_double(statement, 2, (double) end);
-        
-        if (retVal == SQLITE_OK) {
-            while (sqlite3_step(statement) == SQLITE_ROW) {
-                NSTimeInterval timestamp = (NSTimeInterval) sqlite3_column_double(statement, 0);
-                double level = sqlite3_column_double(statement, 1);
-                
-                [levels addObject:[[BarChartDataEntry alloc] initWithX:((timestamp - start) / (60 * 60)) y:level]];
-            }
-            
-            sqlite3_finalize(statement);
-        };
+    if (scopes == nil || scopes.count == 0) {
+        scopes = @[PDKFitbitScopeActivity, PDKFitbitScopeSleep, PDKFitbitScopeWeight];
     }
     
-    LineChartDataSet * dataSet = [[LineChartDataSet alloc] initWithValues:levels label:@""];
-    dataSet.drawIconsEnabled = NO;
-    dataSet.drawValuesEnabled = NO;
-    dataSet.drawCirclesEnabled = NO;
-    dataSet.fillAlpha = 1.0;
-    dataSet.drawFilledEnabled = YES;
-    dataSet.lineWidth = 0.0;
-    dataSet.fillColor = [UIColor colorWithRed:0.0f green:1.0 blue:0.0 alpha:0.5];
+    NSDictionary * addParams = @{
+                                 @"prompt": @"login consent"
+                                 };
+
+    OIDAuthorizationRequest *request = [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
+                                                                                     clientId:self.options[PDKFitbitClientID]
+                                                                                 clientSecret:self.options[PDKFitbitClientSecret]
+                                                                                       scopes:scopes
+                                                                                  redirectURL:[NSURL URLWithString:self.options[PDKFitbitCallbackURL]]
+                                                                                 responseType:OIDResponseTypeCode
+                                                                         additionalParameters:addParams];
     
-    LineChartData * data = [[LineChartData alloc] initWithDataSets:@[dataSet]];
-    [data setValueFont:[UIFont systemFontOfSize:10.f]];
+    UIWindow * window = [[[UIApplication sharedApplication] delegate] window];
     
-    chartView.data = data;
+    NSLog(@"AUTH REQUEST: %@", [request authorizationRequestURL]);
     
-    NSString * dateString = [self.dateDisplayFormatter stringFromDate:date];
-    
-    UILabel * dateLabel = [cell.contentView viewWithTag:1001];
-    
-    CGSize dateSize = [dateString sizeWithAttributes:@{NSFontAttributeName:dateLabel.font}];
-    dateSize.width += 10;
-    dateSize.height += 10;
-    
-    CGRect viewFrame = chartView.frame;
-    
-    dateLabel.text = dateString;
-    dateLabel.frame = CGRectMake(floor((viewFrame.size.width - dateSize.width) / 2), floor((viewFrame.size.height - dateSize.height) / 2), dateSize.width, dateSize.height);
-    
-    return cell;
+    self.currentExternalUserAgentFlow = [OIDAuthState authStateByPresentingAuthorizationRequest:request
+                                                                       presentingViewController:window.rootViewController
+                                                                                       callback:^(OIDAuthState *_Nullable authState, NSError *_Nullable error) {
+                                                                                           if (authState) {
+                                                                                               NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+                                                                                               
+                                                                                               NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+                                                                                               
+                                                                                               [defaults setValue:authData
+                                                                                                           forKey:PDKFitbitAuthState];
+                                                                                               [defaults synchronize];
+                                                                                               
+                                                                                               [[PDKFitbitGenerator sharedInstance] refresh];
+                                                                                           } else {
+                                                                                               NSLog(@"Authorization error: %@", [error localizedDescription]);
+                                                                                           }
+                                                                                       }];
 }
- 
- */
+
+- (void) logout {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    
+    [defaults removeObjectForKey:PDKFitbitAuthState];
+    [defaults synchronize];
+}
 
 @end

@@ -207,9 +207,10 @@ static PDKPedometerGenerator * sharedObject = nil;
 
             [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKPedometerAlert];
         } else {
+            NSString * title = NSLocalizedStringFromTableInBundle(@"title_generator_pedometer_unavailable", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
             NSString * message = NSLocalizedStringFromTableInBundle(@"error_generator_pedometer_unavailable", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
             
-            [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKPedometerAlert message:message level:PDKAlertLevelError action:^{
+            [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKPedometerAlert title:title message:message level:PDKAlertLevelError action:^{
                 id<UIApplicationDelegate> delegate = [UIApplication sharedApplication].delegate;
 
                 NSString * alertTitle = NSLocalizedStringFromTableInBundle(@"title_generator_pedometer_unavailable", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);

@@ -13,6 +13,8 @@
 extern NSString * const PDKFitbitClientID;
 extern NSString * const PDKFitbitClientSecret;
 extern NSString * const PDKFitbitCallbackURL;
+extern NSString * const PDKFitbitLoginMandatory;
+
 
 extern NSString * const PDKFitbitScopes;
 
@@ -30,7 +32,10 @@ extern NSString * const PDKFitbitScopeWeight;
 
 + (PDKFitbitGenerator *) sharedInstance;
 
-- (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
 - (void) refresh;
+
+- (BOOL) isAuthenticated;
+- (void) loginToService;
+- (void) logout;
 
 @end

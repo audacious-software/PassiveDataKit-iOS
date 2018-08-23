@@ -59,7 +59,9 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKEvents,
     PDKAppleHealthKit,
     PDKPedometer,
-    PDKBattery
+    PDKBattery,
+    PDKNokiaHealth,
+    PDKFitbit
 };
 
 @protocol PDKDataListener
@@ -96,6 +98,7 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 
 @interface PDKAlert : NSObject
 
+@property (nonatomic, copy) NSString * title;
 @property (nonatomic, copy) NSString * message;
 @property (nonatomic, copy) NSString * alertTag;
 @property (nonatomic, copy) NSDate * generated;
@@ -146,7 +149,7 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 - (void) addTransmitter:(id<PDKTransmitter>) transmitter;
 
 - (NSArray *) alerts;
-- (void) updateAlertWithTag:(NSString *) alertTag message:(NSString *) message level:(PDKAlertLevel) level action:(void(^)(void)) action;
+- (void) updateAlertWithTag:(NSString *) alertTag title:(NSString *) title message:(NSString *) message level:(PDKAlertLevel) level action:(void(^)(void)) action;
 - (void) cancelAlertWithTag:(NSString *) alertTag;
 
 // - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
