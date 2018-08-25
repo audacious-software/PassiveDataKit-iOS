@@ -40,7 +40,6 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
 - (id) init {
     if (self = [super init]) {
         self.listeners = [NSMutableArray array];
-
     }
     
     return self;
