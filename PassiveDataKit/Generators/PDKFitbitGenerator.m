@@ -856,8 +856,6 @@ static PDKFitbitGenerator * sharedObject = nil;
     
     UIWindow * window = [[[UIApplication sharedApplication] delegate] window];
     
-    NSLog(@"AUTH REQUEST: %@", [request authorizationRequestURL]);
-    
     self.currentExternalUserAgentFlow = [OIDAuthState authStateByPresentingAuthorizationRequest:request
                                                                        presentingViewController:window.rootViewController
                                                                                        callback:^(OIDAuthState *_Nullable authState, NSError *_Nullable error) {

@@ -15,10 +15,18 @@ extern NSString * const PDKNokiaHealthClientSecret;
 extern NSString * const PDKNokiaHealthCallbackURL;
 
 extern NSString * const PDKNokiaHealthScopes;
+extern NSString * const PDKNokiaHealthLoginMandatory;
 
 extern NSString * const PDKNokiaHealthScopeUserInfo;
 extern NSString * const PDKNokiaHealthScopeUserMetrics;
 extern NSString * const PDKNokiaHealthScopeUserActivity;
+
+extern NSString * const PDKNokiaHealthActivityMeasuresEnabled;
+extern NSString * const PDKNokiaHealthIntradayActivityMeasuresEnabled;
+extern NSString * const PDKNokiaHealthSleepMeasuresEnabled;
+extern NSString * const PDKNokiaHealthSleepSummaryEnabled;
+extern NSString * const PDKNokiaHealthBodyMeasuresEnabled;
+
 
 @interface PDKNokiaHealthGenerator : PDKBaseGenerator
 
