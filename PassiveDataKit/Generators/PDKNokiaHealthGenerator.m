@@ -251,6 +251,14 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
 
 - (void) logIntradayActivityMeasures:(id) responseObject {
     NSLog(@"NH INTRADAY ACTIVITY MEASURES: %@", responseObject);
+
+    NSNumber * status = [responseObject valueForKey:@"status"];
+    
+    if (status != nil && status.integerValue == 0) {
+        NSDictionary * body = [responseObject valueForKey:@"body"];
+        
+        
+    }
 }
 
 - (void) fetchSleepMeasuresWithAccessToken:(NSString *) accessToken {
@@ -651,39 +659,93 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
     for (NSString * scope in scopes) {
         if (scopeString.length > 0) {
             [scopeString appendString:@","];
-            [scopeString appendString:scope];
         }
+        
+        [scopeString appendString:scope];
     }
     
-    NSDictionary * addParams = @{ };
+    NSDictionary * addParams = @{
+                                 @"client_id": self.options[PDKNokiaHealthClientID],
+                                 @"client_secret": self.options[PDKNokiaHealthClientSecret]
+                                 };
     
-    OIDAuthorizationRequest *request = [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
-                                                                                     clientId:self.options[PDKNokiaHealthClientID]
-                                                                                 clientSecret:self.options[PDKNokiaHealthClientSecret]
-                                                                                       scopes:@[scopeString]
-                                                                                  redirectURL:[NSURL URLWithString:self.options[PDKNokiaHealthCallbackURL]]
-                                                                                 responseType:OIDResponseTypeCode
-                                                                         additionalParameters:addParams];
-    
+    OIDAuthorizationRequest * request = [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
+                                                                                                   clientId:self.options[PDKNokiaHealthClientID]
+                                                                                               clientSecret:self.options[PDKNokiaHealthClientSecret]
+                                                                                                      scope:scopeString
+                                                                                                redirectURL:[NSURL URLWithString:self.options[PDKNokiaHealthCallbackURL]]
+                                                                                               responseType:OIDResponseTypeCode
+                                                                                                      state:@"state-token"
+                                                                                                      nonce:nil
+                                                                                               codeVerifier:nil
+                                                                                              codeChallenge:nil
+                                                                                        codeChallengeMethod:nil
+                                                                                       additionalParameters:addParams];
+
     UIWindow * window = [[[UIApplication sharedApplication] delegate] window];
     
-    self.currentExternalUserAgentFlow = [OIDAuthState authStateByPresentingAuthorizationRequest:request
-                                                                       presentingViewController:window.rootViewController
-                                                                                       callback:^(OIDAuthState *_Nullable authState, NSError *_Nullable error) {
-                                                                                           if (authState) {
-                                                                                               NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
-                                                                                               
-                                                                                               NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-                                                                                               
-                                                                                               [defaults setValue:authData
-                                                                                                           forKey:PDKNokiaHealthAuthState];
-                                                                                               [defaults synchronize];
-                                                                                               
-                                                                                               [[PDKNokiaHealthGenerator sharedInstance] refresh];
-                                                                                           } else {
-                                                                                               NSLog(@"Authorization error: %@", [error localizedDescription]);
-                                                                                           }
-                                                                                       }];
+    NSLog(@"NH REQUEST: %@", request.externalUserAgentRequestURL);
+    NSLog(@"NH REQUEST REDIR : %@", request.redirectURL);
+
+    OIDExternalUserAgentIOS *externalUserAgent = [[OIDExternalUserAgentIOS alloc] initWithPresentingViewController:window.rootViewController];
+    
+    self.currentExternalUserAgentFlow = [OIDAuthorizationService
+                                         presentAuthorizationRequest:request
+                                         externalUserAgent:externalUserAgent
+                                         callback:^(OIDAuthorizationResponse *_Nullable authorizationResponse,
+                                                    NSError *_Nullable authorizationError) {
+                                             // inspects response and processes further if needed (e.g. authorization
+                                             // code exchange)
+                                             if (authorizationResponse) {
+                                                 if ([request.responseType
+                                                      isEqualToString:OIDResponseTypeCode]) {
+                                                     // if the request is for the code flow (NB. not hybrid), assumes the
+                                                     // code is intended for this client, and performs the authorization
+                                                     // code exchange
+                                                     OIDTokenRequest *tokenExchangeRequest = [authorizationResponse tokenExchangeRequestWithAdditionalParameters:addParams];
+                                                     
+                                                     NSLog(@"AAA TOK CODE ID %@", tokenExchangeRequest.clientID);
+                                                     NSLog(@"AAA TOK CODE SECRET %@", tokenExchangeRequest.clientSecret);
+                                                     
+                                                     NSLog(@"AAA Token Request: %@\nHTTPBody: %@",
+                                                           [tokenExchangeRequest URLRequest].URL,
+                                                           [[NSString alloc] initWithData:[tokenExchangeRequest URLRequest].HTTPBody
+                                                                                 encoding:NSUTF8StringEncoding]);
+
+                                                     [OIDAuthorizationService performTokenRequest:tokenExchangeRequest
+                                                                    originalAuthorizationResponse:authorizationResponse
+                                                                                         callback:^(OIDTokenResponse *_Nullable tokenResponse,
+                                                                                                    NSError *_Nullable tokenError) {
+                                                                                             OIDAuthState *authState;
+                                                                                             if (tokenResponse) {
+                                                                                                 authState = [[OIDAuthState alloc]
+                                                                                                              initWithAuthorizationResponse:
+                                                                                                              authorizationResponse
+                                                                                                              tokenResponse:tokenResponse];
+                                                                                             }
+
+                                                                                             NSLog(@"NH AUTH STATE : %@", authState);
+                                                                                             NSLog(@"NH ERROR : %@", tokenError);
+                                                                                             
+                                                                                             if (authState) {
+                                                                                                 NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+                                                                                                 
+                                                                                                 NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+                                                                                                 
+                                                                                                 [defaults setValue:authData
+                                                                                                             forKey:PDKNokiaHealthAuthState];
+                                                                                                 [defaults synchronize];
+                                                                                                 
+                                                                                                 [[PDKNokiaHealthGenerator sharedInstance] refresh];
+                                                                                             } else {
+                                                                                                 NSLog(@"NH Authorization error: %@", [tokenError localizedDescription]);
+                                                                                             }
+                                                                                         }];
+                                                 }
+                                             }
+                                         }];
+
+    NSLog(@"NH FLOW : %@", self.currentExternalUserAgentFlow);
 }
 
 - (void) logout {

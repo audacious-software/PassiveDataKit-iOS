@@ -401,6 +401,8 @@ static PassiveDataKit * sharedObject = nil;
                     
                     [invoke invoke];
                     
+                    NSLog(@"PDK: HANDLE URL: %@ -- %@", url, @(responded));
+                    
                     if (responded) {
                         return YES;
                     }
@@ -408,7 +410,9 @@ static PassiveDataKit * sharedObject = nil;
             }
         }
     }
-    
+
+    NSLog(@"PDK: DID NOT HANDLE URL: %@", url);
+
     return NO;
 }
 
