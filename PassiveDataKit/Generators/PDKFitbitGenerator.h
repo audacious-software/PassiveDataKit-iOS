@@ -31,11 +31,16 @@ extern NSString * const PDKFitbitScopeWeight;
 @interface PDKFitbitGenerator : PDKBaseGenerator
 
 + (PDKFitbitGenerator *) sharedInstance;
++ (UIColor *) dataColor;
 
 - (void) refresh;
 
 - (BOOL) isAuthenticated;
 - (void) loginToService;
 - (void) logout;
+
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback;
+
+- (void) resetData;
 
 @end

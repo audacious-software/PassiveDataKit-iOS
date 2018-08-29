@@ -216,7 +216,7 @@ static PDKFitbitGenerator * sharedObject = nil;
             }
             
             if (activitiesEnabled.boolValue) {
-                [self fetchActivityWithAccessToken:accessToken];
+                [self fetchActivityWithAccessToken:accessToken date:nil callback:nil];
             }
 
             NSNumber * sleepEnabled = self.options[PDKFitbitSleepEnabled];
@@ -254,12 +254,25 @@ static PDKFitbitGenerator * sharedObject = nil;
     }
 }
 
-- (void) fetchActivityWithAccessToken:(NSString *) accessToken {
+- (void) fetchActivityWithAccessToken:(NSString *) accessToken date:(NSDate *) date callback:(void (^)(void)) callback {
     __weak __typeof(self) weakSelf = self;
+    
+    NSString * dateString = nil;
+    
+    if (date == nil) {
+        dateString = @"today";
+    } else {
+        NSDateFormatter * dateParser = [[NSDateFormatter alloc] init];
+        dateParser.dateFormat = @"yyyy-MM-dd";
+        
+        dateString = [dateParser stringFromDate:date];
+    }
 
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+    
+    NSString * urlString = [NSString stringWithFormat:@"https://api.fitbit.com/1/user/-/activities/date/%@.json", dateString];
 
-    NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://api.fitbit.com/1/user/-/activities/date/today.json"]];
+    NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
     
     NSURLSessionDataTask * task = [manager dataTaskWithRequest:request
@@ -271,15 +284,21 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                     
                                                     if (error != nil) {
                                                         NSLog(@"FB ACTIVITY ERROR: %@", error);
-                                                        [[PDKFitbitGenerator sharedInstance] logout];
+                                                        // [[PDKFitbitGenerator sharedInstance] logout];
                                                     } else {
-                                                        [weakSelf logActivity:responseObject];
+                                                        [weakSelf logActivity:responseObject date:date];
+
+                                                        NSLog(@"FB ACTIVITY PROCEED");
+
+                                                        if (callback != nil) {
+                                                            callback();
+                                                        }
                                                     }
                                                 }];
     [task resume];
 }
 
-- (void) logActivity:(NSDictionary *) responseObject {
+- (void) logActivity:(NSDictionary *) responseObject date:(NSDate *) date {
     NSDictionary * summary = responseObject[@"summary"];
     
     if (summary != nil) {
@@ -291,7 +310,13 @@ static PDKFitbitGenerator * sharedObject = nil;
         
         NSCalendar * calendar = [NSCalendar currentCalendar];
         
-        NSDate * start = [calendar startOfDayForDate:[NSDate date]];
+        if (date == nil) {
+            date = [NSDate date];
+        }
+        
+        NSDate * start = [calendar startOfDayForDate:date];
+        
+        NSLog(@"INSERT INTO %@ -- %@", start, summary[@"steps"]);
         
         [data setValue:@([start timeIntervalSince1970] * 1000) forKey:PDKFitbitDateStart];
         [data setValue:summary[@"steps"] forKey:PDKFitbitSteps];
@@ -347,6 +372,8 @@ static PDKFitbitGenerator * sharedObject = nil;
                 
                 if (SQLITE_DONE != retVal) {
                     NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                } else {
+                    NSLog(@"ACTIVITY INSERT");
                 }
             }
             
@@ -372,7 +399,7 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                     
                                                     if (error != nil) {
                                                         NSLog(@"FB SLEEP ERROR: %@", error);
-                                                        [[PDKFitbitGenerator sharedInstance] logout];
+                                                        // [[PDKFitbitGenerator sharedInstance] logout];
                                                     } else {
                                                         [weakSelf logSleep:responseObject];
                                                     }
@@ -523,7 +550,7 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                     
                                                     if (error != nil) {
                                                         NSLog(@"FB HEART RATE ERROR: %@", error);
-                                                        [[PDKFitbitGenerator sharedInstance] logout];
+                                                        // [[PDKFitbitGenerator sharedInstance] logout];
                                                     } else {
                                                         NSLog(@"GOT RESPONSE: %@", responseObject);
                                                         
@@ -631,7 +658,7 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                     
                                                     if (error != nil) {
                                                         NSLog(@"FB WEIGHT ERROR: %@", error);
-                                                        [[PDKFitbitGenerator sharedInstance] logout];
+                                                        // [[PDKFitbitGenerator sharedInstance] logout];
                                                     } else {
                                                         NSLog(@"GOT RESPONSE: %@", responseObject);
                                                         
@@ -880,6 +907,97 @@ static PDKFitbitGenerator * sharedObject = nil;
     
     [defaults removeObjectForKey:PDKFitbitAuthState];
     [defaults synchronize];
+}
+
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback {
+    NSNumber * steps = nil;
+    
+    sqlite3_stmt * statement = NULL;
+
+    NSString * select = @"SELECT A.steps FROM activity_history A WHERE A.date_start >= ? AND A.date_start < ? ORDER BY A.steps DESC";
+    
+    const char * query_stmt = [select UTF8String];
+    
+    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+        sqlite3_bind_double(statement, 1, start * 1000);
+        sqlite3_bind_double(statement, 2, end * 1000);
+        
+        if (sqlite3_step(statement) == SQLITE_ROW) {
+            steps = @(sqlite3_column_double(statement, 0));
+        } else {
+            NSLog(@"NO STEP");
+        }
+
+        sqlite3_finalize(statement);
+    } else {
+        NSLog(@"STEPS BETWEEN FAIL PREPARE");
+    }
+    
+    if (steps != nil) {
+        callback(start, end, steps.doubleValue);
+    } else {
+        NSLog(@"FITBIT FETCHED STEPS FOR %@", [NSDate dateWithTimeIntervalSince1970:start]);
+
+        NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+        
+        NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
+        
+        if (authStateData != nil) {
+            NSLog(@"REFERSHING TOKEN");
+            
+            OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
+            
+            NSLog(@"GOT AUTH: %@", authState);
+
+            [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
+                
+                NSLog(@"FETCH ERROR: %@", error);
+                
+                if (accessToken != nil) {
+                    NSDate * date = [NSDate dateWithTimeIntervalSince1970:start];
+                    
+                    [self fetchActivityWithAccessToken:accessToken
+                                                  date:date
+                                              callback:^{
+                                                  [self stepsBetweenStart:start end:end callback:callback];
+                                              }];
+                } else {
+                    NSLog(@"NOT AUTHED");
+                    callback(start, end, 0);
+                }
+            }];
+        } else {
+            NSLog(@"NO AUTH STATE");
+            callback(start, end, 0);
+        }
+    }
+}
+
++ (UIColor *) dataColor {
+    return [UIColor colorWithRed:0x00/255.0 green:0xb0/255.0 blue:0xb9/255.0 alpha:1.0];
+}
+
+- (void) resetData {
+    NSLog(@"ATTEMPT RESET");
+
+    NSString * select = @"DELETE FROM activity_history WHERE date_start >= ?";
+    
+    sqlite3_stmt * statement = NULL;
+    const char * query_stmt = [select UTF8String];
+    
+    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+        sqlite3_bind_double(statement, 1, 0);
+        
+        if (sqlite3_step(statement) == SQLITE_ROW) {
+            NSLog(@"RESET CLEARED ACTIVITY");
+        } else {
+            NSLog(@"RESET NO CLEAR");
+        }
+        
+        sqlite3_finalize(statement);
+    } else {
+        NSLog(@"RESET BETWEEN FAIL PREPARE");
+    }
 }
 
 @end
