@@ -121,6 +121,9 @@ NSString * const PDKFitbitWeightSource = @"source";
 
 @property sqlite3 * database;
 
+@property NSMutableArray * pendingRequests;
+@property BOOL isExecuting;
+
 @end
 
 static PDKFitbitGenerator * sharedObject = nil;
@@ -146,6 +149,9 @@ static PDKFitbitGenerator * sharedObject = nil;
         self.options = @{};
         
         self.database = [self openDatabase];
+        
+        self.pendingRequests = [NSMutableArray array];
+        self.isExecuting = NO;
     }
     
     return self;
@@ -173,7 +179,10 @@ static PDKFitbitGenerator * sharedObject = nil;
 
         NSString * message = NSLocalizedStringFromTableInBundle(@"message_generator_fitbit_app_misconfigured", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
 
-        [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKFitbitAlertMisconfigured title:title message:message level:PDKAlertLevelError action:^{
+        [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKFitbitAlertMisconfigured
+                                                      title:title
+                                                    message:message
+                                                      level:PDKAlertLevelError action:^{
 
         }];
     } else {
@@ -198,7 +207,10 @@ static PDKFitbitGenerator * sharedObject = nil;
         NSString * title = NSLocalizedStringFromTableInBundle(@"title_generator_fitbit_needs_auth", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
         NSString * message = NSLocalizedStringFromTableInBundle(@"message_generator_fitbit_needs_auth", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
 
-        [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKFitbitAlert title:title message:message level:PDKAlertLevelError action:^{
+        [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKFitbitAlert
+                                                      title:title
+                                                    message:message
+                                                      level:PDKAlertLevelError action:^{
             [[PDKFitbitGenerator sharedInstance] loginToService:nil failure:nil];
         }];
     } else {
@@ -206,9 +218,7 @@ static PDKFitbitGenerator * sharedObject = nil;
     }
     
     if (authed) {
-        OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
-
-        [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
+        void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
             NSNumber * activitiesEnabled = self.options[PDKFitbitActivityEnabled];
             
             if (activitiesEnabled == nil) {
@@ -218,17 +228,17 @@ static PDKFitbitGenerator * sharedObject = nil;
             if (activitiesEnabled.boolValue) {
                 [self fetchActivityWithAccessToken:accessToken date:nil callback:nil];
             }
-
+            
             NSNumber * sleepEnabled = self.options[PDKFitbitSleepEnabled];
             
             if (sleepEnabled == nil) {
                 sleepEnabled = @(YES);
             }
-
+            
             if (sleepEnabled.boolValue) {
                 [self fetchSleepWithAccessToken:accessToken];
             }
-
+            
             NSNumber * heartRateEnabled = self.options[PDKFitbitHeartRateEnabled];
             
             if (heartRateEnabled == nil) {
@@ -238,7 +248,7 @@ static PDKFitbitGenerator * sharedObject = nil;
             if (heartRateEnabled.boolValue) {
                 [self fetchHeartRateWithAccessToken:accessToken];
             }
-
+            
             NSNumber * weightEnabled = self.options[PDKFitbitWeightEnabled];
             
             if (weightEnabled == nil) {
@@ -248,9 +258,11 @@ static PDKFitbitGenerator * sharedObject = nil;
             if (weightEnabled.boolValue) {
                 [self fetchWeightWithAccessToken:accessToken];
             }
-
+            
             [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKFitbitAlert];
-        }];
+        };
+        
+        [self executeRequest:toExecute];
     }
 }
 
@@ -281,14 +293,10 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                 } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
                                                     
                                                 } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                                    
                                                     if (error != nil) {
-                                                        NSLog(@"FB ACTIVITY ERROR: %@", error);
-                                                        // [[PDKFitbitGenerator sharedInstance] logout];
+                                                        [self processError:error];
                                                     } else {
                                                         [weakSelf logActivity:responseObject date:date];
-
-                                                        NSLog(@"FB ACTIVITY PROCEED");
 
                                                         if (callback != nil) {
                                                             callback();
@@ -315,8 +323,6 @@ static PDKFitbitGenerator * sharedObject = nil;
         }
         
         NSDate * start = [calendar startOfDayForDate:date];
-        
-        NSLog(@"INSERT INTO %@ -- %@", start, summary[@"steps"]);
         
         [data setValue:@([start timeIntervalSince1970] * 1000) forKey:PDKFitbitDateStart];
         [data setValue:summary[@"steps"] forKey:PDKFitbitSteps];
@@ -372,8 +378,6 @@ static PDKFitbitGenerator * sharedObject = nil;
                 
                 if (SQLITE_DONE != retVal) {
                     NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
-                } else {
-                    NSLog(@"ACTIVITY INSERT");
                 }
             }
             
@@ -396,10 +400,8 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                 } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
                                                     
                                                 } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                                    
                                                     if (error != nil) {
-                                                        NSLog(@"FB SLEEP ERROR: %@", error);
-                                                        // [[PDKFitbitGenerator sharedInstance] logout];
+                                                        [self processError:error];
                                                     } else {
                                                         [weakSelf logSleep:responseObject];
                                                     }
@@ -547,13 +549,9 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                 } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
                                                     
                                                 } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                                    
                                                     if (error != nil) {
-                                                        NSLog(@"FB HEART RATE ERROR: %@", error);
-                                                        // [[PDKFitbitGenerator sharedInstance] logout];
+                                                        [self processError:error];
                                                     } else {
-                                                        NSLog(@"GOT RESPONSE: %@", responseObject);
-                                                        
                                                         [weakSelf logHeartRate:responseObject];
                                                     }
                                                 }];
@@ -655,13 +653,9 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                 } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
                                                     
                                                 } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                                    
                                                     if (error != nil) {
-                                                        NSLog(@"FB WEIGHT ERROR: %@", error);
-                                                        // [[PDKFitbitGenerator sharedInstance] logout];
+                                                        [self processError:error];
                                                     } else {
-                                                        NSLog(@"GOT RESPONSE: %@", responseObject);
-                                                        
                                                         [weakSelf logWeight:responseObject];
                                                     }
                                                 }];
@@ -737,8 +731,6 @@ static PDKFitbitGenerator * sharedObject = nil;
                         
                         if (SQLITE_DONE != retVal) {
                             NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
-                        } else {
-                            NSLog(@"WEIGHT LOGGED TO DB!");
                         }
                     }
                     
@@ -857,7 +849,6 @@ static PDKFitbitGenerator * sharedObject = nil;
 }
 
 - (void) loginToService:(void (^)(void))success failure:(void (^)(void))failure {
-    NSLog(@"LOGIN 1");
     NSURL * authorizationEndpoint = [NSURL URLWithString:@"https://www.fitbit.com/oauth2/authorize"];
     NSURL * tokenEndpoint = [NSURL URLWithString:@"https://api.fitbit.com/oauth2/token"];
     
@@ -870,10 +861,8 @@ static PDKFitbitGenerator * sharedObject = nil;
         scopes = @[PDKFitbitScopeActivity, PDKFitbitScopeSleep, PDKFitbitScopeWeight];
     }
     
-    NSLog(@"LOGIN 2");
-
     NSDictionary * addParams = @{
-                                 @"prompt": @"login consent"
+                                 @"prompt": @"login"
                                  };
 
     OIDAuthorizationRequest *request = [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
@@ -884,38 +873,24 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                                                  responseType:OIDResponseTypeCode
                                                                          additionalParameters:addParams];
 
-    NSLog(@"LOGIN 3 %@", request);
-
     UIWindow * window = [[[UIApplication sharedApplication] delegate] window];
     
     self.currentExternalUserAgentFlow = [OIDAuthState authStateByPresentingAuthorizationRequest:request
                                                                        presentingViewController:window.rootViewController
                                                                                        callback:^(OIDAuthState *_Nullable authState, NSError *_Nullable error) {
-                                                                                           NSLog(@"LOGIN 11");
-
                                                                                            if (authState) {
-                                                                                               NSLog(@"LOGIN 12");
                                                                                                NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
                                                                                                
                                                                                                NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-
-                                                                                               NSLog(@"LOGIN 13");
-
                                                                                                [defaults setValue:authData
                                                                                                            forKey:PDKFitbitAuthState];
                                                                                                [defaults synchronize];
 
-                                                                                               NSLog(@"LOGIN 14");
-
                                                                                                [[PDKFitbitGenerator sharedInstance] refresh];
-
-                                                                                               NSLog(@"LOGIN 15");
 
                                                                                                if (success != nil) {
                                                                                                    success();
                                                                                                }
-
-                                                                                               NSLog(@"LOGIN 16");
                                                                                            } else {
                                                                                                NSLog(@"Authorization error: %@", [error localizedDescription]);
                                                                                                
@@ -924,8 +899,6 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                                                                }
                                                                                            }
                                                                                        }];
-
-    NSLog(@"LOGIN 4");
 }
 
 - (void) logout {
@@ -933,6 +906,8 @@ static PDKFitbitGenerator * sharedObject = nil;
     
     [defaults removeObjectForKey:PDKFitbitAuthState];
     [defaults synchronize];
+    
+    [self.pendingRequests removeAllObjects];
 }
 
 - (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill {
@@ -956,118 +931,63 @@ static PDKFitbitGenerator * sharedObject = nil;
             steps = @(sqlite3_column_double(statement, 0));
         } else if (doBackfill == NO) {
             steps = @(0);
-        } else {
-            NSLog(@"NO STEP");
         }
 
         sqlite3_finalize(statement);
-    } else {
-        NSLog(@"STEPS BETWEEN FAIL PREPARE");
     }
     
     if (steps != nil) {
         callback(start, end, steps.doubleValue);
     } else if (doBackfill == YES) {
-        NSLog(@"FITBIT FETCHED STEPS FOR %@", [NSDate dateWithTimeIntervalSince1970:start]);
-
-        NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
-        
-        NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
-        
-        if (authStateData != nil) {
-            NSLog(@"REFERSHING TOKEN");
+        void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
+            NSDate * date = [NSDate dateWithTimeIntervalSince1970:start];
             
-            OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
-            
-            NSLog(@"GOT AUTH: %@", @(authState != nil));
-
-            [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
-                
-                NSLog(@"FETCH ERROR: %@", error);
-                
-                if (accessToken != nil) {
-                    NSDate * date = [NSDate dateWithTimeIntervalSince1970:start];
-                    
-                    [self fetchActivityWithAccessToken:accessToken
-                                                  date:date
-                                              callback:^{
-                                                  [self stepsBetweenStart:start end:end callback:callback backfill:NO];
-                                              }];
-                } else {
-                    NSLog(@"NOT AUTHED");
-                    callback(start, end, 0);
-                }
-            }];
-        } else {
-            NSLog(@"NO AUTH STATE");
-            callback(start, end, 0);
-        }
+            [self fetchActivityWithAccessToken:accessToken
+                                          date:date
+                                      callback:^{
+                                          [self stepsBetweenStart:start end:end callback:callback backfill:NO];
+                                      }];
+        };
+        
+        [self executeRequest:toExecute];
     }
 }
 
 - (void) fetchProfile:(void (^)(NSDictionary * profile))callback {
-    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
+        AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+        
+        NSString * urlString = @"https://api.fitbit.com/1/user/-/profile.json";
+        
+        NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+        
+        [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
+        
+        NSURLSessionDataTask * task = [manager dataTaskWithRequest:request
+                                                    uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+                                                        
+                                                    } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+                                                        
+                                                    } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                                                        if (error != nil) {
+                                                            [self processError:error];
+                                                        } else {
+                                                            if (callback != nil) {
+                                                                callback(responseObject);
+                                                            }
+                                                        }
+                                                    }];
+        [task resume];
+    };
     
-    NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
-    
-    NSLog(@"AUTH: %d", (int) authStateData.length);
-    
-    if (authStateData != nil) {
-        OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
-
-        NSLog(@"REFRESHING TOKENS");
-
-        [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
-            
-            NSLog(@"FETCH ERROR: %@", error);
-            
-            if (accessToken != nil) {
-                AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
-                
-                NSString * urlString = @"https://api.fitbit.com/1/user/-/profile.json";
-                
-                NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-                                                 
-                [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
-                
-                NSURLSessionDataTask * task = [manager dataTaskWithRequest:request
-                                                            uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-                                                                
-                                                            } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-                                                                
-                                                            } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                                                
-                                                                if (error != nil) {
-                                                                    NSLog(@"FB PROFILE ERROR: %@", error);
-                                                                } else {
-                                                                    NSLog(@"FB PROFILE: %@", responseObject);
-                                                                    
-                                                                    if (callback != nil) {
-                                                                        callback(responseObject);
-                                                                    }
-                                                                }
-                                                            }];
-                
-                NSLog(@"EXECUTE URL REQUEST");
-                [task resume];
-            } else {
-                NSLog(@"NOT AUTHED");
-                callback(nil);
-            }
-        }];
-    } else {
-        callback(nil);
-    }
+    [self executeRequest:toExecute];
 }
-
 
 + (UIColor *) dataColor {
     return [UIColor colorWithRed:0x00/255.0 green:0xb0/255.0 blue:0xb9/255.0 alpha:1.0];
 }
 
 - (void) resetData {
-    NSLog(@"ATTEMPT RESET");
-
     NSString * select = @"DELETE FROM activity_history WHERE date_start >= ?";
     
     sqlite3_stmt * statement = NULL;
@@ -1083,8 +1003,54 @@ static PDKFitbitGenerator * sharedObject = nil;
         }
         
         sqlite3_finalize(statement);
-    } else {
-        NSLog(@"RESET BETWEEN FAIL PREPARE");
+    }
+}
+
+- (void) processError:(NSError *) error {
+    id errorObj = [NSJSONSerialization JSONObjectWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"]
+                                              options:0
+                                                error:nil];
+    if ([errorObj isKindOfClass:[NSDictionary class]]) {
+        NSArray * errors = [errorObj valueForKey:@"errors"];
+        
+        for (NSDictionary * error in errors) {
+            if ([@"expired_token" isEqualToString:error[@"errorType"]]) {
+                [self logout];
+            }
+        }
+    }
+}
+
+- (void) executeRequest:(void(^)(NSString *)) executeBlock {
+    [self.pendingRequests addObject:executeBlock];
+    
+    if (self.isExecuting) {
+        return;
+    }
+    
+    self.isExecuting = YES;
+
+    __weak __typeof(self) weakSelf = self;
+
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    
+    NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
+    
+    if (authStateData != nil) {
+        OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
+        
+        [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
+            
+            while (weakSelf.pendingRequests.count > 0) {
+                void (^toExecute)(NSString *) = [weakSelf.pendingRequests objectAtIndex:0];
+                
+                [weakSelf.pendingRequests removeObject:toExecute];
+
+                toExecute(accessToken);
+            }
+            
+            weakSelf.isExecuting = NO;
+        }];
     }
 }
 
