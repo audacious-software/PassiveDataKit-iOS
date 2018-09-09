@@ -191,7 +191,11 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
         NSString * message = NSLocalizedStringFromTableInBundle(@"message_generator_nokia_health_needs_auth", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
         
         [[PassiveDataKit sharedInstance] updateAlertWithTag:PDKNokiaHealthAlert title:title message:message level:PDKAlertLevelError action:^{
-            [[PDKNokiaHealthGenerator sharedInstance] loginToService];
+            [[PDKNokiaHealthGenerator sharedInstance] loginToService:^{
+                
+            } failure:^{
+
+            }];
         }];
     } else {
         [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKNokiaHealthAlert];
@@ -208,7 +212,7 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
             }
             
             if (activitiesEnabled.boolValue) {
-                [self fetchActivityMeasuresWithAccessToken:accessToken];
+                [self fetchActivityMeasuresWithAccessToken:accessToken date:[NSDate date] callback:nil];
             }
 
             NSNumber * intradayActivitiesEnabled = self.options[PDKNokiaHealthIntradayActivityMeasuresEnabled];
@@ -256,20 +260,19 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
     }
 }
 
-- (void) fetchActivityMeasuresWithAccessToken:(NSString *) accessToken {
+- (void) fetchActivityMeasuresWithAccessToken:(NSString *) accessToken date:(NSDate *) date callback:(void (^)(void)) callback {
     __weak __typeof(self) weakSelf = self;
     
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     
     NSCalendar * calendar = [NSCalendar currentCalendar];
     
-    NSDate * today = [calendar startOfDayForDate:[NSDate date]];
-    NSDate * tomorrow = [calendar startOfDayForDate:[NSDate dateWithTimeIntervalSinceNow:(24 * 60 * 60)]];
+    NSDate * today = [calendar startOfDayForDate:date];
     
     NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
     formatter.dateFormat = @"yyyy-MM-dd";
     
-    NSString * urlString = [NSString stringWithFormat:@"https://api.health.nokia.com/v2/measure?action=getactivity&access_token=%@&startdateymd=%@&enddateymd=%@", accessToken, [formatter stringFromDate:today], [formatter stringFromDate:tomorrow]];
+    NSString * urlString = [NSString stringWithFormat:@"https://api.health.nokia.com/v2/measure?action=getactivity&access_token=%@&startdateymd=%@&enddateymd=%@", accessToken, [formatter stringFromDate:today], [formatter stringFromDate:today]];
     
     NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
@@ -284,6 +287,10 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
 //                                                        [[PDKNokiaHealthGenerator sharedInstance] logout];
                                                     } else {
                                                         [weakSelf logActivityMeasures:responseObject];
+                                                        
+                                                        if (callback != nil) {
+                                                            callback();
+                                                        }
                                                     }
                                                 }];
     [task resume];
@@ -312,7 +319,7 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
             
             sqlite3_stmt * statement = NULL;
             
-            NSString * querySQL = @"SELECT A._id FROM activity_measure_history A WHERE A.date_start = ? && A.steps = ?";
+            NSString * querySQL = @"SELECT A._id FROM activity_measure_history A WHERE A.date_start = ? AND A.steps = ?";
             
             const char * query_stmt = [querySQL UTF8String];
             
@@ -320,17 +327,13 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                 sqlite3_bind_int64(statement, 1, (long) (dateStart.timeIntervalSince1970 * 1000));
                 sqlite3_bind_int64(statement, 2, steps.longValue);
 
-                int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
-                
-                if (retVal == SQLITE_OK) {
-                    if (sqlite3_step(statement) == SQLITE_ROW) {
-                        logNew = NO;
-                    }
-                    
-                    sqlite3_finalize(statement);
+                if (sqlite3_step(statement) == SQLITE_ROW) {
+                    logNew = NO;
                 }
+                
+                sqlite3_finalize(statement);
             } else {
-                NSLog(@"ERROR WEIGHT QUERYING");
+                NSLog(@"ERROR Activity QUERYING");
             }
             
             if (logNew) {
@@ -356,7 +359,7 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                 
                 sqlite3_stmt * stmt;
                 
-                NSString * insert = @"INSERT INTO weight_history (fetched, observed, date_start, timezone, steps, distance, active_calories, total_calories, elevation, soft_activity_duration, moderate_activity_duration, intense_activity_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                NSString * insert = @"INSERT INTO activity_measure_history (fetched, observed, date_start, timezone, steps, distance, active_calories, total_calories, elevation, soft_activity_duration, moderate_activity_duration, intense_activity_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
                 
                 int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
                 
@@ -414,7 +417,7 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                                                         NSLog(@"NH INTRADAY ERROR: %@", error);
                                                         [[PDKNokiaHealthGenerator sharedInstance] logout];
                                                     } else {
-                                                        NSLog(@"GOT INTRADAY RESPONSE: %@", responseObject);
+                                                        // NSLog(@"GOT INTRADAY RESPONSE: %@", responseObject);
                                                         
                                                         [weakSelf logIntradayActivityMeasures:responseObject];
                                                     }
@@ -423,8 +426,6 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
 }
 
 - (void) logIntradayActivityMeasures:(id) responseObject {
-    NSLog(@"NH INTRADAY ACTIVITY MEASURES: %@", responseObject);
-
     NSNumber * status = [responseObject valueForKey:@"status"];
     
     NSNumber * now = @([[NSDate date] timeIntervalSince1970] * 1000);
@@ -441,22 +442,21 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
             
             sqlite3_stmt * statement = NULL;
             
-            NSString * querySQL = @"SELECT I._id FROM intraday_activity_history I WHERE I.activity_start = ?";
+            NSString * querySQL = @"SELECT I._id FROM intraday_activity_history I WHERE I.activity_start >= ? AND I.activity_start < ?";
             
             const char * query_stmt = [querySQL UTF8String];
             
             if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
-                sqlite3_bind_int64(statement, 1, timestampKey.longLongValue);
+                sqlite3_bind_double(statement, 1, floor(timestampKey.doubleValue) - 1);
+                sqlite3_bind_double(statement, 2, floor(timestampKey.doubleValue) + 1);
                 
-                int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
-                
-                if (retVal == SQLITE_OK) {
-                    if (sqlite3_step(statement) == SQLITE_ROW) {
-                        logNew = NO;
-                    }
+                int retVal = sqlite3_step(statement);
                     
-                    sqlite3_finalize(statement);
+                if (retVal == SQLITE_ROW) {
+                    logNew = NO;
                 }
+                
+                sqlite3_finalize(statement);
             } else {
                 NSLog(@"ERROR WEIGHT QUERYING");
             }
@@ -467,7 +467,7 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                 data[PDKNokiaHealthFetched] = now;
                 data[PDKNokiaHealthObserved] = now;
                 
-                data[PDKNokiaHealthIntradayActivityStart] = @(timestampKey.longLongValue);
+                data[PDKNokiaHealthIntradayActivityStart] = @(timestampKey.doubleValue);
                 data[PDKNokiaHealthIntradayActivityDuration] = activity[@"duration"];
                 
                 if (activity[@"calories"] != nil) {
@@ -513,7 +513,6 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                 sqlite3_stmt * stmt;
                 
                 NSString * insert = @"INSERT INTO intraday_activity_history (fetched, observed, activity_start, activity_duration, calories, distance, elevation_climbed, steps, swim_strokes, pool_laps) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-
 
                 int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
                 
@@ -794,15 +793,11 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                     sqlite3_bind_text(statement, 4, [data[PDKNokiaHealthMeasureType] cStringUsingEncoding:NSUTF8StringEncoding], -1, SQLITE_TRANSIENT) == SQLITE_OK &&
                     sqlite3_bind_double(statement, 5, [data[PDKNokiaHealthMeasureValue] doubleValue]);
 
-                    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
-                    
-                    if (retVal == SQLITE_OK) {
-                        if (sqlite3_step(statement) == SQLITE_ROW) {
-                            logNew = NO;
-                        }
-                        
-                        sqlite3_finalize(statement);
+                    if (sqlite3_step(statement) == SQLITE_ROW) {
+                        logNew = NO;
                     }
+                    
+                    sqlite3_finalize(statement);
                 } else {
                     NSLog(@"ERROR BODY QUERYING");
                 }
@@ -813,7 +808,6 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                     sqlite3_stmt * stmt;
                     
                     NSString * insert = @"INSERT INTO body_measure_history (fetched, observed, measure_date, measure_status, measure_category, measure_type, measure_value) VALUES (?, ?, ?, ?, ?, ?, ?);";
-                    
                     
                     int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
                     
@@ -1134,7 +1128,7 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
     return authStateData != nil;
 }
 
-- (void) loginToService {
+- (void) loginToService:(void (^)(void))success failure:(void (^)(void))failure {
     NSURL * authorizationEndpoint = [NSURL URLWithString:@"https://account.health.nokia.com/oauth2_user/authorize2"];
     NSURL * tokenEndpoint = [NSURL URLWithString:@"https://account.health.nokia.com/oauth2/token"];
     
@@ -1220,8 +1214,16 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                                                                                                  [defaults synchronize];
                                                                                                  
                                                                                                  [[PDKNokiaHealthGenerator sharedInstance] refresh];
+
+                                                                                                 if (success != nil) {
+                                                                                                     success();
+                                                                                                 }
                                                                                              } else {
                                                                                                  NSLog(@"NH Authorization error: %@", [tokenError localizedDescription]);
+
+                                                                                                 if (failure != nil) {
+                                                                                                     failure();
+                                                                                                 }
                                                                                              }
                                                                                          }];
                                                  }
@@ -1238,6 +1240,73 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
     
     [defaults removeObjectForKey:PDKNokiaHealthAuthState];
     [defaults synchronize];
+}
+
+
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback {
+    NSNumber * steps = @(-1);
+    
+    sqlite3_stmt * statement = NULL;
+    
+    NSString * select = @"SELECT A.steps FROM intraday_activity_history A WHERE A.activity_start >= ? AND A.activity_start < ? ORDER BY A.steps DESC";
+    
+    const char * query_stmt = [select UTF8String];
+    
+    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+        sqlite3_bind_double(statement, 1, start);
+        sqlite3_bind_double(statement, 2, end);
+        
+        double stepsSum = 0;
+
+        while (sqlite3_step(statement) == SQLITE_ROW) {
+            stepsSum += sqlite3_column_double(statement, 0);
+        }
+        
+        sqlite3_finalize(statement);
+
+        steps = @(stepsSum);
+    } else {
+        NSLog(@"STEPS BETWEEN FAIL PREPARE");
+    }
+    
+    if (steps != nil) {
+        callback(start, end, steps.doubleValue);
+    } else {
+        NSLog(@"NOKIA HEALTH FETCHED STEPS FOR %@", [NSDate dateWithTimeIntervalSince1970:start]);
+        
+        NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+        
+        NSData * authStateData = [defaults valueForKey:PDKNokiaHealthAuthState];
+        
+        if (authStateData != nil) {
+            NSLog(@"REFERSHING TOKEN");
+            
+            OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
+            
+            NSLog(@"GOT AUTH: %@", authState);
+            
+            [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
+                
+                NSLog(@"FETCH ERROR: %@", error);
+                
+                if (accessToken != nil) {
+                    NSDate * date = [NSDate dateWithTimeIntervalSince1970:start];
+                    
+                    [self fetchActivityMeasuresWithAccessToken:accessToken
+                                                          date:date
+                                                      callback:^{
+                                                          [self stepsBetweenStart:start end:end callback:callback];
+                                                      }];
+                } else {
+                    NSLog(@"NOT AUTHED");
+                    callback(start, end, 0);
+                }
+            }];
+        } else {
+            NSLog(@"NO AUTH STATE");
+            callback(start, end, 0);
+        }
+    }
 }
 
 @end

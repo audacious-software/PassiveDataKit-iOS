@@ -36,7 +36,10 @@ extern NSString * const PDKNokiaHealthBodyMeasuresEnabled;
 - (void) refresh;
 
 - (BOOL) isAuthenticated;
-- (void) loginToService;
+- (void) loginToService:(void (^)(void))success failure:(void (^)(void))failure;
 - (void) logout;
+
+
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback;
 
 @end
