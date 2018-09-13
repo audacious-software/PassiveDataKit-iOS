@@ -28,6 +28,11 @@ extern NSString * const PDKFitbitScopeSleep;
 // extern NSString * const PDKFitbitScopeSocial;
 extern NSString * const PDKFitbitScopeWeight;
 
+extern NSString * const PDKFitbitActivityEnabled;
+extern NSString * const PDKFitbitHeartRateEnabled;
+extern NSString * const PDKFitbitSleepEnabled;
+extern NSString * const PDKFitbitWeightEnabled;
+
 @interface PDKFitbitGenerator : PDKBaseGenerator
 
 + (PDKFitbitGenerator *) sharedInstance;
