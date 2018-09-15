@@ -39,7 +39,8 @@ extern NSString * const PDKNokiaHealthBodyMeasuresEnabled;
 - (void) loginToService:(void (^)(void))success failure:(void (^)(void))failure;
 - (void) logout;
 
++ (UIColor *) dataColor;
 
-- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback;
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill;
 
 @end

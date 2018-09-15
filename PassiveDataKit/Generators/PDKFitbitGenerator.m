@@ -16,6 +16,7 @@
 
 #define DATABASE_VERSION @"PDKFitbitGenerator.DATABASE_VERSION"
 #define CURRENT_DATABASE_VERSION @(1)
+#define GENERATOR_ID @"pdk-fitbit"
 
 NSString * const PDKFitbitClientID = @"PDKFitbitClientID"; //!OCLINT
 NSString * const PDKFitbitCallbackURL = @"PDKFitbitCallbackURL"; //!OCLINT
@@ -124,6 +125,8 @@ NSString * const PDKFitbitWeightSource = @"source";
 @property NSMutableArray * pendingRequests;
 @property BOOL isExecuting;
 
+@property NSTimeInterval waitUntil;
+
 @end
 
 static PDKFitbitGenerator * sharedObject = nil;
@@ -152,6 +155,8 @@ static PDKFitbitGenerator * sharedObject = nil;
         
         self.pendingRequests = [NSMutableArray array];
         self.isExecuting = NO;
+        
+        self.waitUntil = 0;
     }
     
     return self;
@@ -218,55 +223,73 @@ static PDKFitbitGenerator * sharedObject = nil;
     }
     
     if (authed) {
-        void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
-            NSNumber * activitiesEnabled = self.options[PDKFitbitActivityEnabled];
-            
-            if (activitiesEnabled == nil) {
-                activitiesEnabled = @(YES);
-            }
-            
-            if (activitiesEnabled.boolValue) {
-                [self fetchActivityWithAccessToken:accessToken date:nil callback:nil];
-            }
-            
-            NSNumber * sleepEnabled = self.options[PDKFitbitSleepEnabled];
-            
-            if (sleepEnabled == nil) {
-                sleepEnabled = @(YES);
-            }
-            
-            if (sleepEnabled.boolValue) {
-                [self fetchSleepWithAccessToken:accessToken];
-            }
-            
-            NSNumber * heartRateEnabled = self.options[PDKFitbitHeartRateEnabled];
-            
-            if (heartRateEnabled == nil) {
-                heartRateEnabled = @(YES);
-            }
-            
-            if (heartRateEnabled.boolValue) {
-                [self fetchHeartRateWithAccessToken:accessToken];
-            }
-            
-            NSNumber * weightEnabled = self.options[PDKFitbitWeightEnabled];
-            
-            if (weightEnabled == nil) {
-                weightEnabled = @(YES);
-            }
-            
-            if (weightEnabled.boolValue) {
-                [self fetchWeightWithAccessToken:accessToken];
-            }
-            
-            [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKFitbitAlert];
-        };
+        NSTimeInterval now = [NSDate date].timeIntervalSince1970;
         
-        [self executeRequest:toExecute];
+        if (now > self.waitUntil) {
+            void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
+                NSNumber * activitiesEnabled = self.options[PDKFitbitActivityEnabled];
+                
+                if (activitiesEnabled == nil) {
+                    activitiesEnabled = @(YES);
+                }
+                
+                if (activitiesEnabled.boolValue) {
+                    [self fetchActivityWithAccessToken:accessToken date:nil callback:nil];
+                }
+                
+                NSNumber * sleepEnabled = self.options[PDKFitbitSleepEnabled];
+                
+                if (sleepEnabled == nil) {
+                    sleepEnabled = @(YES);
+                }
+                
+                if (sleepEnabled.boolValue) {
+                    [self fetchSleepWithAccessToken:accessToken];
+                }
+                
+                NSNumber * heartRateEnabled = self.options[PDKFitbitHeartRateEnabled];
+                
+                if (heartRateEnabled == nil) {
+                    heartRateEnabled = @(YES);
+                }
+                
+                if (heartRateEnabled.boolValue) {
+                    [self fetchHeartRateWithAccessToken:accessToken];
+                }
+                
+                NSNumber * weightEnabled = self.options[PDKFitbitWeightEnabled];
+                
+                if (weightEnabled == nil) {
+                    weightEnabled = @(YES);
+                }
+                
+                if (weightEnabled.boolValue) {
+                    [self fetchWeightWithAccessToken:accessToken];
+                }
+                
+                [[PassiveDataKit sharedInstance] cancelAlertWithTag:PDKFitbitAlert];
+            };
+            
+            [self executeRequest:toExecute error:^(NSDictionary * error) {
+                NSLog(@"FITBIT ENCOUNTERED ERROR: %@", error);
+            }];
+        }
     }
 }
 
 - (void) fetchActivityWithAccessToken:(NSString *) accessToken date:(NSDate *) date callback:(void (^)(void)) callback {
+    NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+    
+    if (now < self.waitUntil) {
+        NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
+        
+        NSLog(@"NOT FETCHING ACTIVITY UNTIL %@", wait);
+        
+        callback();
+        
+        return;
+    }
+
     __weak __typeof(self) weakSelf = self;
     
     NSString * dateString = nil;
@@ -281,6 +304,8 @@ static PDKFitbitGenerator * sharedObject = nil;
     }
 
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+    
+    NSLog(@"FITBIT DATE: %@", dateString);
     
     NSString * urlString = [NSString stringWithFormat:@"https://api.fitbit.com/1/user/-/activities/date/%@.json", dateString];
 
@@ -354,34 +379,36 @@ static PDKFitbitGenerator * sharedObject = nil;
 
         sqlite3_stmt * stmt;
 
-        NSString * insert = @"INSERT INTO activity_history (fetched, observed, date_start, steps, distance, floors, elevation, calories_activity, calories_bmr, calories_marginal, minutes_very_active, minutes_fairly_active, minutes_lightly_active, minutes_sedentary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        @synchronized(self) {
+            NSString * insert = @"INSERT INTO activity_history (fetched, observed, date_start, steps, distance, floors, elevation, calories_activity, calories_bmr, calories_marginal, minutes_very_active, minutes_fairly_active, minutes_lightly_active, minutes_sedentary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-        int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
 
-        if (retVal == SQLITE_OK) {
-            if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 3, [data[PDKFitbitDateStart] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 4, [data[PDKFitbitSteps] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 5, [data[PDKFitbitDistance] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 6, [data[PDKFitbitFloors] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 7, [data[PDKFitbitElevation] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 8, [data[PDKFitbitActivityCalories] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 9, [data[PDKFitbitBMRCalories] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 10, [data[PDKFitbitMarginalCalories] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 11, [data[PDKFitbitVeryActiveMinutes] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 12, [data[PDKFitbitLightlyActiveMinutes] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 13, [data[PDKFitbitFairlyActiveMinutes] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 14, [data[PDKFitbitSedentaryMinutes] doubleValue]) == SQLITE_OK) {
-                
-                int retVal = sqlite3_step(stmt);
-                
-                if (SQLITE_DONE != retVal) {
-                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+            if (retVal == SQLITE_OK) {
+                if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 3, [data[PDKFitbitDateStart] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 4, [data[PDKFitbitSteps] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 5, [data[PDKFitbitDistance] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 6, [data[PDKFitbitFloors] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 7, [data[PDKFitbitElevation] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 8, [data[PDKFitbitActivityCalories] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 9, [data[PDKFitbitBMRCalories] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 10, [data[PDKFitbitMarginalCalories] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 11, [data[PDKFitbitVeryActiveMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 12, [data[PDKFitbitLightlyActiveMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 13, [data[PDKFitbitFairlyActiveMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 14, [data[PDKFitbitSedentaryMinutes] doubleValue]) == SQLITE_OK) {
+                    
+                    int retVal = sqlite3_step(stmt);
+                    
+                    if (SQLITE_DONE != retVal) {
+                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                    }
                 }
+                
+                sqlite3_finalize(stmt);
             }
-            
-            sqlite3_finalize(stmt);
         }
     }
 }
@@ -488,48 +515,49 @@ static PDKFitbitGenerator * sharedObject = nil;
             
             [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
 
-
-            sqlite3_stmt * stmt;
-            
-            NSString * insert = @"INSERT INTO sleep_history (fetched, observed, start, duration, is_main_sleep, minutes_asleep, minutes_awake, minutes_after_wake, minutes_to_sleep, minutes_in_bed, sleep_type, deep_periods, deep_minutes, light_periods, light_minutes, rem_periods, rem_minutes, wake_periods, wake_minutes, asleep_minutes, asleep_periods, restless_minutes, restless_periods, awake_minutes, awake_periods) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-            
-            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
-            
-            if (retVal == SQLITE_OK) {
-                if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 3, [data[PDKFitbitStartTime] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 4, [data[PDKFitbitDuration] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 5, [data[PDKFitbitIsMainSleep] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 6, [data[PDKFitbitMinutesAsleep] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 7, [data[PDKFitbitMinutesAwake] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 8, [data[PDKFitbitMinutesAfterWake] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 9, [data[PDKFitbitMinutesToSleep] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 10, [data[PDKFitbitMinutesInBed] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_text(stmt, 12, [data[PDKFitbitSleepType] cStringUsingEncoding:NSUTF8StringEncoding], -1, SQLITE_TRANSIENT) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 12, [data[PDKFitbitDeepPeriods] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 13, [data[PDKFitbitDeepMinutes] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 14, [data[PDKFitbitLightPeriods] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 15, [data[PDKFitbitLightMinutes] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 16, [data[PDKFitbitREMPeriods] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 17, [data[PDKFitbitREMMinutes] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 18, [data[PDKFitbitWakePeriods] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 19, [data[PDKFitbitWakeMinutes] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 20, [data[PDKFitbitAsleepPeriods] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 21, [data[PDKFitbitAsleepMinutes] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 22, [data[PDKFitbitAwakePeriods] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 23, [data[PDKFitbitAwakeMinutes] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 24, [data[PDKFitbitRestlessPeriods] doubleValue]) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 25, [data[PDKFitbitRestlessMinutes] doubleValue]) == SQLITE_OK) {
-                    
-                    int retVal = sqlite3_step(stmt);
-                    
-                    if (SQLITE_DONE != retVal) {
-                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
-                    }
-                }
+            @synchronized(self) {
+                sqlite3_stmt * stmt;
                 
-                sqlite3_finalize(stmt);
+                NSString * insert = @"INSERT INTO sleep_history (fetched, observed, start, duration, is_main_sleep, minutes_asleep, minutes_awake, minutes_after_wake, minutes_to_sleep, minutes_in_bed, sleep_type, deep_periods, deep_minutes, light_periods, light_minutes, rem_periods, rem_minutes, wake_periods, wake_minutes, asleep_minutes, asleep_periods, restless_minutes, restless_periods, awake_minutes, awake_periods) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                
+                int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+                
+                if (retVal == SQLITE_OK) {
+                    if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 3, [data[PDKFitbitStartTime] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 4, [data[PDKFitbitDuration] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 5, [data[PDKFitbitIsMainSleep] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 6, [data[PDKFitbitMinutesAsleep] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 7, [data[PDKFitbitMinutesAwake] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 8, [data[PDKFitbitMinutesAfterWake] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 9, [data[PDKFitbitMinutesToSleep] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 10, [data[PDKFitbitMinutesInBed] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_text(stmt, 12, [data[PDKFitbitSleepType] cStringUsingEncoding:NSUTF8StringEncoding], -1, SQLITE_TRANSIENT) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 12, [data[PDKFitbitDeepPeriods] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 13, [data[PDKFitbitDeepMinutes] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 14, [data[PDKFitbitLightPeriods] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 15, [data[PDKFitbitLightMinutes] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 16, [data[PDKFitbitREMPeriods] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 17, [data[PDKFitbitREMMinutes] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 18, [data[PDKFitbitWakePeriods] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 19, [data[PDKFitbitWakeMinutes] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 20, [data[PDKFitbitAsleepPeriods] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 21, [data[PDKFitbitAsleepMinutes] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 22, [data[PDKFitbitAwakePeriods] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 23, [data[PDKFitbitAwakeMinutes] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 24, [data[PDKFitbitRestlessPeriods] doubleValue]) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 25, [data[PDKFitbitRestlessMinutes] doubleValue]) == SQLITE_OK) {
+                        
+                        int retVal = sqlite3_step(stmt);
+                        
+                        if (SQLITE_DONE != retVal) {
+                            NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                        }
+                    }
+                    
+                    sqlite3_finalize(stmt);
+                }
             }
         }
     }
@@ -600,41 +628,43 @@ static PDKFitbitGenerator * sharedObject = nil;
         
         [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
         
-        sqlite3_stmt * stmt;
-        
-        NSString * insert = @"INSERT INTO heart_rate_history (fetched, observed, out_min, out_max, out_minutes, out_calories, fat_burn_min, fat_burn_max, fat_burn_minutes, fat_burn_calories, cardio_min, cardio_max, cardio_minutes, cardio_calories, peak_min, peak_max, peak_minutes, peak_calories, resting_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-
-        int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
-        
-        if (retVal == SQLITE_OK) {
-            if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 3, [data[PDKFitbitHeartRateOutMin] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 4, [data[PDKFitbitHeartRateOutMax] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 5, [data[PDKFitbitHeartRateOutMinutes] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 6, [data[PDKFitbitHeartRateOutCalories] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 7, [data[PDKFitbitHeartRateFatBurnMin] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 8, [data[PDKFitbitHeartRateFatBurnMax] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 9, [data[PDKFitbitHeartRateFatBurnMinutes] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 10, [data[PDKFitbitHeartRateFatBurnCalories] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 11, [data[PDKFitbitHeartRateCardioMin] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 12, [data[PDKFitbitHeartRateCardioMax] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 13, [data[PDKFitbitHeartRateCardioMinutes] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 14, [data[PDKFitbitHeartRateCardioCalories] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 15, [data[PDKFitbitHeartRatePeakMin] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 16, [data[PDKFitbitHeartRatePeakMax] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 17, [data[PDKFitbitHeartRatePeakMinutes] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 18, [data[PDKFitbitHeartRatePeakCalories] doubleValue]) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 19, [data[PDKFitbitHeartRateRestingRate] doubleValue]) == SQLITE_OK) {
-                
-                int retVal = sqlite3_step(stmt);
-                
-                if (SQLITE_DONE != retVal) {
-                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
-                }
-            }
+        @synchronized(self) {
+            sqlite3_stmt * stmt;
             
-            sqlite3_finalize(stmt);
+            NSString * insert = @"INSERT INTO heart_rate_history (fetched, observed, out_min, out_max, out_minutes, out_calories, fat_burn_min, fat_burn_max, fat_burn_minutes, fat_burn_calories, cardio_min, cardio_max, cardio_minutes, cardio_calories, peak_min, peak_max, peak_minutes, peak_calories, resting_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+            
+            if (retVal == SQLITE_OK) {
+                if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 3, [data[PDKFitbitHeartRateOutMin] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 4, [data[PDKFitbitHeartRateOutMax] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 5, [data[PDKFitbitHeartRateOutMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 6, [data[PDKFitbitHeartRateOutCalories] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 7, [data[PDKFitbitHeartRateFatBurnMin] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 8, [data[PDKFitbitHeartRateFatBurnMax] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 9, [data[PDKFitbitHeartRateFatBurnMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 10, [data[PDKFitbitHeartRateFatBurnCalories] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 11, [data[PDKFitbitHeartRateCardioMin] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 12, [data[PDKFitbitHeartRateCardioMax] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 13, [data[PDKFitbitHeartRateCardioMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 14, [data[PDKFitbitHeartRateCardioCalories] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 15, [data[PDKFitbitHeartRatePeakMin] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 16, [data[PDKFitbitHeartRatePeakMax] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 17, [data[PDKFitbitHeartRatePeakMinutes] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 18, [data[PDKFitbitHeartRatePeakCalories] doubleValue]) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 19, [data[PDKFitbitHeartRateRestingRate] doubleValue]) == SQLITE_OK) {
+                    
+                    int retVal = sqlite3_step(stmt);
+                    
+                    if (SQLITE_DONE != retVal) {
+                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                    }
+                }
+                
+                sqlite3_finalize(stmt);
+            }
         }
     }
 }
@@ -676,28 +706,30 @@ static PDKFitbitGenerator * sharedObject = nil;
 
             BOOL logNew = YES;
 
-            sqlite3_stmt * statement = NULL;
-            
-            NSString * querySQL = @"SELECT W.log_id FROM weight_history W WHERE W.log_id = ?";
-            
-            const char * query_stmt = [querySQL UTF8String];
-            
-            if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
-                sqlite3_bind_int64(statement, 1, logId.longValue);
-
-                int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
+            @synchronized(self) {
+                sqlite3_stmt * statement = NULL;
                 
-                if (retVal == SQLITE_OK) {
-                    if (sqlite3_step(statement) == SQLITE_ROW) {
-                        logNew = NO;
-                    }
+                NSString * querySQL = @"SELECT W.log_id FROM weight_history W WHERE W.log_id = ?";
+                
+                const char * query_stmt = [querySQL UTF8String];
+                
+                if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+                    sqlite3_bind_int64(statement, 1, logId.longValue);
+
+                    int retVal = sqlite3_prepare_v2(self.database, [querySQL UTF8String], -1, &statement, NULL);
                     
-                    sqlite3_finalize(statement);
+                    if (retVal == SQLITE_OK) {
+                        if (sqlite3_step(statement) == SQLITE_ROW) {
+                            logNew = NO;
+                        }
+                        
+                        sqlite3_finalize(statement);
+                    }
+                } else {
+                    NSLog(@"ERROR WEIGHT QUERYING");
                 }
-            } else {
-                NSLog(@"ERROR WEIGHT QUERYING");
             }
-            
+                
             if (logNew) {
                 NSMutableDictionary * data = [NSMutableDictionary dictionary];
 
@@ -713,28 +745,30 @@ static PDKFitbitGenerator * sharedObject = nil;
                 
                 [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
                 
-                sqlite3_stmt * stmt;
-                
-                NSString * insert = @"INSERT INTO weight_history (fetched, observed, weight, bmi, log_id, source) VALUES (?, ?, ?, ?, ?, ?);";
-                
-                int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
-                
-                if (retVal == SQLITE_OK) {
-                    if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
-                        sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
-                        sqlite3_bind_double(stmt, 3, [data[PDKFitbitDateStart] doubleValue]) == SQLITE_OK &&
-                        sqlite3_bind_double(stmt, 4, [data[PDKFitbitSteps] doubleValue]) == SQLITE_OK &&
-                        sqlite3_bind_double(stmt, 5, [data[PDKFitbitDistance] doubleValue]) == SQLITE_OK &&
-                        sqlite3_bind_text(stmt, 6, [data[PDKFitbitWeightSource] cStringUsingEncoding:NSUTF8StringEncoding], -1, SQLITE_TRANSIENT) == SQLITE_OK) {
-                        
-                        int retVal = sqlite3_step(stmt);
-                        
-                        if (SQLITE_DONE != retVal) {
-                            NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
-                        }
-                    }
+                @synchronized(self) {
+                    sqlite3_stmt * stmt;
                     
-                    sqlite3_finalize(stmt);
+                    NSString * insert = @"INSERT INTO weight_history (fetched, observed, weight, bmi, log_id, source) VALUES (?, ?, ?, ?, ?, ?);";
+                    
+                    int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+                    
+                    if (retVal == SQLITE_OK) {
+                        if (sqlite3_bind_double(stmt, 1, [data[PDKFitbitFetched] doubleValue]) == SQLITE_OK &&
+                            sqlite3_bind_double(stmt, 2, [data[PDKFitbitObserved] doubleValue]) == SQLITE_OK &&
+                            sqlite3_bind_double(stmt, 3, [data[PDKFitbitDateStart] doubleValue]) == SQLITE_OK &&
+                            sqlite3_bind_double(stmt, 4, [data[PDKFitbitSteps] doubleValue]) == SQLITE_OK &&
+                            sqlite3_bind_double(stmt, 5, [data[PDKFitbitDistance] doubleValue]) == SQLITE_OK &&
+                            sqlite3_bind_text(stmt, 6, [data[PDKFitbitWeightSource] cStringUsingEncoding:NSUTF8StringEncoding], -1, SQLITE_TRANSIENT) == SQLITE_OK) {
+                            
+                            int retVal = sqlite3_step(stmt);
+                            
+                            if (SQLITE_DONE != retVal) {
+                                NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                            }
+                        }
+                        
+                        sqlite3_finalize(stmt);
+                    }
                 }
             }
         }
@@ -907,7 +941,9 @@ static PDKFitbitGenerator * sharedObject = nil;
     [defaults removeObjectForKey:PDKFitbitAuthState];
     [defaults synchronize];
     
-    [self.pendingRequests removeAllObjects];
+    @synchronized(self.pendingRequests) {
+        [self.pendingRequests removeAllObjects];
+    }
 }
 
 - (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill {
@@ -917,43 +953,71 @@ static PDKFitbitGenerator * sharedObject = nil;
     NSNumber * steps = nil;
     
     sqlite3_stmt * statement = NULL;
+    
+    if (end == 0) { // Pull full record for day...
+        start = 0;
+        end = [NSDate date].timeIntervalSince1970;
+    }
 
     NSString * select = @"SELECT A.steps FROM activity_history A WHERE A.date_start = ? AND A.observed >= ? AND A.observed < ? ORDER BY A.steps DESC";
     
     const char * query_stmt = [select UTF8String];
-    
-    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
-        sqlite3_bind_double(statement, 1, dayStart.timeIntervalSince1970 * 1000);
-        sqlite3_bind_double(statement, 2, start * 1000);
-        sqlite3_bind_double(statement, 3, end * 1000);
 
-        if (sqlite3_step(statement) == SQLITE_ROW) {
-            steps = @(sqlite3_column_double(statement, 0));
-        } else if (doBackfill == NO) {
-            steps = @(0);
+    @synchronized(self) {
+        if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+            sqlite3_bind_double(statement, 1, dayStart.timeIntervalSince1970 * 1000);
+            sqlite3_bind_double(statement, 2, start * 1000);
+            sqlite3_bind_double(statement, 3, end * 1000);
+            
+            if (sqlite3_step(statement) == SQLITE_ROW) {
+                steps = @(sqlite3_column_double(statement, 0));
+            } else if (doBackfill == NO) {
+                steps = @(0);
+            }
+            
+            sqlite3_finalize(statement);
         }
-
-        sqlite3_finalize(statement);
     }
-    
+
     if (steps != nil) {
         callback(start, end, steps.doubleValue);
     } else if (doBackfill == YES) {
-        void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
-            NSDate * date = [NSDate dateWithTimeIntervalSince1970:start];
-            
-            [self fetchActivityWithAccessToken:accessToken
-                                          date:date
-                                      callback:^{
-                                          [self stepsBetweenStart:start end:end callback:callback backfill:NO];
-                                      }];
-        };
+        NSTimeInterval now = [NSDate date].timeIntervalSince1970;
         
-        [self executeRequest:toExecute];
+        if (now > self.waitUntil) {
+            void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
+                NSDate * date = [NSDate dateWithTimeIntervalSince1970:dayStart.timeIntervalSince1970];
+                
+                [self fetchActivityWithAccessToken:accessToken
+                                              date:date
+                                          callback:^{
+                                              [self stepsBetweenStart:start end:end callback:callback backfill:NO];
+                                          }];
+            };
+            
+            [self executeRequest:toExecute error:^(NSDictionary * error) {
+                NSLog(@"DAY START: %@", dayStart);
+                NSLog(@"ERROR WHILE FETCHING STEPS: %@", error);
+                
+                callback(start, end, 0);
+            }];
+        } else {
+            callback(start, end, 0);
+        }
     }
 }
 
 - (void) fetchProfile:(void (^)(NSDictionary * profile))callback {
+    NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+    
+    if (now < self.waitUntil) {
+        NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
+
+        NSLog(@"NOT FETCHING PROFILE UNTIL %@", wait);
+
+        callback(nil);
+    }
+
     void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
         AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
         
@@ -980,11 +1044,15 @@ static PDKFitbitGenerator * sharedObject = nil;
         [task resume];
     };
     
-    [self executeRequest:toExecute];
+    [self executeRequest:toExecute error:^(NSDictionary * error) {
+        NSLog(@"ERROR FETCHING FB PROFILE: %@", error);
+        
+        callback(nil);
+    }];
 }
 
 + (UIColor *) dataColor {
-    return [UIColor colorWithRed:0x00/255.0 green:0xb0/255.0 blue:0xb9/255.0 alpha:1.0];
+    return [UIColor colorWithRed:0xEB/255.0 green:0x40/255.0 blue:0x70/255.0 alpha:1.0];
 }
 
 - (void) resetData {
@@ -992,37 +1060,68 @@ static PDKFitbitGenerator * sharedObject = nil;
     
     sqlite3_stmt * statement = NULL;
     const char * query_stmt = [select UTF8String];
-    
-    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
-        sqlite3_bind_double(statement, 1, 0);
-        
-        if (sqlite3_step(statement) == SQLITE_ROW) {
-            NSLog(@"RESET CLEARED ACTIVITY");
-        } else {
-            NSLog(@"RESET NO CLEAR");
+
+    @synchronized(self) {
+        if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+            sqlite3_bind_double(statement, 1, 0);
+            
+            if (sqlite3_step(statement) == SQLITE_ROW) {
+                NSLog(@"RESET CLEARED ACTIVITY");
+            } else {
+                NSLog(@"RESET NO CLEAR");
+            }
+            
+            sqlite3_finalize(statement);
         }
-        
-        sqlite3_finalize(statement);
     }
 }
 
 - (void) processError:(NSError *) error {
-    id errorObj = [NSJSONSerialization JSONObjectWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"]
-                                              options:0
-                                                error:nil];
-    if ([errorObj isKindOfClass:[NSDictionary class]]) {
-        NSArray * errors = [errorObj valueForKey:@"errors"];
+    NSLog(@"ERROR: %@", error);
+    
+    if (error.userInfo[@"com.alamofire.serialization.response.error.response"] != nil) {
+        NSHTTPURLResponse * response = error.userInfo[@"com.alamofire.serialization.response.error.response"];
         
-        for (NSDictionary * error in errors) {
-            if ([@"expired_token" isEqualToString:error[@"errorType"]]) {
-                [self logout];
+        NSDictionary * headers = response.allHeaderFields;
+        
+        NSString * error = headers[@"x-gateway-error"];
+        
+        if (error != nil) {
+            if ([@"ABOVE_RATE_LIMIT" isEqualToString:error]) {
+                NSString * retry = headers[@"retry-after"];
+                
+                if (retry != nil) {
+                    NSTimeInterval retryInterval = [retry doubleValue];
+                    
+                    self.waitUntil = [NSDate dateWithTimeIntervalSinceNow:retryInterval].timeIntervalSince1970;
+                }
+            }
+        }
+    }
+    
+    if (error.userInfo[@"com.alamofire.serialization.response.error.data"] != nil) {
+        id errorObj = [NSJSONSerialization JSONObjectWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"]
+                                                      options:0
+                                                        error:nil];
+        
+        NSLog(@"ERROR OBJ: %@", errorObj);
+        
+        if ([errorObj isKindOfClass:[NSDictionary class]]) {
+            NSArray * errors = [errorObj valueForKey:@"errors"];
+            
+            for (NSDictionary * error in errors) {
+                if ([@"expired_token" isEqualToString:error[@"errorType"]]) {
+                    [self logout];
+                }
             }
         }
     }
 }
 
-- (void) executeRequest:(void(^)(NSString *)) executeBlock {
-    [self.pendingRequests addObject:executeBlock];
+- (void) executeRequest:(void(^)(NSString *)) executeBlock error:(void(^)(NSDictionary *)) errorBlock {
+    @synchronized(self.pendingRequests) {
+        [self.pendingRequests addObject:executeBlock];
+    }
     
     if (self.isExecuting) {
         return;
@@ -1040,18 +1139,39 @@ static PDKFitbitGenerator * sharedObject = nil;
         OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
         
         [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
-            
             while (weakSelf.pendingRequests.count > 0) {
-                void (^toExecute)(NSString *) = [weakSelf.pendingRequests objectAtIndex:0];
+                void (^toExecute)(NSString *) = nil;
                 
-                [weakSelf.pendingRequests removeObject:toExecute];
-
-                toExecute(accessToken);
+                @synchronized(weakSelf.pendingRequests) {
+                    toExecute = [weakSelf.pendingRequests objectAtIndex:0];
+                    
+                    [weakSelf.pendingRequests removeObject:toExecute];
+                }
+                
+                NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+                
+                if (now < self.waitUntil) {
+                    NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
+                    
+                    NSLog(@"AA WAIT UNTIL %@", wait);
+                    
+                    errorBlock(@{
+                                 @"error-type": @"waiting-rate-limit",
+                                 @"wait-until":wait
+                                 });
+                } else {
+                    toExecute(accessToken);
+                }
             }
             
             weakSelf.isExecuting = NO;
         }];
     }
 }
+
+- (NSString *) generatorId {
+    return GENERATOR_ID;
+}
+
 
 @end
