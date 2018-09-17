@@ -118,6 +118,8 @@ NSString * const PDKNokiaHealthAlertMisconfigured = @"pdk-nokia-health-misconfig
 
 @property NSTimeInterval waitUntil;
 
+@property NSMutableSet * requestedURLs;
+
 @end
 
 static PDKNokiaHealthGenerator * sharedObject = nil;
@@ -150,6 +152,8 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
         self.isExecuting = NO;
         
         self.waitUntil = 0;
+        
+        self.requestedURLs = [NSMutableSet set];
     }
     
     return self;
@@ -212,6 +216,8 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
 
     if (authed) {
         void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
+            [self.requestedURLs removeAllObjects];
+
             NSNumber * activitiesEnabled = self.options[PDKNokiaHealthActivityMeasuresEnabled];
             
             if (activitiesEnabled == nil) {
@@ -219,7 +225,9 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
             }
             
             if (activitiesEnabled.boolValue) {
-                [self fetchActivityMeasuresWithAccessToken:accessToken date:[NSDate date] callback:nil];
+                [self fetchActivityMeasuresWithAccessToken:accessToken date:[NSDate date] callback:^{
+                    [self.requestedURLs removeAllObjects];
+                }];
             }
             
             NSNumber * intradayActivitiesEnabled = self.options[PDKNokiaHealthIntradayActivityMeasuresEnabled];
@@ -229,7 +237,9 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
             }
             
             if (intradayActivitiesEnabled.boolValue) {
-                [self fetchIntradayActivityMeasuresWithAccessToken:accessToken date:[NSDate date] callback:nil];
+                [self fetchIntradayActivityMeasuresWithAccessToken:accessToken date:[NSDate date] callback:^{
+                    [self.requestedURLs removeAllObjects];
+                }];
             }
             
             NSNumber * sleepMeasuresEnabled = self.options[PDKNokiaHealthSleepMeasuresEnabled];
@@ -429,7 +439,15 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
     
     NSString * urlString = [NSString stringWithFormat:@"https://api.health.nokia.com/v2/measure?action=getintradayactivity&access_token=%@&startdate=%ld&enddate=%ld", accessToken, (long) today.timeIntervalSince1970, (long) tomorrow.timeIntervalSince1970];
     
-    NSLog(@"NH URL: %@", urlString);
+    if ([self.requestedURLs containsObject:urlString]) {
+        if (callback != nil) {
+            callback();
+        }
+        
+        return;
+    }
+    
+    [self.requestedURLs addObject:urlString];
     
     NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
@@ -446,7 +464,7 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
                                                             callback();
                                                         }
                                                     } else {
-                                                        NSLog(@"NH RESPONSE OBJ: %@", responseObject);
+                                                        // NSLog(@"NH RESPONSE OBJ: %@", responseObject);
                                                         
                                                         if ([responseObject[@"status"] integerValue] == 0) {
                                                             [weakSelf logIntradayActivityMeasures:responseObject];
@@ -1290,13 +1308,7 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
 
 - (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill {
     
-    NSLog(@"NOKIA HEALTH REQUEST %@ to %@", [NSDate dateWithTimeIntervalSince1970:start], [NSDate dateWithTimeIntervalSince1970:end]);
-
     NSNumber * steps = nil;
-    
-    if (doBackfill == NO) {
-        steps = @(0);
-    }
     
     sqlite3_stmt * statement = NULL;
     
@@ -1324,31 +1336,45 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
             if (count > 0) {
                 steps = @(stepsSum);
             }
-        } else {
-            NSLog(@"STEPS BETWEEN FAIL PREPARE");
+        }
+        
+        if (steps == nil) {
+            if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+                NSCalendar * calendar = [NSCalendar currentCalendar];
+                
+                NSDate * startDate = [calendar startOfDayForDate:[NSDate dateWithTimeIntervalSinceNow:start]];
+                NSDate * endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
+                
+                sqlite3_bind_double(statement, 1, start);
+                sqlite3_bind_double(statement, 2, endDate.timeIntervalSince1970);
+                
+                if (sqlite3_step(statement) == SQLITE_ROW) {
+                    steps = @(0);
+                }
+                
+                sqlite3_finalize(statement);
+            }
         }
     }
-    
+
+    if (steps == nil && doBackfill == NO) {
+        steps = @(0);
+    }
+
     if (steps != nil) {
         callback(start, end, steps.doubleValue);
     } else if (doBackfill){
         void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
             NSDate * date = [NSDate dateWithTimeIntervalSince1970:start];
             
-            NSLog(@"NOKIA HEALTH FETCH INTRADAY for %@", [NSDate dateWithTimeIntervalSince1970:start]);
-
             [self fetchIntradayActivityMeasuresWithAccessToken:accessToken
                                                           date:date
                                                       callback:^{
-                                                          NSLog(@"NOKIA HEALTH DONE INTRADAY for %@", [NSDate dateWithTimeIntervalSince1970:start]);
                                                           [self stepsBetweenStart:start end:end callback:callback backfill:NO];
                                                       }];
         };
         
         [self executeRequest:toExecute error:^(NSDictionary * error) {
-            NSLog(@"DAY START: %@", [NSDate dateWithTimeIntervalSince1970:start]);
-            NSLog(@"ERROR WHILE FETCHING STEPS: %@", error);
-            
             callback(start, end, 0);
         }];
     }

@@ -126,6 +126,7 @@ NSString * const PDKFitbitWeightSource = @"source";
 @property BOOL isExecuting;
 
 @property NSTimeInterval waitUntil;
+@property NSMutableSet * requestedURLs;
 
 @end
 
@@ -157,6 +158,7 @@ static PDKFitbitGenerator * sharedObject = nil;
         self.isExecuting = NO;
         
         self.waitUntil = 0;
+        self.requestedURLs = [NSMutableSet set];
     }
     
     return self;
@@ -223,6 +225,8 @@ static PDKFitbitGenerator * sharedObject = nil;
     }
     
     if (authed) {
+        [self.requestedURLs removeAllObjects];
+        
         NSTimeInterval now = [NSDate date].timeIntervalSince1970;
         
         if (now > self.waitUntil) {
@@ -234,7 +238,9 @@ static PDKFitbitGenerator * sharedObject = nil;
                 }
                 
                 if (activitiesEnabled.boolValue) {
-                    [self fetchActivityWithAccessToken:accessToken date:nil callback:nil];
+                    [self fetchActivityWithAccessToken:accessToken date:nil callback:^{
+                        [self.requestedURLs removeAllObjects];
+                    }];
                 }
                 
                 NSNumber * sleepEnabled = self.options[PDKFitbitSleepEnabled];
@@ -278,18 +284,6 @@ static PDKFitbitGenerator * sharedObject = nil;
 }
 
 - (void) fetchActivityWithAccessToken:(NSString *) accessToken date:(NSDate *) date callback:(void (^)(void)) callback {
-    NSTimeInterval now = [NSDate date].timeIntervalSince1970;
-    
-    if (now < self.waitUntil) {
-        NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
-        
-        NSLog(@"NOT FETCHING ACTIVITY UNTIL %@", wait);
-        
-        callback();
-        
-        return;
-    }
-
     __weak __typeof(self) weakSelf = self;
     
     NSString * dateString = nil;
@@ -305,9 +299,31 @@ static PDKFitbitGenerator * sharedObject = nil;
 
     AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
     
-    NSLog(@"FITBIT DATE: %@", dateString);
-    
     NSString * urlString = [NSString stringWithFormat:@"https://api.fitbit.com/1/user/-/activities/date/%@.json", dateString];
+
+    if ([self.requestedURLs containsObject:urlString]) {
+        if (callback != nil) {
+            callback();
+        }
+        
+        return;
+    }
+
+    [self.requestedURLs addObject:urlString];
+
+    NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+    
+    if (now < self.waitUntil) {
+        NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
+        
+        NSLog(@"NOT FETCHING ACTIVITY UNTIL %@", wait);
+        
+        if (callback != nil) {
+            callback();
+        }
+        
+        return;
+    }
 
     NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     [request setValue:[NSString stringWithFormat:@"Bearer %@", accessToken] forHTTPHeaderField:@"Authorization"];
@@ -947,7 +963,6 @@ static PDKFitbitGenerator * sharedObject = nil;
 }
 
 - (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill {
-
     NSDate * dayStart = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate dateWithTimeIntervalSince1970:start]];
 
     NSNumber * steps = nil;
@@ -971,11 +986,54 @@ static PDKFitbitGenerator * sharedObject = nil;
             
             if (sqlite3_step(statement) == SQLITE_ROW) {
                 steps = @(sqlite3_column_double(statement, 0));
-            } else if (doBackfill == NO) {
-                steps = @(0);
             }
             
             sqlite3_finalize(statement);
+        }
+    }
+    
+    if (steps == nil) {
+        CGFloat largestSteps = -1;
+        CGFloat smallestSteps = -1;
+
+        NSString * select = @"SELECT A.steps FROM activity_history A WHERE A.date_start = ? ORDER BY A.steps DESC";
+        
+        const char * query_stmt = [select UTF8String];
+        
+        @synchronized(self) {
+            if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+                sqlite3_bind_double(statement, 1, dayStart.timeIntervalSince1970 * 1000);
+                
+                while (sqlite3_step(statement) == SQLITE_ROW) {
+                    CGFloat stepCount = sqlite3_column_double(statement, 0);
+                    
+                    if (largestSteps < 0) {
+                        largestSteps = stepCount;
+                    }
+                    
+                    if (smallestSteps < 0) {
+                        smallestSteps = stepCount;
+                    }
+                    
+                    if (stepCount > largestSteps) {
+                        largestSteps = stepCount;
+                    }
+                    
+                    if (stepCount < smallestSteps) {
+                        smallestSteps = stepCount;
+                    }
+                }
+                
+                sqlite3_finalize(statement);
+            }
+        }
+        
+        if (largestSteps < 0) {
+            // No data - continue...
+        } else if (largestSteps != smallestSteps) {
+            steps = @(0);
+        } else {
+            steps = @(largestSteps);
         }
     }
 
@@ -1094,6 +1152,8 @@ static PDKFitbitGenerator * sharedObject = nil;
                     NSTimeInterval retryInterval = [retry doubleValue];
                     
                     self.waitUntil = [NSDate dateWithTimeIntervalSinceNow:retryInterval].timeIntervalSince1970;
+                    
+                    NSLog(@"SET WAIT UNTIL TO %@", [NSDate dateWithTimeIntervalSince1970:self.waitUntil]);
                 }
             }
         }

@@ -105,6 +105,13 @@
 			remoteGlobalIDString = 3842F7301CDA2021007F843D;
 			remoteInfo = PassiveDataKit;
 		};
+		387247FF214FE5AF0074C50B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38FDC117211E2FB500D2E51C /* AFNetworking.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 299522381BBF104D00859F49;
+			remoteInfo = "AFNetworking iOS";
+		};
 		38F3331921236D0B0096D54B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
@@ -638,6 +645,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				38724800214FE5AF0074C50B /* PBXTargetDependency */,
 			);
 			name = PassiveDataKit;
 			productName = PassiveDataKit;
@@ -945,6 +953,11 @@
 			isa = PBXTargetDependency;
 			target = 3842F7301CDA2021007F843D /* PassiveDataKit */;
 			targetProxy = 3842F73D1CDA2021007F843D /* PBXContainerItemProxy */;
+		};
+		38724800214FE5AF0074C50B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "AFNetworking iOS";
+			targetProxy = 387247FF214FE5AF0074C50B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
