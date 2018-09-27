@@ -1202,8 +1202,6 @@ static PDKFitbitGenerator * sharedObject = nil;
     if (authStateData != nil) {
         OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
         
-        NSLog(@"FB AUTH STATE: %@", authState);
-        
         [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
             NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
             [defaults setValue:authData forKey:PDKFitbitAuthState];

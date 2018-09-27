@@ -375,8 +375,6 @@ static PDKPedometerGenerator * sharedObject = nil;
                 }
             }
             
-            NSLog(@"PEDO INSERT: %@", pedometerData);
-            
             NSString * insert = @"INSERT INTO pedometer_data (timestamp, interval_start, interval_end, step_count, distance, average_pace, current_pace, current_cadence, floors_ascended, floors_descended, today_start) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
             
             NSDate * todayStart = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate date]];
@@ -538,8 +536,6 @@ static PDKPedometerGenerator * sharedObject = nil;
     }
     
     if (totalSteps >= 0) {
-        NSLog(@"PEDO SERVE FROM CACHE: %f (%@ to %@)", totalSteps, [NSDate dateWithTimeIntervalSince1970:start], [NSDate dateWithTimeIntervalSince1970:end]);
-        
         if (callback != nil) {
             callback(start, end, totalSteps);
         }
@@ -548,8 +544,6 @@ static PDKPedometerGenerator * sharedObject = nil;
             
             if (pedometerData.startDate.timeIntervalSince1970 < end) {
                 [self logPedometerData:pedometerData fromBackground:YES];
-                
-                NSLog(@"PEDO SERVE FROM DEVICE: %f", pedometerData.numberOfSteps.floatValue);
                 
                 if (callback != nil) {
                     callback(start, end, pedometerData.numberOfSteps.floatValue);
