@@ -1377,24 +1377,25 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
         [self executeRequest:toExecute error:^(NSDictionary * error) {
             callback(start, end, 0);
         }];
+    } else {
+        callback(start, end, 0);
     }
 }
 
 - (void) processError:(NSError *) error responseObject:(id) responseObject {
     if (error != nil) {
-        NSLog(@"NH ERROR: %@", error);
-        id errorObj = [NSJSONSerialization JSONObjectWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"]
-                                                      options:0
-                                                        error:nil];
-
-        NSLog(@"NH OBJ: %@", errorObj);
-        
-        if ([errorObj isKindOfClass:[NSDictionary class]]) {
-            NSArray * errors = [errorObj valueForKey:@"errors"];
+        if (error.userInfo[@"com.alamofire.serialization.response.error.data"] != nil) {
+            id errorObj = [NSJSONSerialization JSONObjectWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"]
+                                                          options:0
+                                                            error:nil];
             
-            for (NSDictionary * error in errors) {
-                if ([@"expired_token" isEqualToString:error[@"errorType"]]) {
-                    [self logout];
+            if ([errorObj isKindOfClass:[NSDictionary class]]) {
+                NSArray * errors = [errorObj valueForKey:@"errors"];
+                
+                for (NSDictionary * error in errors) {
+                    if ([@"expired_token" isEqualToString:error[@"errorType"]]) {
+                        [self logout];
+                    }
                 }
             }
         }
@@ -1437,6 +1438,10 @@ static PDKNokiaHealthGenerator * sharedObject = nil;
         OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
         
         [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
+            NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+            [defaults setValue:authData forKey:PDKNokiaHealthAuthState];
+            [defaults synchronize];
+
             while (weakSelf.pendingRequests.count > 0) {
                 void (^toExecute)(NSString *) = nil;
                 

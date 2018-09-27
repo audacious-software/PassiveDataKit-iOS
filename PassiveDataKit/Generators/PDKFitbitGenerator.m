@@ -963,6 +963,7 @@ static PDKFitbitGenerator * sharedObject = nil;
 }
 
 - (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill {
+    
     NSDate * dayStart = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate dateWithTimeIntervalSince1970:start]];
 
     NSNumber * steps = nil;
@@ -991,7 +992,7 @@ static PDKFitbitGenerator * sharedObject = nil;
             sqlite3_finalize(statement);
         }
     }
-    
+
     if (steps == nil) {
         CGFloat largestSteps = -1;
         CGFloat smallestSteps = -1;
@@ -1060,8 +1061,11 @@ static PDKFitbitGenerator * sharedObject = nil;
                 callback(start, end, 0);
             }];
         } else {
+            NSLog(@"WAITING UNTIL %@", [NSDate dateWithTimeIntervalSinceNow:self.waitUntil]);
             callback(start, end, 0);
         }
+    } else {
+        callback(start, end, 0);
     }
 }
 
@@ -1198,7 +1202,13 @@ static PDKFitbitGenerator * sharedObject = nil;
     if (authStateData != nil) {
         OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
         
+        NSLog(@"FB AUTH STATE: %@", authState);
+        
         [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
+            NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+            [defaults setValue:authData forKey:PDKFitbitAuthState];
+            [defaults synchronize];
+
             while (weakSelf.pendingRequests.count > 0) {
                 void (^toExecute)(NSString *) = nil;
                 

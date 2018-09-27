@@ -296,9 +296,11 @@ static PDKPedometerGenerator * sharedObject = nil;
 }
 
 - (void) logPedometerData:(CMPedometerData *) pedometerData fromBackground:(BOOL) fromBackground {
+    NSLog(@"LOG PEDO DATA: %@", pedometerData);
+    
     if ([pedometerData.numberOfSteps integerValue] == 0) {
-        [[PassiveDataKit sharedInstance] logEvent:@"pedometer_skip_log_zero_steps" properties:nil];
-        return;
+//        [[PassiveDataKit sharedInstance] logEvent:@"pedometer_skip_log_zero_steps" properties:nil];
+//        return;
     } else if ([pedometerData.startDate isEqualToDate:pedometerData.endDate]) {
         [[PassiveDataKit sharedInstance] logEvent:@"pedometer_skip_log_instant_interval" properties:nil];
         return;
@@ -328,48 +330,91 @@ static PDKPedometerGenerator * sharedObject = nil;
             data[PDKPedometerDailySummaryDistance] = pedometerData.distance;
             data[PDKPedometerDailySummaryAverageActivePace] = pedometerData.averageActivePace;
         }
+
+        CGFloat stepCount = -1;
         
-        sqlite3_stmt * stmt;
-        
-        NSString * insert = @"INSERT INTO pedometer_data (timestamp, interval_start, interval_end, step_count, distance, average_pace, current_pace, current_cadence, floors_ascended, floors_descended, today_start) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-        
-        NSDate * todayStart = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate date]];
-        
-        int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
-        
-        if (retVal == SQLITE_OK) {
-            if (sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 2, pedometerData.startDate.timeIntervalSince1970) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 3, pedometerData.endDate.timeIntervalSince1970) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 4, pedometerData.numberOfSteps.doubleValue) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 5, pedometerData.distance.doubleValue) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 6, pedometerData.averageActivePace.doubleValue) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 7, pedometerData.currentPace.doubleValue) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 8, pedometerData.currentCadence.doubleValue) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 9, pedometerData.floorsAscended.doubleValue) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 10, pedometerData.floorsDescended.doubleValue) == SQLITE_OK &&
-                sqlite3_bind_double(stmt, 11, todayStart.timeIntervalSince1970) == SQLITE_OK) {
+        @synchronized(self) {
+            sqlite3_stmt * statement;
+
+            NSString * select = @"SELECT step_count FROM pedometer_data P WHERE P.interval_start = ? AND P.interval_end = ?";
+            
+            const char * query_stmt = [select UTF8String];
+            
+            if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+                sqlite3_bind_double(statement, 1, pedometerData.startDate.timeIntervalSince1970);
+                sqlite3_bind_double(statement, 2, pedometerData.endDate.timeIntervalSince1970);
                 
-                int retVal = sqlite3_step(stmt);
-                
-                if (SQLITE_DONE == retVal) {
-                    NSLog(@"INSERT SUCCESSFUL");
-                } else {
-                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                if (sqlite3_step(statement) == SQLITE_ROW) {
+                    stepCount = sqlite3_column_double(statement, 0);
                 }
+                
+                sqlite3_finalize(statement);
             }
-            sqlite3_finalize(stmt);
-        } else {
-            NSLog(@"CANNOT OPEN DATABASE: %d", retVal);
         }
         
-        [[PassiveDataKit sharedInstance] logEvent:@"pedometer_set_last_update_1" properties:nil];
-        
-        NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-        [defaults setValue:pedometerData.endDate forKey:LAST_UPDATE];
-        [defaults synchronize];
-        
-        [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKPedometer];
+        @synchronized(self) {
+            sqlite3_stmt * stmt;
+
+            if (stepCount < pedometerData.numberOfSteps.floatValue) {
+                NSLog(@"DELETING");
+                
+                NSString * delete = @"DELETE FROM pedometer_data WHERE interval_start = ? AND interval_end = ?";
+                
+                if (sqlite3_prepare_v2(self.database, [delete UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
+                    sqlite3_bind_double(stmt, 1, pedometerData.startDate.timeIntervalSince1970);
+                    sqlite3_bind_double(stmt, 2, pedometerData.endDate.timeIntervalSince1970);
+
+                    int retVal = sqlite3_step(stmt);
+                    
+                    if (SQLITE_DONE == retVal) {
+                        NSLog(@"DELETE SUCCESSFUL");
+                    } else {
+                        NSLog(@"Error while deleting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                    }
+                    sqlite3_finalize(stmt);
+                }
+            }
+            
+            NSLog(@"PEDO INSERT: %@", pedometerData);
+            
+            NSString * insert = @"INSERT INTO pedometer_data (timestamp, interval_start, interval_end, step_count, distance, average_pace, current_pace, current_cadence, floors_ascended, floors_descended, today_start) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+            
+            NSDate * todayStart = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate date]];
+            
+            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+            
+            if (retVal == SQLITE_OK) {
+                if (sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 2, pedometerData.startDate.timeIntervalSince1970) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 3, pedometerData.endDate.timeIntervalSince1970) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 4, pedometerData.numberOfSteps.doubleValue) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 5, pedometerData.distance.doubleValue) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 6, pedometerData.averageActivePace.doubleValue) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 7, pedometerData.currentPace.doubleValue) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 8, pedometerData.currentCadence.doubleValue) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 9, pedometerData.floorsAscended.doubleValue) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 10, pedometerData.floorsDescended.doubleValue) == SQLITE_OK &&
+                    sqlite3_bind_double(stmt, 11, todayStart.timeIntervalSince1970) == SQLITE_OK) {
+                    
+                    int retVal = sqlite3_step(stmt);
+                    
+                    if (SQLITE_DONE == retVal) {
+                        NSLog(@"INSERT SUCCESSFUL");
+                    } else {
+                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                    }
+                }
+                sqlite3_finalize(stmt);
+            }
+
+            [[PassiveDataKit sharedInstance] logEvent:@"pedometer_set_last_update_1" properties:nil];
+            
+            NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+            [defaults setValue:now forKey:LAST_UPDATE];
+            [defaults synchronize];
+            
+            [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKPedometer];
+        }
     };
     
     if (self.includeDailySummary) {
@@ -435,8 +480,8 @@ static PDKPedometerGenerator * sharedObject = nil;
                                    withHandler:handler];
 }
 
-- (CGFloat) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end {
-    CGFloat totalSteps = 0;
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback {
+    CGFloat totalSteps = -1;
 
     NSArray * queries = @[
                           @"SELECT P.interval_start, P.interval_end, P.step_count FROM pedometer_data P WHERE (P.interval_start >= ? AND P.interval_start <= ? AND P.interval_end > ? AND P.interval_end >= ?) ORDER BY P.interval_start DESC",
@@ -448,45 +493,74 @@ static PDKPedometerGenerator * sharedObject = nil;
     NSTimeInterval lastSeen = 0;
     
     for (NSString * query in queries) {
-        sqlite3_stmt * statement = NULL;
-        
-        if (sqlite3_prepare_v2(self.database, [query UTF8String], -1, &statement, NULL) == SQLITE_OK) {
-            if (sqlite3_bind_double(statement, 1, start) == SQLITE_OK && sqlite3_bind_double(statement, 2, end) == SQLITE_OK &&
-                sqlite3_bind_double(statement, 3, start) == SQLITE_OK && sqlite3_bind_double(statement, 4, end) == SQLITE_OK) {
-                while (sqlite3_step(statement) == SQLITE_ROW)
-                {
-                    NSTimeInterval intervalStart = sqlite3_column_double(statement, 0);
-                    
-                    if (intervalStart != lastSeen) {
-                        NSTimeInterval intervalEnd = sqlite3_column_double(statement, 1);
-                        CGFloat steps = sqlite3_column_double(statement, 2);
-                        
-                        if (intervalStart >= start && intervalEnd <= end) {
-                            totalSteps += steps;
-                        } else {
-                            CGFloat fraction = 0;
-                            
-                            if (intervalStart <= start && intervalEnd >= end) {
-                                fraction = (end - start) / (intervalEnd - intervalStart);
-                            } else if (intervalStart <= start) {
-                                fraction = (intervalEnd - start) / (intervalEnd - intervalStart);
-                            } else if (intervalEnd >= end) {
-                                fraction = (end - intervalStart) / (intervalEnd - intervalStart);
-                            }
-                            
-                            totalSteps += (steps * fraction);
+        @synchronized(self) {
+            sqlite3_stmt * statement = NULL;
+            
+            if (sqlite3_prepare_v2(self.database, [query UTF8String], -1, &statement, NULL) == SQLITE_OK) {
+                if (sqlite3_bind_double(statement, 1, start) == SQLITE_OK && sqlite3_bind_double(statement, 2, end) == SQLITE_OK &&
+                    sqlite3_bind_double(statement, 3, start) == SQLITE_OK && sqlite3_bind_double(statement, 4, end) == SQLITE_OK) {
+                    while (sqlite3_step(statement) == SQLITE_ROW)
+                    {
+                        if (totalSteps < 0) {
+                            totalSteps = 0;
                         }
                         
-                        lastSeen = intervalStart;
+                        NSTimeInterval intervalStart = sqlite3_column_double(statement, 0);
+
+                        if (intervalStart != lastSeen) {
+                            NSTimeInterval intervalEnd = sqlite3_column_double(statement, 1);
+                            CGFloat steps = sqlite3_column_double(statement, 2);
+                            
+                            if (intervalStart >= start && intervalEnd <= end) {
+                                totalSteps += steps;
+                            } else {
+                                CGFloat fraction = 0;
+                                
+                                if (intervalStart <= start && intervalEnd >= end) {
+                                    fraction = (end - start) / (intervalEnd - intervalStart);
+                                } else if (intervalStart <= start) {
+                                    fraction = (intervalEnd - start) / (intervalEnd - intervalStart);
+                                } else if (intervalEnd >= end) {
+                                    fraction = (end - intervalStart) / (intervalEnd - intervalStart);
+                                }
+                                
+                                totalSteps += (steps * fraction);
+                            }
+                            
+                            lastSeen = intervalStart;
+                        }
                     }
                 }
+                
+                sqlite3_finalize(statement);
             }
-            
-            sqlite3_finalize(statement);
         }
     }
     
-    return totalSteps;
+    if (totalSteps >= 0) {
+        NSLog(@"PEDO SERVE FROM CACHE: %f (%@ to %@)", totalSteps, [NSDate dateWithTimeIntervalSince1970:start], [NSDate dateWithTimeIntervalSince1970:end]);
+        
+        if (callback != nil) {
+            callback(start, end, totalSteps);
+        }
+    } else {
+        [self historicalStepsBetweenStart:start end:end withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
+            
+            if (pedometerData.startDate.timeIntervalSince1970 < end) {
+                [self logPedometerData:pedometerData fromBackground:YES];
+                
+                NSLog(@"PEDO SERVE FROM DEVICE: %f", pedometerData.numberOfSteps.floatValue);
+                
+                if (callback != nil) {
+                    callback(start, end, pedometerData.numberOfSteps.floatValue);
+                }
+            } else {
+                if (callback != nil) {
+                    callback(start, end, 0);
+                }
+            }
+        }];
+    }
 }
 
 + (NSString *) title {
@@ -584,8 +658,6 @@ static PDKPedometerGenerator * sharedObject = nil;
     __block CGFloat totalSteps = 0;
 
     __block CMPedometerHandler updateHandler = ^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
-        NSLog(@"GOT %@ for %d", pedometerData, index);
-        
         if (pedometerData != nil) {
             totalSteps += pedometerData.numberOfSteps.doubleValue;
         }

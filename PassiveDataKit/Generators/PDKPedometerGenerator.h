@@ -20,7 +20,7 @@ extern NSString *const PDKPedometerDailySummaryDataEnabled;
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options;
 
-- (CGFloat) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end;
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback;
 - (void) historicalStepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end withHandler:(CMPedometerHandler)handler;
 
 - (void) refresh;
