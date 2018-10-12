@@ -59,6 +59,8 @@ NSString * const PDKLocationBearing = @"bearing"; //!OCLINT
 
 @property sqlite3 * database;
 
+@property CLLocationCoordinate2D latestLocation;
+
 @end
 
 @implementation PDKLocationGenerator
@@ -94,6 +96,8 @@ static PDKLocationGenerator * sharedObject = nil;
         }
         
         [defaults addObserver:self forKeyPath:PDKLocationAccuracyMode options:NSKeyValueObservingOptionNew context:NULL];
+        
+        self.latestLocation = CLLocationCoordinate2DMake(0, 0);
 
         self.database = [self openDatabase];
     }
@@ -300,9 +304,7 @@ static PDKLocationGenerator * sharedObject = nil;
     [[PassiveDataKit sharedInstance] logEvent:@"debug_location_updates_resumed" properties:nil];
 }
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
-    [[PassiveDataKit sharedInstance] logEvent:@"debug_location_update" properties:nil];
-
+- (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     NSDate * now = [NSDate date];
 
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
@@ -311,79 +313,83 @@ static PDKLocationGenerator * sharedObject = nil;
         for (CLLocation * location in locations) {
             CLLocation * thisLocation = location;
             
-            if ([PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
-                // http://gis.stackexchange.com/a/68275/10230
+            if (self.latestLocation.latitude != thisLocation.coordinate.latitude || self.latestLocation.longitude != thisLocation.coordinate.longitude) {
+                self.latestLocation = CLLocationCoordinate2DMake(thisLocation.coordinate.latitude, thisLocation.coordinate.longitude);
                 
-                CGFloat radius = [defaults doubleForKey:PDKLocationAccuracyModeUserProvidedDistance];
-
-                // Convert radius from meters to degrees
-                CGFloat radiusInDegrees = radius / 111000;
-                
-                CGFloat u = ((CGFloat) rand() / (CGFloat) RAND_MAX); //!OCLINT
-                CGFloat v = ((CGFloat) rand() / (CGFloat) RAND_MAX); //!OCLINT
-
-                CGFloat w = radiusInDegrees * sqrt(u); //!OCLINT
-                CGFloat t = 2 * M_PI * v; //!OCLINT
-                CGFloat x = w * cos(t); //!OCLINT
-                CGFloat y = w * sin(t); //!OCLINT
-                
-                // Adjust the x-coordinate for the shrinking of the east-west distances
-                CGFloat new_x = x / cos(location.coordinate.latitude);
-                
-                CGFloat foundLongitude = new_x + location.coordinate.longitude;
-                CGFloat foundLatitude = y + location.coordinate.latitude;
-                
-                thisLocation = [[CLLocation alloc] initWithLatitude:foundLatitude longitude:foundLongitude];
-            }
-            
-            sqlite3_stmt * stmt;
-            
-            NSString * insert = @"INSERT INTO location_data (timestamp, latitude, longitude, altitude, horizontal_accuracy, vertical_accuracy, floor, speed, course) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
-
-            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
-            
-            if (retVal == SQLITE_OK) {
-                if (sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 2, thisLocation.coordinate.latitude) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 3, thisLocation.coordinate.longitude) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 4, thisLocation.altitude) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 5, thisLocation.horizontalAccuracy) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 6, thisLocation.verticalAccuracy) == SQLITE_OK &&
-                    sqlite3_bind_double(stmt, 7, thisLocation.floor.level) == SQLITE_OK) {
+                if ([PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
+                    // http://gis.stackexchange.com/a/68275/10230
                     
-                    if (thisLocation.speed >= 0) {
-                        sqlite3_bind_double(stmt, 8, thisLocation.speed);
-                        sqlite3_bind_double(stmt, 9, thisLocation.course);
-                    } else {
-                        sqlite3_bind_double(stmt, 8, 0.0);
-                        sqlite3_bind_double(stmt, 9, 0.0);
-                    }
+                    CGFloat radius = [defaults doubleForKey:PDKLocationAccuracyModeUserProvidedDistance];
                     
-                    int retVal = sqlite3_step(stmt);
+                    // Convert radius from meters to degrees
+                    CGFloat radiusInDegrees = radius / 111000;
                     
-                    if (SQLITE_DONE != retVal) {
-                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
-                    }
+                    CGFloat u = ((CGFloat) rand() / (CGFloat) RAND_MAX); //!OCLINT
+                    CGFloat v = ((CGFloat) rand() / (CGFloat) RAND_MAX); //!OCLINT
+                    
+                    CGFloat w = radiusInDegrees * sqrt(u); //!OCLINT
+                    CGFloat t = 2 * M_PI * v; //!OCLINT
+                    CGFloat x = w * cos(t); //!OCLINT
+                    CGFloat y = w * sin(t); //!OCLINT
+                    
+                    // Adjust the x-coordinate for the shrinking of the east-west distances
+                    CGFloat new_x = x / cos(location.coordinate.latitude);
+                    
+                    CGFloat foundLongitude = new_x + location.coordinate.longitude;
+                    CGFloat foundLatitude = y + location.coordinate.latitude;
+                    
+                    thisLocation = [[CLLocation alloc] initWithLatitude:foundLatitude longitude:foundLongitude];
                 }
                 
-                sqlite3_finalize(stmt);
-            }
-
-            NSMutableDictionary * data = [NSMutableDictionary dictionary];
-            [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:PDKLocationLatitude];
-            [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:PDKLocationLongitude];
-            [data setValue:[NSNumber numberWithDouble:thisLocation.altitude] forKey:PDKLocationAltitude];
-            [data setValue:[NSNumber numberWithDouble:thisLocation.horizontalAccuracy] forKey:PDKLocationAccuracy];
-            [data setValue:[NSNumber numberWithDouble:thisLocation.verticalAccuracy] forKey:PDKLocationAltitudeAccuracy];
-            [data setValue:[NSNumber numberWithInteger:thisLocation.floor.level] forKey:PDKLocationFloor];
-            
-            if (thisLocation.speed >= 0) {
-                [data setValue:[NSNumber numberWithDouble:thisLocation.speed] forKey:PDKLocationSpeed];
-                [data setValue:[NSNumber numberWithInteger:thisLocation.course] forKey:PDKLocationBearing];
-            }
-            
-            for (id<PDKDataListener> listener in self.listeners) {
-                [listener receivedData:data forGenerator:PDKLocation];
+                sqlite3_stmt * stmt;
+                
+                NSString * insert = @"INSERT INTO location_data (timestamp, latitude, longitude, altitude, horizontal_accuracy, vertical_accuracy, floor, speed, course) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                
+                int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+                
+                if (retVal == SQLITE_OK) {
+                    if (sqlite3_bind_double(stmt, 1, now.timeIntervalSince1970) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 2, thisLocation.coordinate.latitude) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 3, thisLocation.coordinate.longitude) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 4, thisLocation.altitude) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 5, thisLocation.horizontalAccuracy) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 6, thisLocation.verticalAccuracy) == SQLITE_OK &&
+                        sqlite3_bind_double(stmt, 7, thisLocation.floor.level) == SQLITE_OK) {
+                        
+                        if (thisLocation.speed >= 0) {
+                            sqlite3_bind_double(stmt, 8, thisLocation.speed);
+                            sqlite3_bind_double(stmt, 9, thisLocation.course);
+                        } else {
+                            sqlite3_bind_double(stmt, 8, 0.0);
+                            sqlite3_bind_double(stmt, 9, 0.0);
+                        }
+                        
+                        int retVal = sqlite3_step(stmt);
+                        
+                        if (SQLITE_DONE != retVal) {
+                            NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                        }
+                    }
+                    
+                    sqlite3_finalize(stmt);
+                }
+                
+                NSMutableDictionary * data = [NSMutableDictionary dictionary];
+                [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:PDKLocationLatitude];
+                [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:PDKLocationLongitude];
+                [data setValue:[NSNumber numberWithDouble:thisLocation.altitude] forKey:PDKLocationAltitude];
+                [data setValue:[NSNumber numberWithDouble:thisLocation.horizontalAccuracy] forKey:PDKLocationAccuracy];
+                [data setValue:[NSNumber numberWithDouble:thisLocation.verticalAccuracy] forKey:PDKLocationAltitudeAccuracy];
+                [data setValue:[NSNumber numberWithInteger:thisLocation.floor.level] forKey:PDKLocationFloor];
+                
+                if (thisLocation.speed >= 0) {
+                    [data setValue:[NSNumber numberWithDouble:thisLocation.speed] forKey:PDKLocationSpeed];
+                    [data setValue:[NSNumber numberWithInteger:thisLocation.course] forKey:PDKLocationBearing];
+                }
+                
+                for (id<PDKDataListener> listener in self.listeners) {
+                    [listener receivedData:data forGenerator:PDKLocation];
+                }
             }
         }
     } else if ([PDKLocationAccuracyModeUserProvided isEqualToString:self.mode]) {

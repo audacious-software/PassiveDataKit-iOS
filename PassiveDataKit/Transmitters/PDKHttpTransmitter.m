@@ -20,37 +20,23 @@ typedef enum {
     ConnectionTypeWiFi
 } ConnectionType;
 
-@interface PDKHttpTransmitter ()
+@interface PDKHttpTransmitter ()<NSURLSessionDelegate>
 
 @property BOOL requireCharging;
 @property BOOL requireWiFi;
 
 @property sqlite3 * database;
 
+@property NSURLSession * session;
+
+@property NSMutableArray * readingsTransmitted;
+@property NSTimeInterval lastTransmissionStart;
+
+@property NSUInteger payloadSizeCount;
+
 @end
 
 @implementation PDKHttpTransmitter
-
-+ (ConnectionType) connectionType {
-    SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, "8.8.8.8");
-    SCNetworkReachabilityFlags flags;
-    BOOL success = SCNetworkReachabilityGetFlags(reachability, &flags);
-    CFRelease(reachability);
-    if (!success) {
-        return ConnectionTypeUnknown;
-    }
-    BOOL isReachable = ((flags & kSCNetworkReachabilityFlagsReachable) != 0);
-    BOOL needsConnection = ((flags & kSCNetworkReachabilityFlagsConnectionRequired) != 0);
-    BOOL isNetworkReachable = (isReachable && !needsConnection);
-    
-    if (!isNetworkReachable) { //!OCLINT
-        return ConnectionTypeNone;
-    } else if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) { //!OCLINT
-        return ConnectionType3G;
-    }
-
-    return ConnectionTypeWiFi;
-}
 
 - (id<PDKTransmitter>) initWithOptions:(NSDictionary *) options {
     if (self = [super init]) {
@@ -79,15 +65,47 @@ typedef enum {
         } else {
             self.requireWiFi = NO;
         }
+
+        if (options[PDK_TRANSMITTER_PAYLOAD_SIZE_KEY] != nil) {
+            self.payloadSizeCount = [options[PDK_TRANSMITTER_PAYLOAD_SIZE_KEY] unsignedIntegerValue];
+        } else {
+            self.payloadSizeCount = 32;
+        }
         
         self.database = [self openDatabase];
-        self.isTransmitting = NO;
         
+//        NSDictionary * infoDict = [[NSBundle mainBundle] infoDictionary];
+//        NSString * appId = [infoDict objectForKey:@"CFBundleIdentifier"];
+        
+//        NSString * backgroundIdentifier = [NSString stringWithFormat:@"pdk-http-transmitter-%@", appId];
+        
+//        NSURLSessionConfiguration * urlSessionConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:backgroundIdentifier];
+        
+        self.readingsTransmitted = [NSMutableArray array];
+        
+//        self.session = [NSURLSession sessionWithConfiguration:urlSessionConfig
+//                                                     delegate:self
+//                                                delegateQueue:nil];
+
+        NSURLSessionConfiguration * urlSessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+        self.session = [NSURLSession sessionWithConfiguration:urlSessionConfig];
+
         [[PassiveDataKit sharedInstance] registerListener:self forGenerator:PDKAnyGenerator options:@{}];
     }
     
     return self;
 }
+
+- (NSUInteger) pendingSize {
+    return -1;
+}
+
+- (NSUInteger) transmittedSize {
+    return -1;
+}
+
+
+#pragma mark - Database Methods
 
 - (NSString *) databasePath {
     NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -134,36 +152,27 @@ typedef enum {
     return NULL;
 }
 
-- (void) transmit:(BOOL) force completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler { //!OCLINT
-//    if (force == NO && self.requireCharging) {
-//        [UIDevice currentDevice].batteryMonitoringEnabled = YES;
-//
-//        UIDeviceBatteryState batteryState = [UIDevice currentDevice].batteryState;
-//
-//        [UIDevice currentDevice].batteryMonitoringEnabled = NO;
-//
-//        if (batteryState == UIDeviceBatteryStateUnplugged || batteryState == UIDeviceBatteryStateUnknown) {
-//            if (completionHandler != nil) {
-//                NSLog(@"XMIT RET NEW DATA");
-//                completionHandler(UIBackgroundFetchResultNewData);
-//            }
-//
-//            return;
-//        }
-//    }
-
-    if (force == NO && self.requireWiFi) {
-        if ([PDKHttpTransmitter connectionType] != ConnectionTypeWiFi) {
-            if (completionHandler != nil) {
-                completionHandler(UIBackgroundFetchResultNewData);
-            }
-
-            return;
-        }
+- (NSInteger) pendingDataPoints {
+    sqlite3_stmt * countStatement = NULL;
+    
+    NSString * querySQL = @"SELECT COUNT(*) FROM data";
+    
+    const char * query_stmt = [querySQL UTF8String];
+    
+    NSInteger remaining = -1;
+    
+    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &countStatement, NULL) == SQLITE_OK) {
+        sqlite3_step(countStatement);
+        
+        remaining = sqlite3_column_int(countStatement, 0);
+        
+        sqlite3_finalize(countStatement);
     }
-
-    [self transmitReadingsWithStart:[NSDate date].timeIntervalSince1970 completionHandler:completionHandler];
+    
+    return remaining;
 }
+
+#pragma mark - Data Transmission Methods
 
 - (NSURLRequest *) uploadRequestForPayload:(NSArray *) payload {
     if (payload.count > 0) {
@@ -181,39 +190,76 @@ typedef enum {
 }
 
 - (NSUInteger) payloadSize {
-    return 16;
+    // TODO: Make configurable...
+    
+    return self.payloadSizeCount;
 }
 
-- (void) transmitReadingsWithStart:(NSTimeInterval) start completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler { //!OCLINT
-    if (self.isTransmitting) {
+- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler; {
+    NSLog(@"TRANSMIT READINGS");
+    
+    if (self.lastTransmissionStart != 0) {
         if (completionHandler != nil) {
-            completionHandler(UIBackgroundFetchResultNewData);
+            completionHandler(UIBackgroundFetchResultNoData);
         }
-
+        
         return;
     }
     
-    self.isTransmitting = YES;
+    self.lastTransmissionStart = [NSDate date].timeIntervalSince1970;
+    [self.readingsTransmitted removeAllObjects];
     
-    @synchronized (self) {
-        if (start < 1) {
-            start = [NSDate date].timeIntervalSince1970; //!OCLINT
+    [self transmitReadingsWithCompletionHandler:completionHandler];
+}
+
+- (void) transmitReadingsWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler; {
+    @synchronized(self) {
+        for (NSNumber * identifier in self.readingsTransmitted) {
+            sqlite3_stmt * deleteStatement = NULL;
+            
+            NSString * deleteSQL = @"DELETE FROM data WHERE (id = ?)";
+            
+            const char * delete_stmt = [deleteSQL UTF8String];
+            
+            if (sqlite3_prepare_v2(self.database, delete_stmt, -1, &deleteStatement, NULL) == SQLITE_OK)
+            {
+                if (sqlite3_bind_int(deleteStatement, 1, [identifier intValue]) == SQLITE_OK) {
+                    sqlite3_step(deleteStatement);
+                }
+                
+                sqlite3_finalize(deleteStatement);
+            }
         }
         
-        sqlite3_stmt * statement = NULL;
+        [self.readingsTransmitted removeAllObjects];
+    }
+    
+    NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+    
+    if (now - self.lastTransmissionStart > 15) {
+        if (completionHandler != nil) {
+            self.lastTransmissionStart = 0;
+
+            completionHandler(UIBackgroundFetchResultNewData);
+        }
         
-        NSString * querySQL = [NSString stringWithFormat:@"SELECT D.id, D.properties FROM data D WHERE (D.timestamp < ?) LIMIT %d", (int) [self payloadSize]];
+        return;
+    }
+    
+    @synchronized(self) {
+        NSInteger remaining = [self pendingDataPoints];
         
-        const char * query_stmt = [querySQL UTF8String];
-        
-        if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK)
-        {
-            if (sqlite3_bind_double(statement, 1, start) == SQLITE_OK) {
+        if (remaining >=  1) {
+            sqlite3_stmt * statement = NULL;
+            
+            NSString * querySQL = [NSString stringWithFormat:@"SELECT D.id, D.properties FROM data D ORDER BY D.timestamp LIMIT %d", (int) [self payloadSize]];
+            
+            const char * query_stmt = [querySQL UTF8String];
+            
+            if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) {
                 NSMutableArray * payload = [NSMutableArray array];
-                NSMutableArray * uploaded = [NSMutableArray array];
                 
-                while (sqlite3_step(statement) == SQLITE_ROW)
-                {
+                while (sqlite3_step(statement) == SQLITE_ROW) {
                     NSInteger pointId = sqlite3_column_int(statement, 0);
                     
                     const unsigned char * rawJsonString = sqlite3_column_text(statement, 1);
@@ -221,124 +267,64 @@ typedef enum {
                     if (rawJsonString != NULL) {
                         NSString * jsonString = [[NSString alloc] initWithUTF8String:(const char *) rawJsonString];
                         
-//                        NSLog(@"XMITTING: %@", jsonString);
-                        
                         NSError * error = nil;
                         
                         if (jsonString != nil) {
                             NSMutableDictionary * dataPoint = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]
                                                                                               options:(NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves)
                                                                                                 error:&error];
+                            
                             if (error == nil) {
-                                [uploaded addObject:[NSNumber numberWithInteger:pointId]];
+                                [self.readingsTransmitted addObject:[NSNumber numberWithInteger:pointId]];
                                 [payload addObject:dataPoint];
                             }
                             else {
-                                NSLog(@"Error fetching from PDKHttpTranmitter database: %@", error);
+                                NSLog(@"Error fetching from PDKHttpTransmitter database: %@", error);
                                 
-                                [uploaded addObject:[NSNumber numberWithInteger:pointId]];
-                                
-                                //                            if (completionHandler != nil) {
-                                //                                NSLog(@"XMIT RET FAILED");
-                                //                                completionHandler(UIBackgroundFetchResultFailed);
-                                //                            }
-                                
-                                //                            self.isTransmitting = NO;
-                                
-                                //                            return;
+                                [self.readingsTransmitted addObject:[NSNumber numberWithInteger:pointId]];
                             }
                         }
                     }
                 }
-
+                
                 NSURLRequest * request = [self uploadRequestForPayload:payload];
                 
                 if (request != nil) { //!OCLINT
-                    AFURLSessionManager * manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+//                    NSURLSessionDownloadTask * upload = [self.session downloadTaskWithRequest:request];
 
-                    [[manager dataTaskWithRequest:request
-                                   uploadProgress:nil
-                                 downloadProgress:nil
-                                completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-                                    @synchronized (self) {
-                                        if (error == nil) {
-                                            for (NSNumber * identifier in uploaded) {
-                                                sqlite3_stmt * deleteStatement = NULL;
-                                                
-                                                NSString * deleteSQL = @"DELETE FROM data WHERE (id = ?)";
-                                                
-                                                const char * delete_stmt = [deleteSQL UTF8String];
-                                                
-                                                if (sqlite3_prepare_v2(self.database, delete_stmt, -1, &deleteStatement, NULL) == SQLITE_OK)
-                                                {
-                                                    if (sqlite3_bind_int(deleteStatement, 1, [identifier intValue]) == SQLITE_OK) {
-                                                        sqlite3_step(deleteStatement);
-                                                    }
-                                                    
-                                                    sqlite3_finalize(deleteStatement);
-                                                } else {
-                                                    if (completionHandler != nil) {
-                                                        completionHandler(UIBackgroundFetchResultFailed);
-                                                    }
-                                                    
-                                                    NSLog(@"Error while deleting data. '%s'", sqlite3_errmsg(self.database));
-                                                    
-                                                    self.isTransmitting = NO;
-                                                    
-                                                    return;
-                                                }
-                                            }
-                                            
-                                            NSTimeInterval interval = [NSDate date].timeIntervalSince1970 - start;
-                                            
-                                            if (interval < 5 && uploaded.count > 0) {
-                                                self.isTransmitting = NO;
-                                                [self transmitReadingsWithStart:start completionHandler:completionHandler];
-                                            } else {
-                                                if (completionHandler != nil) {
-                                                    completionHandler(UIBackgroundFetchResultNewData);
-                                                }
-                                                
-                                                self.isTransmitting = NO;
-                                            }
-                                        } else {
-                                            NSLog(@"Error: %@", error);
-                                            
-                                            if (completionHandler != nil) {
-                                                completionHandler(UIBackgroundFetchResultFailed);
-                                            }
-                                            
-                                            self.isTransmitting = NO;
-                                        }
-                                    }
-                                }] resume];
-                } else {
-                    if (completionHandler != nil) {
-                        completionHandler(UIBackgroundFetchResultNewData);
-                    }
-                    
-                    self.isTransmitting = NO;
+                    NSURLSessionDownloadTask * upload = [self.session downloadTaskWithRequest:request
+                                                                            completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                                                                // NSLog(@"MAIN XMIT ERROR: %@", error);
+                                                                                
+                                                                                if (error != nil) {
+                                                                                    self.lastTransmissionStart = 0;
+                                                                                    
+                                                                                    completionHandler(UIBackgroundFetchResultFailed);
+                                                                                    
+                                                                                    return;
+                                                                                }
+
+                                                                                [self transmitReadingsWithCompletionHandler:completionHandler];
+                                                                            }];
+
+                    [upload resume];
                 }
+                
+                sqlite3_finalize(statement);
             }
-            
-            sqlite3_finalize(statement);
         } else {
-            if (completionHandler != nil) {
-                completionHandler(UIBackgroundFetchResultFailed);
-            }
+            NSLog(@"BAILING OUT: PAYLOAD TOO SMALL: %d < %d", (int) remaining, 1);
 
-            self.isTransmitting = NO;
+            if (completionHandler != nil) {
+                self.lastTransmissionStart = 0;
+                
+                completionHandler(UIBackgroundFetchResultNewData);
+            }
         }
     }
 }
 
-- (NSUInteger) pendingSize {
-    return -1;
-}
-
-- (NSUInteger) transmittedSize {
-    return -1;
-}
+#pragma mark - Data Storage Methods
 
 - (NSDictionary *) processIncomingDataPoint:(NSDictionary *) dataPoint forGenerator:(PDKDataGenerator) dataGenerator {
     id<PDKGenerator> generator = [[PassiveDataKit sharedInstance] generatorInstance:dataGenerator];
@@ -369,15 +355,14 @@ typedef enum {
     return toStore;
 }
 
-
 - (void) receivedData:(NSDictionary *) dataPoint forGenerator:(PDKDataGenerator) dataGenerator {
     NSDictionary * toStore = [self processIncomingDataPoint:dataPoint forGenerator:dataGenerator];
-
+    
     @synchronized (self) {
         if (toStore != nil) {
-            sqlite3_stmt * stmt;
+            sqlite3_stmt * stmt = NULL;
             
-            NSString * insert = @"INSERT INTO data (timestamp, properties) VALUES (?, ?);";
+            NSString * insert = @"INSERT INTO data (timestamp, properties) VALUES (?, ?)";
             
             if(sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
                 if (sqlite3_bind_double(stmt, 1, [toStore[PDK_METADATA_KEY][PDK_TIMESTAMP_KEY] doubleValue]) == SQLITE_OK) {
@@ -387,7 +372,7 @@ typedef enum {
                     
                     if (sqlite3_bind_text(stmt, 2, [jsonString UTF8String], -1, SQLITE_TRANSIENT) == SQLITE_OK) {
                         int retVal = sqlite3_step(stmt);
-                        
+
                         if (SQLITE_DONE != retVal) {
                             NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
                         }
@@ -395,7 +380,7 @@ typedef enum {
                         NSLog(@"Error WITH JSON STRING: %@", jsonString);
                     }
                 }
-                
+
                 sqlite3_finalize(stmt);
             }
         }
@@ -404,7 +389,7 @@ typedef enum {
 
 - (void) receivedData:(NSDictionary *) dataPoint forCustomGenerator:(NSString *) generatorId {
     NSDictionary * toStore = [self processIncomingDataPoint:dataPoint forCustomGenerator:generatorId];
-
+    
     @synchronized (self) {
         if (toStore != nil) {
             sqlite3_stmt * stmt;

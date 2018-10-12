@@ -29,6 +29,7 @@ NSString * const PDKFitbitSleepEnabled = @"PDKFitbitSleepEnabled"; //!OCLINT
 NSString * const PDKFitbitWeightEnabled = @"PDKFitbitWeightEnabled"; //!OCLINT
 
 NSString * const PDKFitbitAuthState = @"PDKFitbitAuthState"; //!OCLINT
+NSString * const PDKFitbitLastRefreshed = @"PDKFitbitLastRefreshed"; //!OCLINT
 
 NSString * const PDKFitbitScopes = @"PDKFitbitScopes"; //!OCLINT
 
@@ -128,6 +129,8 @@ NSString * const PDKFitbitWeightSource = @"source";
 @property NSTimeInterval waitUntil;
 @property NSMutableSet * requestedURLs;
 
+@property NSMutableArray * listeners;
+
 @end
 
 static PDKFitbitGenerator * sharedObject = nil;
@@ -151,6 +154,8 @@ static PDKFitbitGenerator * sharedObject = nil;
 - (id) init {
     if (self = [super init]) {
         self.options = @{};
+        
+        self.listeners = [NSMutableArray array];
         
         self.database = [self openDatabase];
         
@@ -391,7 +396,9 @@ static PDKFitbitGenerator * sharedObject = nil;
         
         data[PDKFitbitDataType] = PDKFitbitDataTypeActivity;
         
-        [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
+        for (id<PDKDataListener> listener in self.listeners) {
+            [listener receivedData:data forGenerator:PDKFitbit];
+        }
 
         sqlite3_stmt * stmt;
 
@@ -528,8 +535,10 @@ static PDKFitbitGenerator * sharedObject = nil;
             }
 
             data[PDKFitbitDataType] = PDKFitbitDataTypeSleep;
-            
-            [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
+
+            for (id<PDKDataListener> listener in self.listeners) {
+                [listener receivedData:data forGenerator:PDKFitbit];
+            }
 
             @synchronized(self) {
                 sqlite3_stmt * stmt;
@@ -641,8 +650,10 @@ static PDKFitbitGenerator * sharedObject = nil;
         data[PDKFitbitHeartRateRestingRate] = summary[0][@"value"][@"restingHeartRate"];
         
         data[PDKFitbitDataType] = PDKFitbitDataTypeHeartRate;
-        
-        [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
+
+        for (id<PDKDataListener> listener in self.listeners) {
+            [listener receivedData:data forGenerator:PDKFitbit];
+        }
         
         @synchronized(self) {
             sqlite3_stmt * stmt;
@@ -759,7 +770,9 @@ static PDKFitbitGenerator * sharedObject = nil;
 
                 data[PDKFitbitDataType] = PDKFitbitDataTypeWeight;
                 
-                [[PassiveDataKit sharedInstance] receivedData:data forGenerator:PDKFitbit];
+                for (id<PDKDataListener> listener in self.listeners) {
+                    [listener receivedData:data forGenerator:PDKFitbit];
+                }
                 
                 @synchronized(self) {
                     sqlite3_stmt * stmt;
@@ -934,6 +947,8 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                                                                NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
                                                                                                [defaults setValue:authData
                                                                                                            forKey:PDKFitbitAuthState];
+                                                                                               [defaults setValue:[NSDate date]
+                                                                                                           forKey:PDKFitbitLastRefreshed];
                                                                                                [defaults synchronize];
 
                                                                                                [[PDKFitbitGenerator sharedInstance] refresh];
@@ -949,6 +964,8 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                                                                }
                                                                                            }
                                                                                        }];
+
+    [[PassiveDataKit sharedInstance] setCurrentUserFlow:self.currentExternalUserAgentFlow];
 }
 
 - (void) logout {
@@ -1201,8 +1218,23 @@ static PDKFitbitGenerator * sharedObject = nil;
     
     if (authStateData != nil) {
         OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
+
+        NSDate * now = [NSDate date];
+        NSDate * lastRefresh = [defaults valueForKey:PDKFitbitLastRefreshed];
+        
+        if (lastRefresh == nil) {
+            lastRefresh = [NSDate distantPast];
+        }
+
+        if (now.timeIntervalSince1970 - lastRefresh.timeIntervalSince1970 > 3 * 60 * 60) {
+            [authState setNeedsTokenRefresh];
+            
+            [defaults setValue:now forKey:PDKFitbitLastRefreshed];
+            [defaults synchronize];
+        }
         
         [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
+
             NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
             [defaults setValue:authData forKey:PDKFitbitAuthState];
             [defaults synchronize];
@@ -1241,5 +1273,16 @@ static PDKFitbitGenerator * sharedObject = nil;
     return GENERATOR_ID;
 }
 
+- (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
+    if ([self.listeners containsObject:listener] == NO) {
+        [self.listeners addObject:listener];
+    }
+    
+    [self updateOptions:options];
+}
+
+- (void) removeListener:(id<PDKDataListener>)listener {
+    [self.listeners removeObject:listener];
+}
 
 @end

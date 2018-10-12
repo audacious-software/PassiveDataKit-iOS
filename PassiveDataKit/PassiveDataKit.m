@@ -6,6 +6,8 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
+#import <sys/utsname.h>
+
 #import "PassiveDataKit.h"
 
 #import "PDKEventsGenerator.h"
@@ -15,7 +17,7 @@
 #import "PDKPedometerGenerator.h"
 #import "PDKBatteryGenerator.h"
 #import "PDKFitbitGenerator.h"
-#import "PDKNokiaHealthGenerator.h"
+#import "PDKWithingsGenerator.h"
 
 #import "PDKDataReportViewController.h"
 #import "PDKAlertsTableViewController.h"
@@ -27,6 +29,8 @@
 @property NSMutableArray * activeAlerts;
 
 @property NSMutableDictionary * customGenerators;
+
+@property id<OIDExternalUserAgentSession> currentExternalUserAgentFlow;
 
 @end
 
@@ -219,8 +223,8 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKBatteryGenerator";
         case PDKFitbit:
             return @"PDKFitbitGenerator";
-        case PDKNokiaHealth:
-            return @"PDKNokiaHealthGenerator";
+        case PDKWithings:
+            return @"PDKWithingsGenerator";
         case PDKAnyGenerator:
             return @"PDKAnyGenerator";
     }
@@ -244,8 +248,8 @@ static PassiveDataKit * sharedObject = nil;
             return [PDKBatteryGenerator sharedInstance];
         case PDKFitbit:
             return [PDKFitbitGenerator sharedInstance];
-        case PDKNokiaHealth:
-            return [PDKNokiaHealthGenerator sharedInstance];
+        case PDKWithings:
+            return [PDKWithingsGenerator sharedInstance];
         case PDKAnyGenerator:
             break;
     }
@@ -257,15 +261,45 @@ static PassiveDataKit * sharedObject = nil;
     [[PDKEventsGenerator sharedInstance] logEvent:eventName properties:properties];
 }
 
-- (void) transmit:(BOOL) force {
-    for (id<PDKTransmitter> transmitter in self.transmitters) {
-        [transmitter transmit:force completionHandler:nil];
-    }
-}
+- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
+    __block NSInteger transmitterCount = 0;
+    
+    __block UIBackgroundFetchResult finalResult = UIBackgroundFetchResultFailed;
 
-- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler { //!OCLINT
     for (id<PDKTransmitter> transmitter in self.transmitters) {
-        [transmitter transmit:NO completionHandler:completionHandler];
+        if ([transmitter pendingDataPoints] > 0) {
+            transmitterCount += 1;
+            
+            [transmitter transmitWithCompletionHandler:^(UIBackgroundFetchResult result) {
+                if (result == UIBackgroundFetchResultNewData) {
+                    finalResult = UIBackgroundFetchResultNewData;
+                } else if (result == UIBackgroundFetchResultNoData && finalResult == UIBackgroundFetchResultFailed) {
+                    finalResult = UIBackgroundFetchResultNoData;
+                }
+                
+                transmitterCount -= 1;
+                
+                NSLog(@"XMITTER REMAINING COUNT: %d", (int) transmitterCount);
+                
+                if (transmitterCount == 0) {
+                    switch(finalResult) {
+                        case UIBackgroundFetchResultNewData:
+                            NSLog(@"FINAL: NEW DATA");
+                            break;
+                        case UIBackgroundFetchResultNoData:
+                            NSLog(@"FINAL: NO DATA");
+                            break;
+                        case UIBackgroundFetchResultFailed:
+                            NSLog(@"FINAL: FAILED");
+                            break;
+                    }
+                    
+                    if (completionHandler != nil) {
+                        completionHandler(finalResult);
+                    }
+                }
+            }];
+        }
     }
 }
 
@@ -322,7 +356,22 @@ static PassiveDataKit * sharedObject = nil;
         info[@"CFBundleShortVersionString"] = @"1.0";
     }
     
-    return [NSString stringWithFormat:@"%@/%@", info[@"CFBundleName"], info[@"CFBundleShortVersionString"], nil];
+    NSString * appAgent = [NSString stringWithFormat:@"%@/%@", info[@"CFBundleName"], info[@"CFBundleShortVersionString"], nil];
+
+    NSString * pdkVersion = [[[NSBundle bundleForClass:[self class]] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+
+    NSString * pdkAgent = [NSString stringWithFormat:@"Passive Data Kit/%@", pdkVersion, nil];
+    
+    UIDevice * device = [UIDevice currentDevice];
+
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    
+    NSString * deviceName = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+
+    NSString * iosVersion = [NSString stringWithFormat:@"(iOS %@; %@)", [device systemVersion], deviceName];
+    
+    return [NSString stringWithFormat:@"%@ %@ %@", appAgent, pdkAgent, iosVersion];
 }
 
 - (UIViewController *) dataReportController {
@@ -401,13 +450,19 @@ static PassiveDataKit * sharedObject = nil;
                     
                     [invoke invoke];
                     
-                    NSLog(@"PDK: HANDLE URL: %@ -- %@", url, @(responded));
-                    
                     if (responded) {
                         return YES;
                     }
                 }
             }
+        }
+    }
+    
+    if (self.currentExternalUserAgentFlow != nil) {
+        if ([self.currentExternalUserAgentFlow resumeExternalUserAgentFlowWithURL:url]) {
+            self.currentExternalUserAgentFlow = nil;
+
+            return YES;
         }
     }
 
@@ -416,5 +471,12 @@ static PassiveDataKit * sharedObject = nil;
     return NO;
 }
 
+- (void) clearCurrentUserFlow {
+    self.currentExternalUserAgentFlow = nil;
+}
+
+- (void) setCurrentUserFlow:(id<OIDExternalUserAgentSession>) flow {
+    self.currentExternalUserAgentFlow = flow;
+}
 
 @end

@@ -8,6 +8,8 @@
 
 @import UIKit;
 
+#import <AppAuth/AppAuth.h>
+
 //! Project version number for PassiveDataKit.
 FOUNDATION_EXPORT double PassiveDataKitVersionNumber;
 
@@ -60,7 +62,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKAppleHealthKit,
     PDKPedometer,
     PDKBattery,
-    PDKNokiaHealth,
+    PDKWithings,
     PDKFitbit
 };
 
@@ -86,7 +88,9 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 - (id<PDKTransmitter>) initWithOptions:(NSDictionary *) options;
 - (NSUInteger) pendingSize;
 - (NSUInteger) transmittedSize;
-- (void) transmit:(BOOL) force completionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
+// - (void) transmitReadings;
+- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
+- (NSInteger) pendingDataPoints;
 
 @end
 
@@ -121,7 +125,6 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 
 - (NSArray *) activeListeners;
 
-- (void) transmit:(BOOL) force;
 - (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
 - (void) clearTransmitters;
 
@@ -153,5 +156,8 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 - (void) cancelAlertWithTag:(NSString *) alertTag;
 
 // - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
+
+- (void) clearCurrentUserFlow;
+- (void) setCurrentUserFlow:(id<OIDExternalUserAgentSession>) flow;
 
 @end

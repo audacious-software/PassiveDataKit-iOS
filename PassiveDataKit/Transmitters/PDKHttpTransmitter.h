@@ -14,6 +14,7 @@
 #define PDK_TRANSMITTER_UPLOAD_URL_KEY @"upload-url"
 #define PDK_TRANSMITTER_REQUIRE_CHARGING_KEY @"require-charging"
 #define PDK_TRANSMITTER_REQUIRE_WIFI_KEY @"require-wifi"
+#define PDK_TRANSMITTER_PAYLOAD_SIZE_KEY @"payload-size"
 
 #define PDK_METADATA_KEY @"passive-data-metadata"
 #define PDK_GENERATOR_ID_KEY @"generator-id"
@@ -27,6 +28,7 @@
 @property NSString * source;
 @property NSString * transmitterId;
 @property NSURL * uploadUrl;
-@property BOOL isTransmitting;
+
+- (NSInteger) pendingDataPoints;
 
 @end

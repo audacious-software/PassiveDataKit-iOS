@@ -21,21 +21,21 @@
 }
 
 - (void) updateOptions:(NSDictionary *) options {
-    NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
+    NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
 }
 
 - (UIView *) visualizationForSize:(CGSize) size {
-    NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
+    NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
 
     return nil;
 }
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
-    NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
+    NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
 }
 
 - (void) removeListener:(id<PDKDataListener>) listener { //!OCLINT
-    NSLog(@"Implement %@ in subclass...", NSStringFromSelector(_cmd));
+    NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
 }
 
 @end
