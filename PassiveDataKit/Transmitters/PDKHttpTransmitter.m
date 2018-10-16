@@ -153,20 +153,23 @@ typedef enum {
 }
 
 - (NSInteger) pendingDataPoints {
-    sqlite3_stmt * countStatement = NULL;
-    
-    NSString * querySQL = @"SELECT COUNT(*) FROM data";
-    
-    const char * query_stmt = [querySQL UTF8String];
-    
     NSInteger remaining = -1;
-    
-    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &countStatement, NULL) == SQLITE_OK) {
-        sqlite3_step(countStatement);
+
+    @synchronized(self) {
+        sqlite3_stmt * countStatement = NULL;
         
-        remaining = sqlite3_column_int(countStatement, 0);
+        NSString * querySQL = @"SELECT COUNT(*) FROM data";
         
-        sqlite3_finalize(countStatement);
+        const char * query_stmt = [querySQL UTF8String];
+        
+        
+        if (sqlite3_prepare_v2(self.database, query_stmt, -1, &countStatement, NULL) == SQLITE_OK) {
+            sqlite3_step(countStatement);
+            
+            remaining = sqlite3_column_int(countStatement, 0);
+            
+            sqlite3_finalize(countStatement);
+        }
     }
     
     return remaining;
