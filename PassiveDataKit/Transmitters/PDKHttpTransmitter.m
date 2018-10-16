@@ -162,7 +162,6 @@ typedef enum {
         
         const char * query_stmt = [querySQL UTF8String];
         
-        
         if (sqlite3_prepare_v2(self.database, query_stmt, -1, &countStatement, NULL) == SQLITE_OK) {
             sqlite3_step(countStatement);
             

@@ -942,17 +942,22 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                                        presentingViewController:window.rootViewController
                                                                                        callback:^(OIDAuthState *_Nullable authState, NSError *_Nullable error) {
                                                                                            if (authState) {
+                                                                                               NSDate * now = [NSDate date];
+                                                                                               
                                                                                                NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
                                                                                                
                                                                                                NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
                                                                                                [defaults setValue:authData
                                                                                                            forKey:PDKFitbitAuthState];
-                                                                                               [defaults setValue:[NSDate date]
+                                                                                               [defaults setValue:now
                                                                                                            forKey:PDKFitbitLastRefreshed];
                                                                                                [defaults synchronize];
 
+                                                                                               [[PassiveDataKit sharedInstance] logEvent:@"fitbit_saved_login_token"
+                                                                                                                              properties:@{ @"last_token_refresh": [now description] }];
+                                                                                               
                                                                                                [[PDKFitbitGenerator sharedInstance] refresh];
-
+                                                                                              
                                                                                                if (success != nil) {
                                                                                                    success();
                                                                                                }
@@ -1191,7 +1196,14 @@ static PDKFitbitGenerator * sharedObject = nil;
             NSArray * errors = [errorObj valueForKey:@"errors"];
             
             for (NSDictionary * error in errors) {
+                NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+                
                 if ([@"expired_token" isEqualToString:error[@"errorType"]]) {
+                    NSDate * lastRefresh = [defaults valueForKey:PDKFitbitLastRefreshed];
+
+                    [[PassiveDataKit sharedInstance] logEvent:@"fitbit_expired_token"
+                                                   properties:@{ @"last_token_refresh": [lastRefresh description] }];
+                    
                     [self logout];
                 }
             }
@@ -1229,6 +1241,9 @@ static PDKFitbitGenerator * sharedObject = nil;
         if (now.timeIntervalSince1970 - lastRefresh.timeIntervalSince1970 > 3 * 60 * 60) {
             [authState setNeedsTokenRefresh];
             
+            [[PassiveDataKit sharedInstance] logEvent:@"fitbit_request_token_refresh"
+                                           properties:@{ @"last_token_refresh": [lastRefresh description] }];
+
             [defaults setValue:now forKey:PDKFitbitLastRefreshed];
             [defaults synchronize];
         }
@@ -1252,8 +1267,6 @@ static PDKFitbitGenerator * sharedObject = nil;
                 
                 if (now < self.waitUntil) {
                     NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
-                    
-                    NSLog(@"AA WAIT UNTIL %@", wait);
                     
                     errorBlock(@{
                                  @"error-type": @"waiting-rate-limit",
