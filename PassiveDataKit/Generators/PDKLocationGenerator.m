@@ -20,12 +20,13 @@
 #define CURRENT_DATABASE_VERSION @(1)
 
 NSString * const PDKCapabilityRationale = @"PDKCapabilityRationale"; //!OCLINT
-NSString * const PDKLocationSignificantChangesOnly = @"PDKLocationSignificantChangesOnly"; //!OCLINT
 NSString * const PDKLocationAlwaysOn = @"PDKLocationAlwaysOn"; //!OCLINT
 NSString * const PDKLocationRequestedAccuracy = @"PDKLocationRequestedAccuracy"; //!OCLINT
 NSString * const PDKLocationRequestedDistance = @"PDKLocationRequestedDistance"; //!OCLINT
 NSString * const PDKLocationInstance = @"PDKLocationInstance"; //!OCLINT
 NSString * const PDKLocationAccessDenied = @"PDKLocationAccessDenied"; //!OCLINT
+NSString * const PDKLocationRequestPermission = @"PDKLocationRequestPermission"; //!OCLINT
+NSString * const PDKLocationSignificantChangesOnly = @"PDKLocationSignificantChangesOnly";
 
 NSString * const PDKLocationAccuracyMode = @"PDKLocationAccuracyMode"; //!OCLINT
 NSString * const PDKLocationAccuracyModeBest = @"PDKLocationAccuracyModeBest"; //!OCLINT
@@ -60,6 +61,8 @@ NSString * const PDKLocationBearing = @"bearing"; //!OCLINT
 @property sqlite3 * database;
 
 @property CLLocationCoordinate2D latestLocation;
+
+@property BOOL requestPermissions;
 
 @end
 
@@ -100,6 +103,8 @@ static PDKLocationGenerator * sharedObject = nil;
         self.latestLocation = CLLocationCoordinate2DMake(0, 0);
 
         self.database = [self openDatabase];
+        
+        self.requestPermissions = YES;
     }
     
     return self;
@@ -213,10 +218,43 @@ static PDKLocationGenerator * sharedObject = nil;
 //    NSLog(@"TODO: Update options and refresh generator!");
 }
 
+- (void) requestRequiredPermissions:(void (^)(void))callback {
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    
+    NSNumber * alwaysOn = [self.lastOptions valueForKey:PDKLocationAlwaysOn];
+
+    if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
+        if (self.accessDeniedBlock != nil) {
+            self.accessDeniedBlock();
+        }
+    } else if (status == kCLAuthorizationStatusNotDetermined) {
+        if (alwaysOn != nil && alwaysOn.boolValue) {
+            [self.locationManager requestAlwaysAuthorization];
+        } else {
+            [self.locationManager requestWhenInUseAuthorization];
+        }
+    } else if (alwaysOn != nil && alwaysOn.boolValue && status != kCLAuthorizationStatusAuthorizedAlways) {
+        [self.locationManager requestAlwaysAuthorization];
+    } else if ((alwaysOn == nil || alwaysOn.boolValue == NO) && status != kCLAuthorizationStatusAuthorizedWhenInUse) {
+        [self.locationManager requestWhenInUseAuthorization];
+    } else if (alwaysOn != nil && alwaysOn.boolValue && status == kCLAuthorizationStatusAuthorizedAlways) {
+        self.locationManager.allowsBackgroundLocationUpdates = YES;
+        self.locationManager.pausesLocationUpdatesAutomatically = NO;
+    } else { //!OCLINT
+        self.locationManager.allowsBackgroundLocationUpdates = NO;
+        self.locationManager.pausesLocationUpdatesAutomatically = YES;
+    }
+}
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
     if (options == nil) {
         options = @{}; //!OCLINT
+    }
+    
+    NSNumber * requestPermissions = options[PDKRequestPermissions];
+    
+    if (requestPermissions != nil) {
+        self.requestPermissions = requestPermissions.boolValue;
     }
     
     self.lastOptions = options;
@@ -225,31 +263,9 @@ static PDKLocationGenerator * sharedObject = nil;
     
     if (self.listeners.count == 0) {
         // Turn on sensors with options...
-     
-        NSNumber * alwaysOn = [options valueForKey:PDKLocationAlwaysOn];
-
-        CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-
-        if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
-            if (self.accessDeniedBlock != nil) {
-                self.accessDeniedBlock();
-            }
-        } else if (status == kCLAuthorizationStatusNotDetermined) {
-            if (alwaysOn != nil && alwaysOn.boolValue) {
-                [self.locationManager requestAlwaysAuthorization];
-            } else {
-                [self.locationManager requestWhenInUseAuthorization];
-            }
-        } else if (alwaysOn != nil && alwaysOn.boolValue && status != kCLAuthorizationStatusAuthorizedAlways) {
-            [self.locationManager requestAlwaysAuthorization];
-        } else if ((alwaysOn == nil || alwaysOn.boolValue == NO) && status != kCLAuthorizationStatusAuthorizedWhenInUse) {
-            [self.locationManager requestWhenInUseAuthorization];
-        } else if (alwaysOn != nil && alwaysOn.boolValue && status == kCLAuthorizationStatusAuthorizedAlways) {
-            self.locationManager.allowsBackgroundLocationUpdates = YES;
-            self.locationManager.pausesLocationUpdatesAutomatically = NO;
-        } else { //!OCLINT
-            self.locationManager.allowsBackgroundLocationUpdates = NO;
-            self.locationManager.pausesLocationUpdatesAutomatically = YES;
+        
+        if (self.requestPermissions) {
+            [self requestRequiredPermissions:nil];
         }
     }
     

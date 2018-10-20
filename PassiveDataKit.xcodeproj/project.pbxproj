@@ -487,8 +487,6 @@
 			isa = PBXGroup;
 			children = (
 				38F3333721236D400096D54B /* Fitness Services & Devices */,
-				38FDC0D6211E0E8A00D2E51C /* PDKAppleHealthKitGenerator.h */,
-				38FDC0D2211E0E8A00D2E51C /* PDKAppleHealthKitGenerator.m */,
 				38FDC0DA211E0E8B00D2E51C /* PDKBaseGenerator.h */,
 				38FDC0DE211E0E8B00D2E51C /* PDKBaseGenerator.m */,
 				38FDC0DD211E0E8B00D2E51C /* PDKBatteryGenerator.h */,
@@ -569,6 +567,8 @@
 		38F3333721236D400096D54B /* Fitness Services & Devices */ = {
 			isa = PBXGroup;
 			children = (
+				38FDC0D6211E0E8A00D2E51C /* PDKAppleHealthKitGenerator.h */,
+				38FDC0D2211E0E8A00D2E51C /* PDKAppleHealthKitGenerator.m */,
 				38F3333821236D670096D54B /* PDKFitbitGenerator.h */,
 				38F3333921236D670096D54B /* PDKFitbitGenerator.m */,
 				38F33392212EEAF20096D54B /* PDKWithingsGenerator.h */,

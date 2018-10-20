@@ -16,6 +16,8 @@ FOUNDATION_EXPORT double PassiveDataKitVersionNumber;
 //! Project version string for PassiveDataKit.
 FOUNDATION_EXPORT const unsigned char PassiveDataKitVersionString[];
 
+extern NSString *const PDKRequestPermissions;
+
 extern NSString *const PDKCapabilityRationale;
 extern NSString *const PDKLocationSignificantChangesOnly;
 extern NSString *const PDKLocationAlwaysOn;
@@ -63,7 +65,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKPedometer,
     PDKBattery,
     PDKWithings,
-    PDKFitbit
+    PDKFitbit,
 };
 
 @protocol PDKDataListener
@@ -91,6 +93,12 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 // - (void) transmitReadings;
 - (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
 - (NSInteger) pendingDataPoints;
+
+@end
+
+@protocol PDKStepCountGenerator
+
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill force:(BOOL) forceRefresh;
 
 @end
 

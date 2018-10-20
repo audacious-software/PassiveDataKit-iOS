@@ -23,7 +23,6 @@ extern NSString *const PDKLocationAccuracyModeUserProvidedDistance;
 extern NSString *const PDKLocationAccuracyModeUserProvidedLatitude;
 extern NSString *const PDKLocationAccuracyModeUserProvidedLongitude;
 
-
 @interface PDKLocationGenerator : PDKBaseGenerator<CLLocationManagerDelegate, MKMapViewDelegate>
 
 + (PDKLocationGenerator *) sharedInstance;
@@ -34,5 +33,7 @@ extern NSString *const PDKLocationAccuracyModeUserProvidedLongitude;
 - (void) refresh:(CLLocation *) location;
 - (NSArray *) locationsSince:(NSDate *) startDate;
 - (NSArray *) locationsFrom:(NSDate *) startDate to:(NSDate *) endDate;
+
+- (void) requestRequiredPermissions:(void (^)(void))callback;
 
 @end

@@ -28,7 +28,7 @@ extern NSString * const PDKWithingsSleepSummaryEnabled;
 extern NSString * const PDKWithingsBodyMeasuresEnabled;
 
 
-@interface PDKWithingsGenerator : PDKBaseGenerator
+@interface PDKWithingsGenerator : PDKBaseGenerator<PDKStepCountGenerator>
 
 + (PDKWithingsGenerator *) sharedInstance;
 
@@ -40,7 +40,5 @@ extern NSString * const PDKWithingsBodyMeasuresEnabled;
 - (void) logout;
 
 + (UIColor *) dataColor;
-
-- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill;
 
 @end

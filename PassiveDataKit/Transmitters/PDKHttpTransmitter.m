@@ -315,8 +315,6 @@ typedef enum {
                 sqlite3_finalize(statement);
             }
         } else {
-            NSLog(@"BAILING OUT: PAYLOAD TOO SMALL: %d < %d", (int) remaining, 1);
-
             if (completionHandler != nil) {
                 self.lastTransmissionStart = 0;
                 

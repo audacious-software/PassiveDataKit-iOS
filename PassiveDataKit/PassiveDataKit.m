@@ -42,6 +42,8 @@ NSString * const PDKLastEventLogged = @"PDKLastEventLogged"; //!OCLINT
 NSString * const PDKEventGenerator = @"PDKEventsGenerator"; //!OCLINT
 NSString * const PDKMixpanelEventGenerator = @"PDKMixpanelEventGenerator"; //!OCLINT
 
+NSString * const PDKRequestPermissions = @"PDKRequestPermissions"; //!OCLINT
+
 NSString * const PDKGooglePlacesInstance = @"PDKGooglePlacesInstance"; //!OCLINT
 NSString * const PDKGooglePlacesSpecificLocation = @"PDKGooglePlacesSpecificLocation"; //!OCLINT
 NSString * const PDKGooglePlacesAPIKey = @"PDKGooglePlacesAPIKey"; //!OCLINT
@@ -278,8 +280,6 @@ static PassiveDataKit * sharedObject = nil;
                 }
                 
                 transmitterCount -= 1;
-                
-                NSLog(@"XMITTER REMAINING COUNT: %d", (int) transmitterCount);
                 
                 if (transmitterCount == 0) {
                     switch(finalResult) {

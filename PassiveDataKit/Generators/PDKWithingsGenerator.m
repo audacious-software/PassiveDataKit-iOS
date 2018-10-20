@@ -105,6 +105,26 @@ NSString * const PDKWithingsMeasureTypePulseWaveVelocity = @"pulse-wave-velocity
 NSString * const PDKWithingsAlert = @"pdk-withings-alert"; //!OCLINT
 NSString * const PDKWithingsAlertMisconfigured = @"pdk-withings-misconfigured-alert"; //!OCLINT
 
+@interface OIDTokenResponse (PDK)
+
+- (void) updateAccessToken:(NSString *) accessToken;
+- (void) updateRefreshToken:(NSString *) refreshToken;
+
+@end
+
+@implementation OIDTokenResponse (PDK)
+
+- (void) updateAccessToken:(NSString *) accessToken {
+    [self setValue:accessToken forKey:@"accessToken"];
+}
+
+- (void) updateRefreshToken:(NSString *) refreshToken {
+    [self setValue:refreshToken forKey:@"refreshToken"];
+}
+
+@end
+
+
 @interface PDKWithingsGenerator()
 
 @property NSMutableArray * listeners;
@@ -119,7 +139,7 @@ NSString * const PDKWithingsAlertMisconfigured = @"pdk-withings-misconfigured-al
 
 @property NSTimeInterval waitUntil;
 
-@property NSMutableSet * requestedURLs;
+@property NSMutableDictionary * lastUrlFetches;
 
 @end
 
@@ -154,7 +174,7 @@ static PDKWithingsGenerator * sharedObject = nil;
         
         self.waitUntil = 0;
         
-        self.requestedURLs = [NSMutableSet set];
+        self.lastUrlFetches = [NSMutableDictionary dictionary];
     }
     
     return self;
@@ -217,7 +237,7 @@ static PDKWithingsGenerator * sharedObject = nil;
 
     if (authed) {
         void (^toExecute)(NSString *) = ^void(NSString * accessToken) {
-            [self.requestedURLs removeAllObjects];
+            [self.lastUrlFetches removeAllObjects];
 
             NSNumber * activitiesEnabled = self.options[PDKWithingsActivityMeasuresEnabled];
             
@@ -227,7 +247,7 @@ static PDKWithingsGenerator * sharedObject = nil;
             
             if (activitiesEnabled.boolValue) {
                 [self fetchActivityMeasuresWithAccessToken:accessToken date:[NSDate date] callback:^{
-                    [self.requestedURLs removeAllObjects];
+
                 }];
             }
             
@@ -239,7 +259,7 @@ static PDKWithingsGenerator * sharedObject = nil;
             
             if (intradayActivitiesEnabled.boolValue) {
                 [self fetchIntradayActivityMeasuresWithAccessToken:accessToken date:[NSDate date] callback:^{
-                    [self.requestedURLs removeAllObjects];
+
                 }];
             }
             
@@ -443,8 +463,16 @@ static PDKWithingsGenerator * sharedObject = nil;
     NSDate * tomorrow = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:today options:0];
     
     NSString * urlString = [NSString stringWithFormat:@"https://wbsapi.withings.net/v2/measure?action=getintradayactivity&access_token=%@&startdate=%ld&enddate=%ld", accessToken, (long) today.timeIntervalSince1970, (long) tomorrow.timeIntervalSince1970];
+
+    NSNumber * lastFetch = self.lastUrlFetches[urlString];
     
-    if ([self.requestedURLs containsObject:urlString]) {
+    if (lastFetch == nil) {
+        lastFetch = @(0);
+    }
+    
+    NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+    
+    if (now - lastFetch.doubleValue < 60) {
         if (callback != nil) {
             callback();
         }
@@ -452,7 +480,7 @@ static PDKWithingsGenerator * sharedObject = nil;
         return;
     }
     
-    [self.requestedURLs addObject:urlString];
+    self.lastUrlFetches[urlString] = @(now);
     
     NSMutableURLRequest * request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
@@ -999,13 +1027,15 @@ static PDKWithingsGenerator * sharedObject = nil;
     if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
         NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
         
+        BOOL updated = NO;
+
         NSNumber * dbVersion = [defaults valueForKey:DATABASE_VERSION];
         
         if (dbVersion == nil) {
             dbVersion = @(0);
+            updated = YES;
         }
         
-        //        BOOL updated = NO;
         //        char * error = NULL;
         
         switch (dbVersion.integerValue) { //!OCLINT
@@ -1013,9 +1043,9 @@ static PDKWithingsGenerator * sharedObject = nil;
                 break;
         }
         
-        //        if (updated) {
-        //            [defaults setValue:CURRENT_DATABASE_VERSION forKey:DATABASE_VERSION];
-        //        }
+        if (updated) {
+            [defaults setValue:CURRENT_DATABASE_VERSION forKey:DATABASE_VERSION];
+        }
         
         return database;
     }
@@ -1214,8 +1244,9 @@ static PDKWithingsGenerator * sharedObject = nil;
     NSURL * authorizationEndpoint = [NSURL URLWithString:@"https://account.withings.com/oauth2_user/authorize2"];
     NSURL * tokenEndpoint = [NSURL URLWithString:@"https://account.withings.com/oauth2/token"];
     
-    OIDServiceConfiguration * configuration = [[OIDServiceConfiguration alloc] initWithAuthorizationEndpoint:authorizationEndpoint
-                                                                                               tokenEndpoint:tokenEndpoint];
+    OIDServiceConfiguration * configuration = [[OIDServiceConfiguration alloc]
+                                               initWithAuthorizationEndpoint:authorizationEndpoint
+                                               tokenEndpoint:tokenEndpoint];
     
     NSArray * scopes = self.options[PDKWithingsScopes];
     
@@ -1350,59 +1381,61 @@ static PDKWithingsGenerator * sharedObject = nil;
 }
 
 
-- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill {
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill force:(BOOL) force {
     
     NSNumber * steps = nil;
     
-    sqlite3_stmt * statement = NULL;
-    
-    NSString * select = @"SELECT A.steps FROM intraday_activity_history A WHERE A.activity_start >= ? AND A.activity_start < ? ORDER BY A.steps DESC";
-    
-    const char * query_stmt = [select UTF8String];
-    
-    @synchronized(self) {
-        if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
-            sqlite3_bind_double(statement, 1, start);
-            sqlite3_bind_double(statement, 2, end);
-            
-            double stepsSum = 0;
-            
-            NSUInteger count = 0;
-
-            while (sqlite3_step(statement) == SQLITE_ROW) {
-                stepsSum += sqlite3_column_double(statement, 0);
-                
-                count += 1;
-            }
-            
-            sqlite3_finalize(statement);
-
-            if (count > 0) {
-                steps = @(stepsSum);
-            }
-        }
+    if (force == NO) {
+        sqlite3_stmt * statement = NULL;
         
-        if (steps == nil) {
+        NSString * select = @"SELECT A.steps FROM intraday_activity_history A WHERE A.activity_start >= ? AND A.activity_start < ? ORDER BY A.steps DESC";
+        
+        const char * query_stmt = [select UTF8String];
+        
+        @synchronized(self) {
             if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
-                NSCalendar * calendar = [NSCalendar currentCalendar];
-                
-                NSDate * startDate = [calendar startOfDayForDate:[NSDate dateWithTimeIntervalSince1970:start]];
-                NSDate * endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
-                
                 sqlite3_bind_double(statement, 1, start);
-                sqlite3_bind_double(statement, 2, endDate.timeIntervalSince1970);
+                sqlite3_bind_double(statement, 2, end);
                 
-                if (sqlite3_step(statement) == SQLITE_ROW) {
-                    steps = @(0);
+                double stepsSum = 0;
+                
+                NSUInteger count = 0;
+
+                while (sqlite3_step(statement) == SQLITE_ROW) {
+                    stepsSum += sqlite3_column_double(statement, 0);
+                    
+                    count += 1;
                 }
                 
                 sqlite3_finalize(statement);
+
+                if (count > 0) {
+                    steps = @(stepsSum);
+                }
+            }
+            
+            if (steps == nil) {
+                if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+                    NSCalendar * calendar = [NSCalendar currentCalendar];
+                    
+                    NSDate * startDate = [calendar startOfDayForDate:[NSDate dateWithTimeIntervalSince1970:start]];
+                    NSDate * endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
+                    
+                    sqlite3_bind_double(statement, 1, start);
+                    sqlite3_bind_double(statement, 2, endDate.timeIntervalSince1970);
+                    
+                    if (sqlite3_step(statement) == SQLITE_ROW) {
+                        steps = @(0);
+                    }
+                    
+                    sqlite3_finalize(statement);
+                }
             }
         }
-    }
 
-    if (steps == nil && doBackfill == NO) {
-        steps = @(0);
+        if (steps == nil && doBackfill == NO) {
+            steps = @(0);
+        }
     }
 
     if (steps != nil) {
@@ -1414,7 +1447,7 @@ static PDKWithingsGenerator * sharedObject = nil;
             [self fetchIntradayActivityMeasuresWithAccessToken:accessToken
                                                           date:date
                                                       callback:^{
-                                                          [self stepsBetweenStart:start end:end callback:callback backfill:NO];
+                                                          [self stepsBetweenStart:start end:end callback:callback backfill:NO force:NO];
                                                       }];
         };
         
@@ -1492,62 +1525,77 @@ static PDKWithingsGenerator * sharedObject = nil;
             lastRefresh = [NSDate distantPast];
         }
         
-        NSLog(@"WITHINGS TOKEN ELAPSED: %f", (now.timeIntervalSince1970 - lastRefresh.timeIntervalSince1970));
-        
-        if (now.timeIntervalSince1970 - lastRefresh.timeIntervalSince1970 > 5 * 60) {
+        if (now.timeIntervalSince1970 - lastRefresh.timeIntervalSince1970 > 60 * 60) {
             [authState setNeedsTokenRefresh];
-            
+
             [defaults setValue:now forKey:PDKWithingsLastRefreshed];
             [defaults synchronize];
 
-            NSLog(@"FLAGGING WITHINGS TOKEN FOR REFRESH");
+            AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+            [manager setResponseSerializer:[AFJSONResponseSerializer serializer]];
+            
+            [manager POST:@"https://account.withings.com/oauth2/token"
+               parameters:@{
+                            @"grant_type": @"refresh_token",
+                            @"client_id": self.options[PDKWithingsClientID],
+                            @"client_secret": self.options[PDKWithingsClientSecret],
+                            @"refresh_token": authState.lastTokenResponse.refreshToken
+                            }
+                 progress:^(NSProgress * _Nonnull uploadProgress) {
+
+                 } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                     [authState.lastTokenResponse updateAccessToken:responseObject[@"access_token"]];
+                     [authState.lastTokenResponse updateRefreshToken:responseObject[@"refresh_token"]];
+
+                     NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+                     [defaults setValue:authData forKey:PDKWithingsAuthState];
+                     [defaults synchronize];
+
+                     self.isExecuting = NO;
+
+                     [self executeRequest:executeBlock error:errorBlock];
+                 } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                     self.isExecuting = NO;
+
+                     NSLog(@"WWW FAILURE: %@", error);
+                 }];
+            
+            return;
         }
         
-        [[PassiveDataKit sharedInstance] logEvent:@"withings_initial_access_token" properties:@{ @"token": [authState.lastTokenResponse description]}];
+        NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+        [defaults setValue:authData forKey:PDKWithingsAuthState];
+        [defaults synchronize];
         
-        NSLog(@"Withings INITIAL: %@ - %@", authState.lastTokenResponse.accessToken, authState.lastTokenResponse.accessTokenExpirationDate);
-
-        [authState performActionWithFreshTokens:^(NSString * _Nullable accessToken, NSString * _Nullable idToken, NSError * _Nullable error) {
-            [[PassiveDataKit sharedInstance] logEvent:@"withings_refreshed_access_token" properties:@{ @"token": [authState.lastTokenResponse description]}];
-
-            NSLog(@"Withings REFRESHED: %@ - %@", authState.lastTokenResponse.accessToken, authState.lastTokenResponse.accessTokenExpirationDate);
-
-            NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-            [defaults setValue:authData forKey:PDKWithingsAuthState];
-            [defaults synchronize];
-
-            while (weakSelf.pendingRequests.count > 0) {
-                void (^toExecute)(NSString *) = nil;
+        while (weakSelf.pendingRequests.count > 0) {
+            void (^toExecute)(NSString *) = nil;
+            
+            @synchronized(weakSelf.pendingRequests) {
+                toExecute = [weakSelf.pendingRequests objectAtIndex:0];
                 
-                @synchronized(weakSelf.pendingRequests) {
-                    toExecute = [weakSelf.pendingRequests objectAtIndex:0];
-                    
-                    [weakSelf.pendingRequests removeObject:toExecute];
-                }
-                
-                NSTimeInterval now = [NSDate date].timeIntervalSince1970;
-                
-                if (now < self.waitUntil) {
-                    NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
-                    
-                    NSLog(@"NH WAIT UNTIL %@", wait);
-                    
-                    errorBlock(@{
-                                 @"error-type": @"waiting-rate-limit",
-                                 @"wait-until":wait
-                                 });
-                } else {
-                    toExecute(accessToken);
-                }
+                [weakSelf.pendingRequests removeObject:toExecute];
             }
             
-            weakSelf.isExecuting = NO;
-        }];
+            NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+            
+            if (now < self.waitUntil) {
+                NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
+                
+                errorBlock(@{
+                             @"error-type": @"waiting-rate-limit",
+                             @"wait-until":wait
+                             });
+            } else {
+                toExecute(authState.lastTokenResponse.accessToken);
+            }
+        }
+        
+        weakSelf.isExecuting = NO;
     }
 }
 
 + (UIColor *) dataColor {
-    return [UIColor colorWithRed:0x1C/255.0 green:0x45/255.0 blue:0x98/255.0 alpha:1.0];
+    return [UIColor colorWithRed:0x31/255.0 green:0xE0/255.0 blue:0xCB/255.0 alpha:1.0];
 }
 
 - (NSString *) generatorId {

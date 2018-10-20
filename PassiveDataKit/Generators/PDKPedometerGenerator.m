@@ -194,6 +194,8 @@ static PDKPedometerGenerator * sharedObject = nil;
                 }
             }
             
+            NSLog(@"START PEDO UPDATES");
+            
             [self.pedometer startPedometerUpdatesFromDate:startDate withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
                 if (error == nil) {
                     [self logPedometerData:pedometerData fromBackground:NO];
@@ -247,6 +249,11 @@ static PDKPedometerGenerator * sharedObject = nil;
 }
 
 - (void) refresh {
+    if ([self isAuthorized] == NO) {
+        NSLog(@"BAILING PEDO NOT AUTHED 1");
+        return;
+    }
+
     if (self.lastUpdate == nil) {
         NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
 
@@ -357,7 +364,7 @@ static PDKPedometerGenerator * sharedObject = nil;
                     int retVal = sqlite3_step(stmt);
                     
                     if (SQLITE_DONE == retVal) {
-                        NSLog(@"DELETE SUCCESSFUL");
+//                        NSLog(@"DELETE SUCCESSFUL");
                     } else {
                         NSLog(@"Error while deleting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
                     }
@@ -423,7 +430,6 @@ static PDKPedometerGenerator * sharedObject = nil;
     [self.listeners removeObject:listener];
     
     if (self.listeners.count == 0) {
-//      [self.pedometer stopPedometerEventUpdates];
         [self.pedometer stopPedometerUpdates];
     }
 }
@@ -463,68 +469,83 @@ static PDKPedometerGenerator * sharedObject = nil;
 }
 
 - (void) historicalStepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end withHandler:(CMPedometerHandler)handler {
+    if ([self isAuthorized] == NO) {
+        NSLog(@"BAILING PEDO NOT AUTHED 2");
+        
+        return;
+    }
+    
     [self.pedometer queryPedometerDataFromDate:[NSDate dateWithTimeIntervalSince1970:start]
                                         toDate:[NSDate dateWithTimeIntervalSince1970:end]
                                    withHandler:handler];
 }
 
-- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback {
-    CGFloat totalSteps = -1;
-
-    NSString * allIn = @"(P.interval_start >= ? AND P.interval_end <= ?)"; // start, end.
-    NSString * allAround = @"(P.interval_start <= ? AND P.interval_end >= ?)"; // start, end.
-    NSString * startIn = @"(P.interval_start >= ? AND P.interval_start <= ?)"; // start, end.
-    NSString * endIn = @"(P.interval_end >= ? AND P.interval_end <= ?)"; // start, end.
-
-    NSString * query = [NSString stringWithFormat:@"SELECT P.interval_start, P.interval_end, P.step_count FROM pedometer_data P WHERE (%@ OR %@ OR %@ OR %@) ORDER BY P.interval_start DESC", allIn, allAround, startIn, endIn];
-
-    NSTimeInterval lastSeen = 0;
-    
-    @synchronized(self) {
-        sqlite3_stmt * statement = NULL;
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback force:(BOOL) force {
+    if ([self isAuthorized] == NO) {
+        NSLog(@"BAILING PEDO NOT AUTHED 3");
         
-        if (sqlite3_prepare_v2(self.database, [query UTF8String], -1, &statement, NULL) == SQLITE_OK) {
-            if (sqlite3_bind_double(statement, 1, start) == SQLITE_OK && sqlite3_bind_double(statement, 2, end) == SQLITE_OK &&
-                sqlite3_bind_double(statement, 3, start) == SQLITE_OK && sqlite3_bind_double(statement, 4, end) == SQLITE_OK &&
-                sqlite3_bind_double(statement, 5, start) == SQLITE_OK && sqlite3_bind_double(statement, 6, end) == SQLITE_OK &&
-                sqlite3_bind_double(statement, 7, start) == SQLITE_OK && sqlite3_bind_double(statement, 8, end) == SQLITE_OK) {
-                while (sqlite3_step(statement) == SQLITE_ROW)
-                {
-                    if (totalSteps < 0) {
-                        totalSteps = 0;
-                    }
-                    
-                    NSTimeInterval intervalStart = sqlite3_column_double(statement, 0);
-                    
-                    if (intervalStart != lastSeen) {
-                        NSTimeInterval intervalEnd = sqlite3_column_double(statement, 1);
-                        CGFloat steps = sqlite3_column_double(statement, 2);
-                        
-                        if (intervalStart >= start && intervalEnd <= end) {
-                            totalSteps += steps;
-                        } else {
-                            CGFloat fraction = 0;
-                            
-                            if (intervalStart <= start && intervalEnd >= end) {
-                                fraction = (end - start) / (intervalEnd - intervalStart);
-                            } else if (intervalStart <= start) {
-                                fraction = (intervalEnd - start) / (intervalEnd - intervalStart);
-                            } else if (intervalEnd >= end) {
-                                fraction = (end - intervalStart) / (intervalEnd - intervalStart);
-                            }
-
-                            totalSteps += (steps * fraction);
-                        }
-                        
-                        lastSeen = intervalStart;
-                    }
-                }
-            }
-            
-            sqlite3_finalize(statement);
-        }
+        callback(start, end, 0);
+        return;
     }
 
+    CGFloat totalSteps = -1;
+
+    if (force == NO) {
+        NSString * allIn = @"(P.interval_start >= ? AND P.interval_end <= ?)"; // start, end.
+        NSString * allAround = @"(P.interval_start <= ? AND P.interval_end >= ?)"; // start, end.
+        NSString * startIn = @"(P.interval_start >= ? AND P.interval_start <= ?)"; // start, end.
+        NSString * endIn = @"(P.interval_end >= ? AND P.interval_end <= ?)"; // start, end.
+        
+        NSString * query = [NSString stringWithFormat:@"SELECT P.interval_start, P.interval_end, P.step_count FROM pedometer_data P WHERE (%@ OR %@ OR %@ OR %@) ORDER BY P.interval_start DESC", allIn, allAround, startIn, endIn];
+        
+        NSTimeInterval lastSeen = 0;
+        
+        @synchronized(self) {
+            sqlite3_stmt * statement = NULL;
+            
+            if (sqlite3_prepare_v2(self.database, [query UTF8String], -1, &statement, NULL) == SQLITE_OK) {
+                if (sqlite3_bind_double(statement, 1, start) == SQLITE_OK && sqlite3_bind_double(statement, 2, end) == SQLITE_OK &&
+                    sqlite3_bind_double(statement, 3, start) == SQLITE_OK && sqlite3_bind_double(statement, 4, end) == SQLITE_OK &&
+                    sqlite3_bind_double(statement, 5, start) == SQLITE_OK && sqlite3_bind_double(statement, 6, end) == SQLITE_OK &&
+                    sqlite3_bind_double(statement, 7, start) == SQLITE_OK && sqlite3_bind_double(statement, 8, end) == SQLITE_OK) {
+                    while (sqlite3_step(statement) == SQLITE_ROW)
+                    {
+                        if (totalSteps < 0) {
+                            totalSteps = 0;
+                        }
+                        
+                        NSTimeInterval intervalStart = sqlite3_column_double(statement, 0);
+                        
+                        if (intervalStart != lastSeen) {
+                            NSTimeInterval intervalEnd = sqlite3_column_double(statement, 1);
+                            CGFloat steps = sqlite3_column_double(statement, 2);
+                            
+                            if (intervalStart >= start && intervalEnd <= end) {
+                                totalSteps += steps;
+                            } else {
+                                CGFloat fraction = 0;
+                                
+                                if (intervalStart <= start && intervalEnd >= end) {
+                                    fraction = (end - start) / (intervalEnd - intervalStart);
+                                } else if (intervalStart <= start) {
+                                    fraction = (intervalEnd - start) / (intervalEnd - intervalStart);
+                                } else if (intervalEnd >= end) {
+                                    fraction = (end - intervalStart) / (intervalEnd - intervalStart);
+                                }
+                                
+                                totalSteps += (steps * fraction);
+                            }
+                            
+                            lastSeen = intervalStart;
+                        }
+                    }
+                }
+                
+                sqlite3_finalize(statement);
+            }
+        }
+    }
+    
     if (totalSteps >= 0) {
         if (callback != nil) {
             callback(start, end, totalSteps);
@@ -754,6 +775,14 @@ static PDKPedometerGenerator * sharedObject = nil;
     dateLabel.frame = CGRectMake(floor((viewFrame.size.width - dateSize.width) / 2), floor((viewFrame.size.height - dateSize.height) / 2), dateSize.width, dateSize.height);
     
     return cell;
+}
+
+- (BOOL) isAuthorized {
+    if (@available(iOS 11.0, *)) {
+        return [CMPedometer authorizationStatus] == CMAuthorizationStatusAuthorized;
+    }
+    
+    return YES;
 }
 
 @end

@@ -32,7 +32,7 @@ extern NSString * const PDKFitbitSleepEnabled;
 extern NSString * const PDKFitbitHeartRateEnabled;
 extern NSString * const PDKFitbitWeightEnabled;
 
-@interface PDKFitbitGenerator : PDKBaseGenerator
+@interface PDKFitbitGenerator : PDKBaseGenerator<PDKStepCountGenerator>
 
 + (PDKFitbitGenerator *) sharedInstance;
 + (UIColor *) dataColor;
@@ -42,9 +42,6 @@ extern NSString * const PDKFitbitWeightEnabled;
 - (BOOL) isAuthenticated;
 - (void) loginToService:(void (^)(void))success failure:(void (^)(void))failure;
 - (void) logout;
-
-- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill;
-
 
 - (void) fetchProfile:(void (^)(NSDictionary * profile))callback;
 

@@ -11,9 +11,15 @@
 #import "PDKBaseGenerator.h"
 
 extern NSString * const PDKAppleHealthKitRequestedTypes;
+extern NSString * const PDKAppleHealthStepsEnabled;
 
-@interface PDKAppleHealthKitGenerator : PDKBaseGenerator
+@interface PDKAppleHealthKitGenerator : PDKBaseGenerator<PDKStepCountGenerator>
 
 + (PDKAppleHealthKitGenerator *) sharedInstance;
+
+- (BOOL) isAuthenticated;
+- (void) authenticate:(void (^)(void))success failure:(void (^)(void))failure;
+
++ (UIColor *) dataColor;
 
 @end
