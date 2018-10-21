@@ -1303,7 +1303,7 @@ static PDKFitbitGenerator * sharedObject = nil;
                      
                      if (error.code == 401) {
                          [self logout];
-                     } else {
+                     } else if (error.userInfo[AFNETWORKING_ERROR_KEY] != nil) {
                          NSDictionary * errorResponse = [NSJSONSerialization JSONObjectWithData:error.userInfo[AFNETWORKING_ERROR_KEY]
                                                                                       options:kNilOptions
                                                                                         error:&error];
