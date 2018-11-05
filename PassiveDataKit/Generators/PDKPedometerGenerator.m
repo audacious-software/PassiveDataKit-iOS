@@ -145,7 +145,7 @@ static PDKPedometerGenerator * sharedObject = nil;
                 if (sqlite3_exec(database, "ALTER TABLE pedometer_data ADD COLUMN today_start REAL", NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
 
                 } else {
-                    NSLog(@"DB 0 ERROR: %s", error);
+
                 }
                 
                 updated = YES;
@@ -161,8 +161,6 @@ static PDKPedometerGenerator * sharedObject = nil;
         
         return database;
     }
-    
-    NSLog(@"UNABLE TO OPEN DATABASE");
     
     return NULL;
 }
@@ -193,8 +191,6 @@ static PDKPedometerGenerator * sharedObject = nil;
                     startDate = now;
                 }
             }
-            
-            NSLog(@"START PEDO UPDATES");
             
             [self.pedometer startPedometerUpdatesFromDate:startDate withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
                 if (error == nil) {
@@ -250,7 +246,6 @@ static PDKPedometerGenerator * sharedObject = nil;
 
 - (void) refresh {
     if ([self isAuthorized] == NO) {
-        NSLog(@"BAILING PEDO NOT AUTHED 1");
         return;
     }
 
@@ -364,7 +359,7 @@ static PDKPedometerGenerator * sharedObject = nil;
                     int retVal = sqlite3_step(stmt);
                     
                     if (SQLITE_DONE == retVal) {
-//                        NSLog(@"DELETE SUCCESSFUL");
+
                     } else {
                         NSLog(@"Error while deleting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
                     }
@@ -470,7 +465,6 @@ static PDKPedometerGenerator * sharedObject = nil;
 
 - (void) historicalStepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end withHandler:(CMPedometerHandler)handler {
     if ([self isAuthorized] == NO) {
-        NSLog(@"BAILING PEDO NOT AUTHED 2");
         
         return;
     }
@@ -482,8 +476,6 @@ static PDKPedometerGenerator * sharedObject = nil;
 
 - (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback force:(BOOL) force {
     if ([self isAuthorized] == NO) {
-        NSLog(@"BAILING PEDO NOT AUTHED 3");
-        
         callback(start, end, 0);
         return;
     }

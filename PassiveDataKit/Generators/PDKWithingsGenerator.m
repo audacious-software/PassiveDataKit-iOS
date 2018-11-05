@@ -525,114 +525,116 @@ static PDKWithingsGenerator * sharedObject = nil;
         if (status.integerValue == 0) {
             NSDictionary * body = [responseObject valueForKey:@"body"];
             
-            NSDictionary * series = body[@"series"];
-            
-            for (NSString * timestampKey in series.allKeys) {
-                NSDictionary * activity = series[timestampKey];
+            if ([body[@"series"] count] > 0) {
+                NSDictionary * series = body[@"series"];
                 
-                BOOL logNew = YES;
-                
-                sqlite3_stmt * statement = NULL;
-                
-                NSString * querySQL = @"SELECT I._id FROM intraday_activity_history I WHERE I.activity_start >= ? AND I.activity_start < ?";
-                
-                const char * query_stmt = [querySQL UTF8String];
-                
-                @synchronized(self) {
-                    if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
-                        sqlite3_bind_double(statement, 1, floor(timestampKey.doubleValue) - 1);
-                        sqlite3_bind_double(statement, 2, floor(timestampKey.doubleValue) + 1);
-                        
-                        int retVal = sqlite3_step(statement);
-                        
-                        if (retVal == SQLITE_ROW) {
-                            logNew = NO;
-                        }
-                        
-                        sqlite3_finalize(statement);
-                    } else {
-                        NSLog(@"ERROR WEIGHT QUERYING");
-                    }
-                }
-                
-                if (logNew) {
-                    NSMutableDictionary * data = [NSMutableDictionary dictionary];
+                for (NSString * timestampKey in series.allKeys) {
+                    NSDictionary * activity = series[timestampKey];
                     
-                    data[PDKWithingsFetched] = now;
-                    data[PDKWithingsObserved] = now;
+                    BOOL logNew = YES;
                     
-                    data[PDKWithingsIntradayActivityStart] = @(timestampKey.doubleValue);
-                    data[PDKWithingsIntradayActivityDuration] = activity[@"duration"];
+                    sqlite3_stmt * statement = NULL;
                     
-                    if (activity[@"calories"] != nil) {
-                        data[PDKWithingsIntradayCalories] = activity[@"calories"];
-                    } else {
-                        data[PDKWithingsIntradayCalories] = @(0);
-                    }
+                    NSString * querySQL = @"SELECT I._id FROM intraday_activity_history I WHERE I.activity_start >= ? AND I.activity_start < ?";
                     
-                    if (activity[@"distance"] != nil) {
-                        data[PDKWithingsIntradayDistance] = activity[@"distance"];
-                    } else {
-                        data[PDKWithingsIntradayDistance] = @(0);
-                    }
+                    const char * query_stmt = [querySQL UTF8String];
                     
-                    if (activity[@"steps"] != nil) {
-                        data[PDKWithingsIntradaySteps] = activity[@"steps"];
-                    } else {
-                        data[PDKWithingsIntradaySteps] = @(0);
-                    }
-                    
-                    if (activity[@"elevation_climbed"] != nil) {
-                        data[PDKWithingsIntradayElevationClimbed] = activity[@"elevation_climbed"];
-                    } else {
-                        data[PDKWithingsIntradayElevationClimbed] = @(0);
-                    }
-                    
-                    if (activity[@"swim_strokes"] != nil) {
-                        data[PDKWithingsIntradaySwimStrokes] = activity[@"swim_strokes"];
-                    } else {
-                        data[PDKWithingsIntradaySwimStrokes] = @(0);
-                    }
-                    
-                    if (activity[@"pool_laps"] != nil) {
-                        data[PDKWithingsIntradayPoolLaps] = activity[@"pool_laps"];
-                    } else {
-                        data[PDKWithingsIntradayPoolLaps] = @(0);
-                    }
-                    
-                    data[PDKWithingsDataStream] = PDKWithingsDataStreamIntradayActivityMeasures;
-
-                    for (id<PDKDataListener> listener in self.listeners) {
-                        [listener receivedData:data forGenerator:PDKWithings];
-                    }
-
                     @synchronized(self) {
-                        sqlite3_stmt * stmt;
-                        
-                        NSString * insert = @"INSERT INTO intraday_activity_history (fetched, observed, activity_start, activity_duration, calories, distance, elevation_climbed, steps, swim_strokes, pool_laps) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-                        
-                        int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
-                        
-                        if (retVal == SQLITE_OK) {
-                            if (sqlite3_bind_double(stmt, 1, [data[PDKWithingsFetched] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 2, [data[PDKWithingsObserved] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 3, [data[PDKWithingsIntradayActivityStart] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 4, [data[PDKWithingsIntradayActivityDuration] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 5, [data[PDKWithingsIntradayCalories] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 6, [data[PDKWithingsIntradayDistance] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 7, [data[PDKWithingsIntradayElevationClimbed] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 8, [data[PDKWithingsIntradaySteps] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 9, [data[PDKWithingsIntradaySwimStrokes] doubleValue]) == SQLITE_OK &&
-                                sqlite3_bind_double(stmt, 10, [data[PDKWithingsIntradayPoolLaps] doubleValue]) == SQLITE_OK) {
-                                
-                                int retVal = sqlite3_step(stmt);
-                                
-                                if (SQLITE_DONE != retVal) {
-                                    NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
-                                }
+                        if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+                            sqlite3_bind_double(statement, 1, floor(timestampKey.doubleValue) - 1);
+                            sqlite3_bind_double(statement, 2, floor(timestampKey.doubleValue) + 1);
+                            
+                            int retVal = sqlite3_step(statement);
+                            
+                            if (retVal == SQLITE_ROW) {
+                                logNew = NO;
                             }
                             
-                            sqlite3_finalize(stmt);
+                            sqlite3_finalize(statement);
+                        } else {
+                            NSLog(@"ERROR WEIGHT QUERYING");
+                        }
+                    }
+                    
+                    if (logNew) {
+                        NSMutableDictionary * data = [NSMutableDictionary dictionary];
+                        
+                        data[PDKWithingsFetched] = now;
+                        data[PDKWithingsObserved] = now;
+                        
+                        data[PDKWithingsIntradayActivityStart] = @(timestampKey.doubleValue);
+                        data[PDKWithingsIntradayActivityDuration] = activity[@"duration"];
+                        
+                        if (activity[@"calories"] != nil) {
+                            data[PDKWithingsIntradayCalories] = activity[@"calories"];
+                        } else {
+                            data[PDKWithingsIntradayCalories] = @(0);
+                        }
+                        
+                        if (activity[@"distance"] != nil) {
+                            data[PDKWithingsIntradayDistance] = activity[@"distance"];
+                        } else {
+                            data[PDKWithingsIntradayDistance] = @(0);
+                        }
+                        
+                        if (activity[@"steps"] != nil) {
+                            data[PDKWithingsIntradaySteps] = activity[@"steps"];
+                        } else {
+                            data[PDKWithingsIntradaySteps] = @(0);
+                        }
+                        
+                        if (activity[@"elevation_climbed"] != nil) {
+                            data[PDKWithingsIntradayElevationClimbed] = activity[@"elevation_climbed"];
+                        } else {
+                            data[PDKWithingsIntradayElevationClimbed] = @(0);
+                        }
+                        
+                        if (activity[@"swim_strokes"] != nil) {
+                            data[PDKWithingsIntradaySwimStrokes] = activity[@"swim_strokes"];
+                        } else {
+                            data[PDKWithingsIntradaySwimStrokes] = @(0);
+                        }
+                        
+                        if (activity[@"pool_laps"] != nil) {
+                            data[PDKWithingsIntradayPoolLaps] = activity[@"pool_laps"];
+                        } else {
+                            data[PDKWithingsIntradayPoolLaps] = @(0);
+                        }
+                        
+                        data[PDKWithingsDataStream] = PDKWithingsDataStreamIntradayActivityMeasures;
+                        
+                        for (id<PDKDataListener> listener in self.listeners) {
+                            [listener receivedData:data forGenerator:PDKWithings];
+                        }
+                        
+                        @synchronized(self) {
+                            sqlite3_stmt * stmt;
+                            
+                            NSString * insert = @"INSERT INTO intraday_activity_history (fetched, observed, activity_start, activity_duration, calories, distance, elevation_climbed, steps, swim_strokes, pool_laps) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                            
+                            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL);
+                            
+                            if (retVal == SQLITE_OK) {
+                                if (sqlite3_bind_double(stmt, 1, [data[PDKWithingsFetched] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 2, [data[PDKWithingsObserved] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 3, [data[PDKWithingsIntradayActivityStart] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 4, [data[PDKWithingsIntradayActivityDuration] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 5, [data[PDKWithingsIntradayCalories] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 6, [data[PDKWithingsIntradayDistance] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 7, [data[PDKWithingsIntradayElevationClimbed] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 8, [data[PDKWithingsIntradaySteps] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 9, [data[PDKWithingsIntradaySwimStrokes] doubleValue]) == SQLITE_OK &&
+                                    sqlite3_bind_double(stmt, 10, [data[PDKWithingsIntradayPoolLaps] doubleValue]) == SQLITE_OK) {
+                                    
+                                    int retVal = sqlite3_step(stmt);
+                                    
+                                    if (SQLITE_DONE != retVal) {
+                                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                                    }
+                                }
+                                
+                                sqlite3_finalize(stmt);
+                            }
                         }
                     }
                 }
@@ -679,7 +681,7 @@ static PDKWithingsGenerator * sharedObject = nil;
 }
 
 - (void) logSleepMeasures:(id) responseObject {
-    NSLog(@"NH SLEEP MEASURES: %@", responseObject);
+    // NSLog(@"NH SLEEP MEASURES: %@", responseObject);
 }
 
 - (void) fetchSleepSummaryWithAccessToken:(NSString *) accessToken {
@@ -719,8 +721,8 @@ static PDKWithingsGenerator * sharedObject = nil;
 }
 
 - (void) logSleepSummary:(id) responseObject {
-    NSLog(@"NH SLEEP SUMMARY: %@", responseObject);
-    NSLog(@"NH SLEEP TODO w/ TEST DATA: %@", responseObject);
+    // NSLog(@"NH SLEEP SUMMARY: %@", responseObject);
+    // NSLog(@"NH SLEEP TODO w/ TEST DATA: %@", responseObject);
 }
 
 - (void) fetchBodyMeasuresWithAccessToken:(NSString *) accessToken {
@@ -1556,8 +1558,6 @@ static PDKWithingsGenerator * sharedObject = nil;
                      [self executeRequest:executeBlock error:errorBlock];
                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                      self.isExecuting = NO;
-
-                     NSLog(@"WWW FAILURE: %@", error);
                  }];
             
             return;

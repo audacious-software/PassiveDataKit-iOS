@@ -198,8 +198,6 @@ typedef enum {
 }
 
 - (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler; {
-    NSLog(@"TRANSMIT READINGS");
-    
     if (self.lastTransmissionStart != 0) {
         if (completionHandler != nil) {
             completionHandler(UIBackgroundFetchResultNoData);

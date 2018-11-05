@@ -32,6 +32,8 @@ NSString * const PDKFitbitWeightEnabled = @"PDKFitbitWeightEnabled"; //!OCLINT
 
 NSString * const PDKFitbitAuthState = @"PDKFitbitAuthState"; //!OCLINT
 NSString * const PDKFitbitLastRefreshed = @"PDKFitbitLastRefreshed"; //!OCLINT
+NSString * const PDKFitbitAccessToken = @"PDKFitbitAccessToken"; //!OCLINT
+NSString * const PDKFitbitRefreshToken = @"PDKFitbitRefreshToken"; //!OCLINT
 
 NSString * const PDKFitbitScopes = @"PDKFitbitScopes"; //!OCLINT
 
@@ -206,9 +208,10 @@ static PDKFitbitGenerator * sharedObject = nil;
     
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
-    NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
+    NSString * accessToken = [defaults valueForKey:PDKFitbitAccessToken];
+    NSString * refreshToken = [defaults valueForKey:PDKFitbitRefreshToken];
 
-    if (authed && authStateData == nil) {
+    if (authed && (refreshToken == nil || accessToken == nil)) {
         authed = NO;
     }
     
@@ -328,10 +331,6 @@ static PDKFitbitGenerator * sharedObject = nil;
     self.lastUrlFetches[urlString] = @(now);
 
     if (now < self.waitUntil) {
-        NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
-        
-        NSLog(@"FB NOT FETCHING ACTIVITY UNTIL %@", wait);
-        
         if (callback != nil) {
             callback();
         }
@@ -917,9 +916,10 @@ static PDKFitbitGenerator * sharedObject = nil;
 - (BOOL) isAuthenticated {
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
-    NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
-    
-    return authStateData != nil;
+    NSString * accessToken = [defaults valueForKey:PDKFitbitAccessToken];
+    NSString * refreshToken = [defaults valueForKey:PDKFitbitRefreshToken];
+
+    return (accessToken != nil && refreshToken != nil);
 }
 
 - (void) loginToService:(void (^)(void))success failure:(void (^)(void))failure {
@@ -962,11 +962,15 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                                                                            forKey:PDKFitbitAuthState];
                                                                                                [defaults setValue:now
                                                                                                            forKey:PDKFitbitLastRefreshed];
+
+                                                                                               [defaults setValue:authState.lastTokenResponse.accessToken
+                                                                                                           forKey:PDKFitbitAccessToken];
+
+                                                                                               [defaults setValue:authState.lastTokenResponse.refreshToken
+                                                                                                           forKey:PDKFitbitRefreshToken];
+
                                                                                                [defaults synchronize];
 
-                                                                                               [[PassiveDataKit sharedInstance] logEvent:@"fitbit_saved_login_token"
-                                                                                                                              properties:@{ @"last_token_refresh": [now description] }];
-                                                                                               
                                                                                                [[PDKFitbitGenerator sharedInstance] refresh];
                                                                                               
                                                                                                if (success != nil) {
@@ -988,6 +992,8 @@ static PDKFitbitGenerator * sharedObject = nil;
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     [defaults removeObjectForKey:PDKFitbitAuthState];
+    [defaults removeObjectForKey:PDKFitbitAccessToken];
+    [defaults removeObjectForKey:PDKFitbitRefreshToken];
     [defaults synchronize];
     
     @synchronized(self.pendingRequests) {
@@ -1094,13 +1100,11 @@ static PDKFitbitGenerator * sharedObject = nil;
             };
             
             [self executeRequest:toExecute error:^(NSDictionary * error) {
-                NSLog(@"DAY START: %@", dayStart);
                 NSLog(@"ERROR WHILE FETCHING STEPS: %@", error);
                 
                 callback(start, end, 0);
             }];
         } else {
-            NSLog(@"WAITING UNTIL %@", [NSDate dateWithTimeIntervalSinceNow:self.waitUntil]);
             callback(start, end, 0);
         }
     } else {
@@ -1112,10 +1116,6 @@ static PDKFitbitGenerator * sharedObject = nil;
     NSTimeInterval now = [NSDate date].timeIntervalSince1970;
     
     if (now < self.waitUntil) {
-        NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
-
-        NSLog(@"NOT FETCHING PROFILE UNTIL %@", wait);
-
         callback(nil);
     }
 
@@ -1167,9 +1167,9 @@ static PDKFitbitGenerator * sharedObject = nil;
             sqlite3_bind_double(statement, 1, 0);
             
             if (sqlite3_step(statement) == SQLITE_ROW) {
-                NSLog(@"RESET CLEARED ACTIVITY");
+
             } else {
-                NSLog(@"RESET NO CLEAR");
+
             }
             
             sqlite3_finalize(statement);
@@ -1195,8 +1195,6 @@ static PDKFitbitGenerator * sharedObject = nil;
                     NSTimeInterval retryInterval = [retry doubleValue];
                     
                     self.waitUntil = [NSDate dateWithTimeIntervalSinceNow:retryInterval].timeIntervalSince1970;
-                    
-                    NSLog(@"SET WAIT UNTIL TO %@", [NSDate dateWithTimeIntervalSince1970:self.waitUntil]);
                 }
             }
         }
@@ -1229,8 +1227,10 @@ static PDKFitbitGenerator * sharedObject = nil;
 }
 
 - (void) executeRequest:(void(^)(NSString *)) executeBlock error:(void(^)(NSDictionary *)) errorBlock {
-    @synchronized(self.pendingRequests) {
-        [self.pendingRequests addObject:executeBlock];
+    if (executeBlock != nil) {
+        @synchronized(self.pendingRequests) {
+            [self.pendingRequests addObject:executeBlock];
+        }
     }
     
     if (self.isExecuting || self.options[PDKFitbitClientID] == nil || self.options[PDKFitbitClientSecret] == nil) {
@@ -1239,15 +1239,12 @@ static PDKFitbitGenerator * sharedObject = nil;
     
     self.isExecuting = YES;
 
-    __weak __typeof(self) weakSelf = self;
-
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
-    NSData * authStateData = [defaults valueForKey:PDKFitbitAuthState];
+    NSString * accessToken = [defaults valueForKey:PDKFitbitAccessToken];
+    NSString * refreshToken = [defaults valueForKey:PDKFitbitRefreshToken];
     
-    if (authStateData != nil) {
-        OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
-
+    if (accessToken != nil && refreshToken != nil) {
         NSDate * now = [NSDate date];
         NSDate * lastRefresh = [defaults valueForKey:PDKFitbitLastRefreshed];
         
@@ -1256,14 +1253,8 @@ static PDKFitbitGenerator * sharedObject = nil;
         }
 
         if (now.timeIntervalSince1970 - lastRefresh.timeIntervalSince1970 > 60 * 60) {
-            [authState setNeedsTokenRefresh];
-            
-            NSLog(@"FITBIT REFRESH TOKEN");
-            
             [defaults setValue:now forKey:PDKFitbitLastRefreshed];
             [defaults synchronize];
-            
-            NSLog(@"FLAGGING FITBIT TOKEN FOR REFRESH");
             
             AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
             [manager setResponseSerializer:[AFJSONResponseSerializer serializer]];
@@ -1274,47 +1265,33 @@ static PDKFitbitGenerator * sharedObject = nil;
             [manager POST:@"https://api.fitbit.com/oauth2/token"
                parameters:@{
                             @"grant_type": @"refresh_token",
-                            @"refresh_token": authState.lastTokenResponse.refreshToken,
-                            @"expires_in": @"7200"
+                            @"refresh_token": refreshToken
                             }
 
                  progress:^(NSProgress * _Nonnull uploadProgress) {
-                     NSLog(@"WWW FB PROGRESS: %@", uploadProgress);
+
                  } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                     NSLog(@"WWW FB REFRESH RESPONSE: %@", responseObject);
-                     
-                     [authState.lastTokenResponse setValue:responseObject[@"access_token"]
-                                                    forKey:@"accessToken"];
-
-                     [authState.lastTokenResponse setValue:responseObject[@"refresh_token"]
-                                                    forKey:@"refreshToken"];
-
-                     NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-                     [defaults setValue:authData forKey:PDKFitbitAuthState];
+                     [defaults setValue:responseObject[@"access_token"] forKey:PDKFitbitAccessToken];
+                     [defaults setValue:responseObject[@"refresh_token"] forKey:PDKFitbitRefreshToken];
+                     [defaults setValue:[NSDate date] forKey:PDKFitbitLastRefreshed];
                      [defaults synchronize];
-                     
+
                      self.isExecuting = NO;
                      
                      [self executeRequest:executeBlock error:errorBlock];
                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                      self.isExecuting = NO;
 
-                     NSLog(@"WWW FB FAILURE: %@", error);
-                     
                      if (error.code == 401) {
                          [self logout];
                      } else if (error.userInfo[AFNETWORKING_ERROR_KEY] != nil) {
                          NSDictionary * errorResponse = [NSJSONSerialization JSONObjectWithData:error.userInfo[AFNETWORKING_ERROR_KEY]
                                                                                       options:kNilOptions
                                                                                         error:&error];
-                         
-                         NSLog(@"ERROR OBJ: %@", errorResponse);
-                         
                          NSArray * errors = errorResponse[@"errors"];
                          
                          for (NSDictionary * errorItem in errors) {
                              if ([@"invalid_grant" isEqualToString:errorItem[@"errorType"]]) {
-                                 NSLog(@"LOGGING OUT");
                                  [self logout];
                              }
                          }
@@ -1324,34 +1301,34 @@ static PDKFitbitGenerator * sharedObject = nil;
             return;
         }
         
-        NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-        [defaults setValue:authData forKey:PDKFitbitAuthState];
-        [defaults synchronize];
-
-        while (weakSelf.pendingRequests.count > 0) {
-            void (^toExecute)(NSString *) = nil;
-            
-            @synchronized(weakSelf.pendingRequests) {
-                toExecute = [weakSelf.pendingRequests objectAtIndex:0];
+        @synchronized(self.pendingRequests) {
+            if (self.pendingRequests.count > 0) {
+                void (^toExecute)(NSString *) = nil;
                 
-                [weakSelf.pendingRequests removeObject:toExecute];
-            }
-            
-            NSTimeInterval now = [NSDate date].timeIntervalSince1970;
-            
-            if (now < self.waitUntil) {
-                NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
+                toExecute = [self.pendingRequests lastObject];
                 
-                errorBlock(@{
-                             @"error-type": @"waiting-rate-limit",
-                             @"wait-until":wait
-                             });
-            } else {
-                toExecute(authState.lastTokenResponse.accessToken);
+                [self.pendingRequests removeObject:toExecute];
+                
+                NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+                
+                if (now < self.waitUntil) {
+                    NSDate * wait = [NSDate dateWithTimeIntervalSince1970:self.waitUntil];
+                    
+                    errorBlock(@{
+                                 @"error-type": @"waiting-rate-limit",
+                                 @"wait-until":wait
+                                 });
+                } else {
+                    toExecute(accessToken);
+                    
+                    [self executeRequest:nil error:^(NSDictionary * error) {
+                        errorBlock(error);
+                    }];
+                }
             }
         }
-        
-        weakSelf.isExecuting = NO;
+
+        self.isExecuting = NO;
     }
 }
 

@@ -479,4 +479,18 @@ static PassiveDataKit * sharedObject = nil;
     self.currentExternalUserAgentFlow = flow;
 }
 
+- (void) transmitDeviceToken:(NSData *) tokenData {
+    NSUInteger length = [tokenData length];
+    
+    NSMutableString * string = [NSMutableString stringWithCapacity:(length * 2)];
+    
+    const unsigned char * dataBytes = [tokenData bytes];
+    
+    for (NSInteger idx = 0; idx < length; ++idx) {
+        [string appendFormat:@"%02x", dataBytes[idx]];
+    }
+
+    [self logEvent:@"pdk-ios-device-token" properties:@{ @"token": string}];
+}
+
 @end

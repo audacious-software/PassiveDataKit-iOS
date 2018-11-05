@@ -168,4 +168,6 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 - (void) clearCurrentUserFlow;
 - (void) setCurrentUserFlow:(id<OIDExternalUserAgentSession>) flow;
 
+- (void) transmitDeviceToken:(NSData *) tokenData;
+
 @end

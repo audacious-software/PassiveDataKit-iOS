@@ -13,7 +13,7 @@
 #import "PDKAppleHealthKitGenerator.h"
 
 #define DATABASE_VERSION @"PDKAppleHealthKitGenerator.DATABASE_VERSION"
-#define CURRENT_DATABASE_VERSION @(1)
+#define CURRENT_DATABASE_VERSION @(3)
 #define GENERATOR_ID @"pdk-health-kit"
 
 #define PDKAppleHealthFetched @"fetched"
@@ -23,6 +23,9 @@
 #define PDKAppleHealthDevice @"device"
 #define PDKAppleHealthDataType @"data-type"
 #define PDKAppleHealthDataTypeStepCount @"step-count"
+#define PDKAppleHealthDataTypeStepCountSummary @"step-count-summary"
+
+#define PDKAppleHealthSummaryCountFetchInterval 60
 
 NSString * const PDKAppleHealthStepsEnabled = @"PDKAppleHealthStepsEnabled";
 
@@ -41,6 +44,8 @@ NSString * const PDKHealthKitAlert = @"pdk-health-kit-alert"; //!OCLINT
 
 @property BOOL requestPermissions;
 @property BOOL stepsEnabled;
+
+@property NSMutableDictionary * lastStepSummaryFetches;
 
 @end
 
@@ -76,6 +81,8 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
 
         self.healthStore = [[HKHealthStore alloc] init];
         self.requestPermissions = YES;
+        
+        self.lastStepSummaryFetches = [NSMutableDictionary dictionary];
     }
     
     return self;
@@ -108,11 +115,10 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
             const char * createStatement = "CREATE TABLE IF NOT EXISTS steps_data (id INTEGER PRIMARY KEY AUTOINCREMENT, fetched REAL, interval_start REAL, interval_end REAL, step_count REAL, device TEXT)";
             
             if (sqlite3_exec(database, createStatement, NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
-                
+                // NSLog(@"PDK APPLE MADE STEPS DB");
             }
             
             sqlite3_close(database);
- 
         }
     }
     
@@ -132,31 +138,32 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
             updated = YES;
         }
         
-//        char * error = NULL;
-        
+        char * error = NULL;
+
         switch (dbVersion.integerValue) {
-//            case 0:
-//                if (sqlite3_exec(database, "ALTER TABLE pedometer_data ADD COLUMN today_start REAL", NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
-//
-//                } else {
-//                    NSLog(@"DB 0 ERROR: %s", error);
-//                }
-//
-//                updated = YES;
-//
-//                break;
+            case 0:
+            case 1:
+            case 2:
+                if (sqlite3_exec(database, "DROP TABLE IF EXISTS summary_steps_data", NULL, NULL, &error) == SQLITE_OK) { //!OCLINT
+
+                }
+                
+                if (sqlite3_exec(database, "CREATE TABLE IF NOT EXISTS summary_steps_data (id INTEGER PRIMARY KEY AUTOINCREMENT, fetched REAL, interval_start REAL, interval_end REAL, step_count REAL)", NULL, NULL, &error) == SQLITE_OK) { //!OCLINT
+
+                }
+                
+                updated = YES;
             default:
                 break;
         }
         
         if (updated) {
             [defaults setValue:CURRENT_DATABASE_VERSION forKey:DATABASE_VERSION];
+            [defaults synchronize];
         }
         
         return database;
     }
-    
-    NSLog(@"UNABLE TO OPEN DATABASE");
     
     return NULL;
 }
@@ -297,7 +304,7 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
     @synchronized(self) {
         sqlite3_stmt * statement;
         
-        NSString * select = @"SELECT COUNT(*) FROM steps_data A WHERE interval_start = ? AND A.interval_end = ? AND A.step_count = ? AND A.device = ?";
+        NSString * select = @"SELECT COUNT(*) FROM steps_data A WHERE A.interval_start = ? AND A.interval_end = ? AND A.step_count = ? AND A.device = ?";
         
         const char * query_stmt = [select UTF8String];
         
@@ -307,7 +314,7 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
             sqlite3_bind_double(statement, 3, stepCount);
             sqlite3_bind_text(statement, 4, [deviceName cStringUsingEncoding:NSUTF8StringEncoding], -1, SQLITE_TRANSIENT);
             
-            int retVal = sqlite3_step(statement);
+            sqlite3_step(statement);
 
             int matches = sqlite3_column_int(statement, 0);
             
@@ -346,8 +353,75 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
     }
 
     if (logNew) {
-        NSLog(@"AH XMIT APPLE HEALTH");
+        for (id<PDKDataListener> listener in self.listeners) {
+            [listener receivedData:data forGenerator:PDKAppleHealthKit];
+        }
+    }
+}
+
+- (void) logSummaryStepCount:(CGFloat) stepCount intervalStart:(NSDate *) start end:(NSDate *) end {
+    NSDate * now = [NSDate date];
+    
+    NSMutableDictionary * data = [NSMutableDictionary dictionary];
+    [data setValue:@([now timeIntervalSince1970] * 1000) forKey:PDKAppleHealthFetched];
+    [data setValue:@([start timeIntervalSince1970] * 1000) forKey:PDKAppleHealthDateStart];
+    [data setValue:@([end timeIntervalSince1970] * 1000) forKey:PDKAppleHealthDateEnd];
+    [data setValue:@(stepCount) forKey:PDKAppleHealthStepCount];
+    
+    data[PDKAppleHealthDataType] = PDKAppleHealthDataTypeStepCountSummary;
+    
+    BOOL logNew = YES;
+    
+    @synchronized(self) {
+        sqlite3_stmt * statement;
         
+        NSString * select = @"SELECT COUNT(*) FROM summary_steps_data WHERE interval_start = ? AND interval_end = ? AND step_count = ?;";
+        
+        int retVal = sqlite3_prepare_v2(self.database, [select UTF8String], -1, &statement, NULL);
+        
+        if (retVal == SQLITE_OK) { //!OCLINT
+            sqlite3_bind_double(statement, 1, [start timeIntervalSince1970]);
+            sqlite3_bind_double(statement, 2, [end timeIntervalSince1970]);
+            sqlite3_bind_double(statement, 3, stepCount);
+            
+            sqlite3_step(statement);
+            
+            int matches = sqlite3_column_int(statement, 0);
+            
+            if (matches > 0) {
+                logNew = NO;
+            }
+            
+            sqlite3_finalize(statement);
+        }
+
+
+        if (logNew) {
+            sqlite3_stmt * insert_stmt;
+            
+            NSString * insert = @"INSERT INTO summary_steps_data (fetched, interval_start, interval_end, step_count) VALUES (?, ?, ?, ?);";
+            
+            int retVal = sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &insert_stmt, NULL);
+            
+            if (retVal == SQLITE_OK) {
+                if (sqlite3_bind_double(insert_stmt, 1, [now timeIntervalSince1970]) == SQLITE_OK &&
+                    sqlite3_bind_double(insert_stmt, 2, [start timeIntervalSince1970]) == SQLITE_OK &&
+                    sqlite3_bind_double(insert_stmt, 3, [end timeIntervalSince1970]) == SQLITE_OK &&
+                    sqlite3_bind_double(insert_stmt, 4, stepCount) == SQLITE_OK) {
+                    
+                    int retVal = sqlite3_step(insert_stmt);
+                    
+                    if (SQLITE_DONE != retVal) {
+                        NSLog(@"Error while inserting data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+                    }
+                }
+                
+                sqlite3_finalize(insert_stmt);
+            }
+        }
+    }
+    
+    if (logNew) {
         for (id<PDKDataListener> listener in self.listeners) {
             [listener receivedData:data forGenerator:PDKAppleHealthKit];
         }
@@ -356,18 +430,22 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
 
 - (void)stepsBetweenStart:(NSTimeInterval)start end:(NSTimeInterval)end callback:(void (^)(NSTimeInterval, NSTimeInterval, CGFloat))callback backfill:(BOOL) doBackfill force:(BOOL) force {
     __block CGFloat totalSteps = 0;
+    __block CGFloat totalStepSummary = 0;
 
+    NSDate * startDate = [NSDate dateWithTimeIntervalSince1970:start];
+    NSDate * endDate = [NSDate dateWithTimeIntervalSince1970:end];
+    
     if (force == NO) {
         NSString * allIn = @"(S.interval_start >= ? AND S.interval_end <= ?)"; // start, end.
         NSString * allAround = @"(S.interval_start <= ? AND S.interval_end >= ?)"; // start, end.
         NSString * startIn = @"(S.interval_start >= ? AND S.interval_start <= ?)"; // start, end.
         NSString * endIn = @"(S.interval_end >= ? AND S.interval_end <= ?)"; // start, end.
         
-        NSString * query = [NSString stringWithFormat:@"SELECT S.interval_start, S.interval_end, S.step_count FROM steps_data S WHERE (%@ OR %@ OR %@ OR %@) ORDER BY S.interval_start DESC", allIn, allAround, startIn, endIn];
-        
-        NSTimeInterval lastSeen = 0;
-        
         @synchronized(self) {
+            NSString * query = [NSString stringWithFormat:@"SELECT S.interval_start, S.interval_end, S.step_count FROM steps_data S WHERE (%@ OR %@ OR %@ OR %@) ORDER BY S.interval_start DESC", allIn, allAround, startIn, endIn];
+            
+            NSTimeInterval lastSeen = 0;
+
             sqlite3_stmt * statement = NULL;
             
             if (sqlite3_prepare_v2(self.database, [query UTF8String], -1, &statement, NULL) == SQLITE_OK) {
@@ -376,8 +454,7 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
                     sqlite3_bind_double(statement, 5, start) == SQLITE_OK && sqlite3_bind_double(statement, 6, end) == SQLITE_OK &&
                     sqlite3_bind_double(statement, 7, start) == SQLITE_OK && sqlite3_bind_double(statement, 8, end) == SQLITE_OK) {
 
-                    while (sqlite3_step(statement) == SQLITE_ROW)
-                    {
+                    while (sqlite3_step(statement) == SQLITE_ROW) {
                         NSTimeInterval intervalStart = sqlite3_column_double(statement, 0);
                         
                         if (intervalStart != lastSeen) {
@@ -407,9 +484,29 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
                 
                 sqlite3_finalize(statement);
             }
+
+            NSString * exactMatch = @"(S.interval_start = ? AND S.interval_end = ?)"; // start, end.
+
+            NSString * summaryQuery = [NSString stringWithFormat:@"SELECT S.step_count FROM summary_steps_data S WHERE %@ ORDER BY S.step_count DESC LIMIT 1", exactMatch];
+            
+            sqlite3_stmt * summaryStmt = NULL;
+            
+            if (sqlite3_prepare_v2(self.database, [summaryQuery UTF8String], -1, &summaryStmt, NULL) == SQLITE_OK) {
+                if (sqlite3_bind_double(summaryStmt, 1, start) == SQLITE_OK && sqlite3_bind_double(summaryStmt, 2, end) == SQLITE_OK) {
+                    if (sqlite3_step(summaryStmt) == SQLITE_ROW) {
+                        totalStepSummary = sqlite3_column_double(summaryStmt, 0);
+                    }
+                }
+                
+                sqlite3_finalize(summaryStmt);
+            }
         }
     }
-
+    
+    if (totalStepSummary < totalSteps) {
+        totalSteps = totalStepSummary;
+    }
+    
     if (totalSteps > 0) {
         if (callback != nil) {
             callback(start, end, totalSteps);
@@ -424,6 +521,8 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
         void (^handler)(HKSampleQuery *, NSArray<__kindof HKSample *> *, NSError *) = ^void(HKSampleQuery * query, NSArray<__kindof HKSample *> * results, NSError * error) {
             if (error != nil) {
                 NSLog(@"APPLE HEALTH ERROR: %@", error);
+
+                callback(start, end, totalSteps);
             } else {
                 for (HKQuantitySample *sample in results) {
                     CGFloat stepCount = [sample.quantity doubleValueForUnit:[HKUnit countUnit]];
@@ -433,7 +532,39 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
                     [self logStepCount:stepCount intervalStart:sample.startDate end:sample.endDate device:sample.device];
                 }
                 
-                callback(start, end, totalSteps);
+                HKQuantityType * quantityType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+                
+                NSDateComponents *interval = [[NSDateComponents alloc] init];
+                interval.day = 1;
+                
+                HKStatisticsCollectionQuery * query = [[HKStatisticsCollectionQuery alloc] initWithQuantityType:quantityType
+                                                                                        quantitySamplePredicate:nil
+                                                                                                        options:HKStatisticsOptionCumulativeSum
+                                                                                                     anchorDate:startDate
+                                                                                             intervalComponents:interval];
+                
+                query.initialResultsHandler = ^(HKStatisticsCollectionQuery *query, HKStatisticsCollection *results, NSError *error) {
+                    if (error) {
+                        NSLog(@"PDK APPLE STEP SUMMARY ERROR: %@", error);
+                    } else {
+                        HKStatistics * statistics = [results statisticsForDate:startDate];
+                        CGFloat stepCountSummary = 0;
+                        
+                        if (statistics.sumQuantity != nil) {
+                            stepCountSummary = [statistics.sumQuantity doubleValueForUnit:[HKUnit countUnit]];
+                        }
+                        
+                        [self logSummaryStepCount:stepCountSummary intervalStart:startDate end:endDate];
+                        
+                        if (callback != nil) {
+                            callback(start, end, stepCountSummary);
+                        }
+                    }
+                };
+                
+                [self.healthStore executeQuery:query];
+
+                return;
             }
         };
         
