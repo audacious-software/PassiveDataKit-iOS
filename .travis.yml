@@ -7,7 +7,6 @@ xcode_sdk: iphonesimulator11.4
 
 before_install:
 - brew update
-- brew cask uninstall oclint
 - brew tap oclint/formulae
 - brew install oclint
 
