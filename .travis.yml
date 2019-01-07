@@ -6,7 +6,7 @@ xcode_scheme: PassiveDataKit
 xcode_sdk: iphonesimulator11.4
 
 before_install:
-- brew cask uninstall oclint
+- brew update
 - brew tap oclint/formulae
 - brew install oclint
 

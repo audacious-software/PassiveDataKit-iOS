@@ -1078,7 +1078,7 @@ static PDKFitbitGenerator * sharedObject = nil;
             }
         }
     }
-        
+    
     if (steps != nil) {
         callback(start, end, steps.doubleValue);
     } else if (doBackfill == YES) {
