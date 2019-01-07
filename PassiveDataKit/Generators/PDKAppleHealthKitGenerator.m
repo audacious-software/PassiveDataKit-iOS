@@ -242,16 +242,17 @@ static PDKAppleHealthKitGenerator * sharedObject = nil;
 
 - (BOOL) isAuthenticated {
     BOOL authed = YES;
-    
-    if (self.stepsEnabled) {
-        HKSampleType * stepType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
-        
-        if ([self.healthStore authorizationStatusForType:stepType] != HKAuthorizationStatusSharingAuthorized) {
-            authed = NO;
-        } else {
+
+    @synchronized (self) {
+        if (self.stepsEnabled) {
+            HKSampleType * stepType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+
+            if ([self.healthStore authorizationStatusForType:stepType] != HKAuthorizationStatusSharingAuthorized) {
+                authed = NO;
+            }
         }
     }
-    
+
     return authed;
 }
 
