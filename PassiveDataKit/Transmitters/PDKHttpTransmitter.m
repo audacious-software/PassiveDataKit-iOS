@@ -288,10 +288,8 @@ typedef enum {
                 }
                 
                 NSURLRequest * request = [self uploadRequestForPayload:payload];
-                
-                if (request != nil) { //!OCLINT
-//                    NSURLSessionDownloadTask * upload = [self.session downloadTaskWithRequest:request];
 
+                if (request != nil) { //!OCLINT
                     NSURLSessionDownloadTask * upload = [self.session downloadTaskWithRequest:request
                                                                             completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
                                                                                 // NSLog(@"MAIN XMIT ERROR: %@", error);
@@ -345,7 +343,7 @@ typedef enum {
             metadata[PDK_SOURCE_KEY] = [[PassiveDataKit sharedInstance] identifierForUser];
         }
         
-        metadata[PDK_TIMESTAMP_KEY] = [NSNumber numberWithDouble:[NSDate date].timeIntervalSince1970];
+        metadata[PDK_TIMESTAMP_KEY] = @([NSDate date].timeIntervalSince1970);
         
         toStore[PDK_METADATA_KEY] = metadata;
     }

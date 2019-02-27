@@ -12,10 +12,12 @@
 
 #import "PDKEventsGenerator.h"
 #import "PDKLocationGenerator.h"
+#import "PDKGeofencesGenerator.h"
 #import "PDKGooglePlacesGenerator.h"
 #import "PDKAppleHealthKitGenerator.h"
 #import "PDKPedometerGenerator.h"
 #import "PDKBatteryGenerator.h"
+#import "PDKSystemStatusGenerator.h"
 #import "PDKFitbitGenerator.h"
 #import "PDKWithingsGenerator.h"
 
@@ -29,6 +31,8 @@
 @property NSMutableArray * activeAlerts;
 
 @property NSMutableDictionary * customGenerators;
+
+@property NSDate * startDate;
 
 @property id<OIDExternalUserAgentSession> currentExternalUserAgentFlow;
 
@@ -82,6 +86,8 @@ static PassiveDataKit * sharedObject = nil;
         self.activeAlerts = [NSMutableArray array];
         
         self.customGenerators = [NSMutableDictionary dictionary];
+
+        self.startDate = [NSDate date];
     }
     
     return self;
@@ -227,6 +233,10 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKFitbitGenerator";
         case PDKWithings:
             return @"PDKWithingsGenerator";
+        case PDKSystemStatus:
+            return @"PDKSystemStatusGenerator";
+        case PDKGeofences:
+            return @"PDKGeofencesGenerator";
         case PDKAnyGenerator:
             return @"PDKAnyGenerator";
     }
@@ -248,10 +258,14 @@ static PassiveDataKit * sharedObject = nil;
             return [PDKPedometerGenerator sharedInstance];
         case PDKBattery:
             return [PDKBatteryGenerator sharedInstance];
+        case PDKSystemStatus:
+            return [PDKSystemStatusGenerator sharedInstance];
         case PDKFitbit:
             return [PDKFitbitGenerator sharedInstance];
         case PDKWithings:
             return [PDKWithingsGenerator sharedInstance];
+        case PDKGeofences:
+            return [PDKGeofencesGenerator sharedInstance];
         case PDKAnyGenerator:
             break;
     }
@@ -491,6 +505,10 @@ static PassiveDataKit * sharedObject = nil;
     }
 
     [self logEvent:@"pdk-ios-device-token" properties:@{ @"token": string}];
+}
+
+- (NSDate *) appStart {
+    return self.startDate;
 }
 
 @end

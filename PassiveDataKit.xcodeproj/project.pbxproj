@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		381F1C041FE78832008DCE52 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */; };
 		3822E334211CDA8200CA31DA /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3822E331211CDA6300CA31DA /* Charts.framework */; };
+		38276F082216444900859EA6 /* PDKSystemStatusGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38276F062216444900859EA6 /* PDKSystemStatusGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		38276F092216444900859EA6 /* PDKSystemStatusGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38276F072216444900859EA6 /* PDKSystemStatusGenerator.m */; };
+		38276F352219F1F500859EA6 /* PDKGeofencesGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38276F332219F1F500859EA6 /* PDKGeofencesGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		38276F362219F1F500859EA6 /* PDKGeofencesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38276F342219F1F500859EA6 /* PDKGeofencesGenerator.m */; };
 		382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 382BEDD11F01B41500A99FA4 /* CoreMotion.framework */; };
 		383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */; };
 		383ECC611D1F742E004E0B2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC601D1F742E004E0B2B /* Assets.xcassets */; };
@@ -263,6 +267,10 @@
 
 /* Begin PBXFileReference section */
 		3822E32B211CDA6300CA31DA /* Charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Charts.xcodeproj; path = Charts/Charts.xcodeproj; sourceTree = "<group>"; };
+		38276F062216444900859EA6 /* PDKSystemStatusGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKSystemStatusGenerator.h; path = Generators/Devices/PDKSystemStatusGenerator.h; sourceTree = "<group>"; };
+		38276F072216444900859EA6 /* PDKSystemStatusGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKSystemStatusGenerator.m; path = Generators/Devices/PDKSystemStatusGenerator.m; sourceTree = "<group>"; };
+		38276F332219F1F500859EA6 /* PDKGeofencesGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKGeofencesGenerator.h; path = Generators/Environment/PDKGeofencesGenerator.h; sourceTree = "<group>"; };
+		38276F342219F1F500859EA6 /* PDKGeofencesGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKGeofencesGenerator.m; path = Generators/Environment/PDKGeofencesGenerator.m; sourceTree = "<group>"; };
 		382BEDD11F01B41500A99FA4 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = PassiveDataKit.strings; sourceTree = "<group>"; };
 		383ECC601D1F742E004E0B2B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -383,6 +391,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		38276F052216442300859EA6 /* Device */ = {
+			isa = PBXGroup;
+			children = (
+				38276F062216444900859EA6 /* PDKSystemStatusGenerator.h */,
+				38276F072216444900859EA6 /* PDKSystemStatusGenerator.m */,
+			);
+			name = Device;
+			sourceTree = "<group>";
+		};
+		38276F1C2219F1D200859EA6 /* Environment */ = {
+			isa = PBXGroup;
+			children = (
+				38276F332219F1F500859EA6 /* PDKGeofencesGenerator.h */,
+				38276F342219F1F500859EA6 /* PDKGeofencesGenerator.m */,
+			);
+			name = Environment;
+			sourceTree = "<group>";
+		};
 		383ECC571D1F517F004E0B2B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -486,6 +512,8 @@
 		38C666AD1D037FA700E6A6C8 /* Generators */ = {
 			isa = PBXGroup;
 			children = (
+				38276F1C2219F1D200859EA6 /* Environment */,
+				38276F052216442300859EA6 /* Device */,
 				38F3333721236D400096D54B /* Fitness Services & Devices */,
 				38FDC0DA211E0E8B00D2E51C /* PDKBaseGenerator.h */,
 				38FDC0DE211E0E8B00D2E51C /* PDKBaseGenerator.m */,
@@ -613,8 +641,10 @@
 				38FDC0E7211E0E8B00D2E51C /* PDKPedometerGenerator.h in Headers */,
 				38F33394212EEAF20096D54B /* PDKWithingsGenerator.h in Headers */,
 				38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */,
+				38276F352219F1F500859EA6 /* PDKGeofencesGenerator.h in Headers */,
 				38FDC0E6211E0E8B00D2E51C /* PDKAppleHealthKitGenerator.h in Headers */,
 				38FDC0E8211E0E8B00D2E51C /* PDKEventsGenerator.h in Headers */,
+				38276F082216444900859EA6 /* PDKSystemStatusGenerator.h in Headers */,
 				38F3333A21236D670096D54B /* PDKFitbitGenerator.h in Headers */,
 				38FDC0ED211E0E8B00D2E51C /* PDKBatteryGenerator.h in Headers */,
 				38FDC10B211E0EBE00D2E51C /* PDKGeneratorDetailsViewController.h in Headers */,
@@ -676,7 +706,7 @@
 		3842F7281CDA2021007F843D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1000;
+				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Audacious Software";
 				TargetAttributes = {
 					3842F7301CDA2021007F843D = {
@@ -922,8 +952,10 @@
 				38FDC0DF211E0E8B00D2E51C /* PDKLocationGenerator.m in Sources */,
 				38FDC10C211E0EBE00D2E51C /* PDKGeneratorDetailsViewController.m in Sources */,
 				38FDC0E2211E0E8B00D2E51C /* PDKAppleHealthKitGenerator.m in Sources */,
+				38276F362219F1F500859EA6 /* PDKGeofencesGenerator.m in Sources */,
 				38FDC0EB211E0E8B00D2E51C /* PDKGooglePlacesGenerator.m in Sources */,
 				3842F7571CDA20FE007F843D /* PassiveDataKit.m in Sources */,
+				38276F092216444900859EA6 /* PDKSystemStatusGenerator.m in Sources */,
 				38FDC0E0211E0E8B00D2E51C /* PDKEventsGenerator.m in Sources */,
 				38FDC0C9211DDD3E00D2E51C /* PDKPedometerGeneratorViewController.m in Sources */,
 				38FDC107211E0EBE00D2E51C /* PDKEventsGeneratorViewController.m in Sources */,

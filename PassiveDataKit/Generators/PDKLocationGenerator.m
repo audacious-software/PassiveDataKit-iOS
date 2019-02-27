@@ -551,8 +551,7 @@ static PDKLocationGenerator * sharedObject = nil;
 }
 
 #pragma mark - MKMapViewDelegate
-- (MKOverlayRenderer *)mapView:(MKMapView *)mapView rendererForOverlay:(id<MKOverlay>)overlay
-{
+- (MKOverlayRenderer *)mapView:(MKMapView *)mapView rendererForOverlay:(id<MKOverlay>)overlay {
     return [[DTMHeatmapRenderer alloc] initWithOverlay:overlay];
 }
 

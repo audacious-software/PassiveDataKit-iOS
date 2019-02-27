@@ -56,6 +56,8 @@ extern NSString *const PDKLocationFloor;
 extern NSString *const PDKPedometerFloorsDescended;
 extern NSString *const PDKPedometerFloorsDescended;
 
+extern NSString *const PDKGeofencesURL;
+
 typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKAnyGenerator,
     PDKLocation,
@@ -66,6 +68,8 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKBattery,
     PDKWithings,
     PDKFitbit,
+    PDKSystemStatus,
+    PDKGeofences,
 };
 
 @protocol PDKDataListener
@@ -169,5 +173,7 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 - (void) setCurrentUserFlow:(id<OIDExternalUserAgentSession>) flow;
 
 - (void) transmitDeviceToken:(NSData *) tokenData;
+
+- (NSDate *) appStart;
 
 @end
