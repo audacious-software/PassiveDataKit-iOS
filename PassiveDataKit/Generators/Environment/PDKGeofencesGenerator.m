@@ -28,6 +28,9 @@
 
 #define ACTIVE_FENCE_LIMIT 16
 
+#define RETENTION_PERIOD @"PDKGeofencesGenerator.RETENTION_PERIOD"
+#define RETENTION_PERIOD_DEFAULT (90 * 24 * 60 * 60)
+
 NSString * const PDKGeofencesURL = @"PDKGeofencesURL"; //!OCLINT
 
 NSString * const PDKGeofenceTransitionInside = @"enter"; //!OCLINT
@@ -355,15 +358,11 @@ static PDKGeofencesGenerator * sharedObject = nil;
     if ([monitoredIdentifiers isEqualToSet:newIdentifiers] == NO) {
         for (NSString * identifier in monitoredIdentifiers) {
             [self.locationManager stopMonitoringForRegion:monitoredRegions[identifier]];
-
-            NSLog(@"UNLOADING FENCE: %@", identifier);
         }
 
         for (NSString * identifier in newIdentifiers) {
             NSDictionary * region = newRegions[identifier];
             
-            // NSLog(@"LOADING FENCE: %@", region);
-
             NSArray * coords = region[@"geometry"][@"coordinates"];
             
             CLLocationCoordinate2D coordinate;
@@ -531,6 +530,41 @@ static PDKGeofencesGenerator * sharedObject = nil;
     }
 
     return timeIn / 60.0;
+}
+
+- (void) setCachedDataRetentionPeriod:(NSTimeInterval) period {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    
+    [defaults setValue:@(period) forKey:RETENTION_PERIOD];
+    [defaults synchronize];
+}
+
+- (void) flushCachedData {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+
+    NSNumber * retention = [defaults valueForKey:RETENTION_PERIOD];
+    
+    if (retention == nil) {
+        retention = @(RETENTION_PERIOD_DEFAULT);
+    }
+
+    NSString * delete = @"DELETE FROM history WHERE observed < ?";
+    
+    sqlite3_stmt * stmt;
+    
+    int retVal = sqlite3_prepare_v2(self.database, [delete UTF8String], -1, &stmt, NULL);
+    
+    if (retVal == SQLITE_OK) {
+        NSTimeInterval start = [NSDate date].timeIntervalSince1970 - retention.doubleValue;
+        
+        sqlite3_bind_double(stmt, 1, start);
+        
+        if (SQLITE_DONE != sqlite3_step(stmt)) {
+            NSLog(@"Error while clearing data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+        }
+    }
+
+    sqlite3_finalize(stmt);
 }
 
 @end

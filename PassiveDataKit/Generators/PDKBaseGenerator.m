@@ -38,4 +38,12 @@
     NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
 }
 
+- (void) setCachedDataRetentionPeriod:(NSTimeInterval) period {
+    NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
+}
+
+- (void) flushCachedData {
+    NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
+}
+
 @end

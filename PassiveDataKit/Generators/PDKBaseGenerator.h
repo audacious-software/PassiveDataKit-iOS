@@ -15,4 +15,7 @@
 - (void) addListener:(id<PDKDataListener>) listener options:(NSDictionary *) options;
 - (void) removeListener:(id<PDKDataListener>) listener;
 
+- (void) setCachedDataRetentionPeriod:(NSTimeInterval) period;
+- (void) flushCachedData;
+
 @end

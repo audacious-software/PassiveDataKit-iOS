@@ -10,6 +10,9 @@
 
 #import "PDKSystemStatusGenerator.h"
 
+#define RETENTION_PERIOD @"PDKGeofencesGenerator.RETENTION_PERIOD"
+#define RETENTION_PERIOD_DEFAULT (90 * 24 * 60 * 60)
+
 NSString * const PDKSystemStatusRuntime = @"runtime"; //!OCLINT
 NSString * const PDKSystemStatusStorageApp = @"storage_app"; //!OCLINT
 NSString * const PDKSystemStatusStorageOther = @"storage_other"; //!OCLINT
@@ -219,6 +222,41 @@ static PDKSystemStatusGenerator * sharedObject = nil;
 
 + (NSString *) title {
     return NSLocalizedStringFromTableInBundle(@"name_generator_system_status", @"PassiveDataKit", [NSBundle bundleForClass:self.class], nil);
+}
+
+- (void) setCachedDataRetentionPeriod:(NSTimeInterval) period {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    
+    [defaults setValue:@(period) forKey:RETENTION_PERIOD];
+    [defaults synchronize];
+}
+
+- (void) flushCachedData {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    
+    NSNumber * retention = [defaults valueForKey:RETENTION_PERIOD];
+    
+    if (retention == nil) {
+        retention = @(RETENTION_PERIOD_DEFAULT);
+    }
+    
+    NSString * delete = @"DELETE FROM system_status_data WHERE timestamp < ?";
+    
+    sqlite3_stmt * stmt;
+    
+    int retVal = sqlite3_prepare_v2(self.database, [delete UTF8String], -1, &stmt, NULL);
+    
+    if (retVal == SQLITE_OK) {
+        NSTimeInterval start = [NSDate date].timeIntervalSince1970 - retention.doubleValue;
+        
+        sqlite3_bind_double(stmt, 1, start);
+        
+        if (SQLITE_DONE != sqlite3_step(stmt)) {
+            NSLog(@"Error while clearing data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+        }
+    }
+    
+    sqlite3_finalize(stmt);
 }
 
 @end

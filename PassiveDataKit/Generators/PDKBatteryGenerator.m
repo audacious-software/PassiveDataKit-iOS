@@ -23,6 +23,9 @@ NSString * const PDKBatteryStatusUnknown = @"unknown"; //!OCLINT
 
 #define GENERATOR_ID @"pdk-device-battery"
 
+#define RETENTION_PERIOD @"PDKGeofencesGenerator.RETENTION_PERIOD"
+#define RETENTION_PERIOD_DEFAULT (90 * 24 * 60 * 60)
+
 #define DATABASE_VERSION @"PDKBatteryGenerator.DATABASE_VERSION"
 #define CURRENT_DATABASE_VERSION @(1)
 
@@ -392,6 +395,41 @@ static PDKBatteryGenerator * sharedObject = nil;
     dateLabel.frame = CGRectMake(floor((viewFrame.size.width - dateSize.width) / 2), floor((viewFrame.size.height - dateSize.height) / 2), dateSize.width, dateSize.height);
     
     return cell;
+}
+
+- (void) setCachedDataRetentionPeriod:(NSTimeInterval) period {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    
+    [defaults setValue:@(period) forKey:RETENTION_PERIOD];
+    [defaults synchronize];
+}
+
+- (void) flushCachedData {
+    NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
+    
+    NSNumber * retention = [defaults valueForKey:RETENTION_PERIOD];
+    
+    if (retention == nil) {
+        retention = @(RETENTION_PERIOD_DEFAULT);
+    }
+    
+    NSString * delete = @"DELETE FROM battery_data WHERE timestamp < ?";
+    
+    sqlite3_stmt * stmt;
+    
+    int retVal = sqlite3_prepare_v2(self.database, [delete UTF8String], -1, &stmt, NULL);
+    
+    if (retVal == SQLITE_OK) {
+        NSTimeInterval start = [NSDate date].timeIntervalSince1970 - retention.doubleValue;
+        
+        sqlite3_bind_double(stmt, 1, start);
+        
+        if (SQLITE_DONE != sqlite3_step(stmt)) {
+            NSLog(@"Error while clearing data. %d '%s'", retVal, sqlite3_errmsg(self.database));
+        }
+    }
+    
+    sqlite3_finalize(stmt);
 }
 
 @end
