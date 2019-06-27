@@ -12,6 +12,7 @@
 
 #import "PDKEventsGenerator.h"
 #import "PDKLocationGenerator.h"
+#import "PDKDarkSkyWeatherGenerator.h"
 #import "PDKGeofencesGenerator.h"
 #import "PDKGooglePlacesGenerator.h"
 #import "PDKPedometerGenerator.h"
@@ -54,6 +55,8 @@ NSString * const PDKGooglePlacesType = @"PDKGooglePlacesType"; //!OCLINT
 NSString * const PDKGooglePlacesRadius = @"PDKGooglePlacesRadius"; //!OCLINT
 NSString * const PDKGooglePlacesIncludeFullDetails = @"PDKGooglePlacesIncludeFullDetails"; //!OCLINT
 NSString * const PDKGooglePlacesFreetextQuery = @"PDKGooglePlacesFreetextQuery"; //!OCLINT
+
+NSString * const PDKDarkSkyWeatherAPIKey = @"PDKDarkSkyWeatherAPIKey"; //!OCLINT
 
 @implementation PDKAlert
 @end
@@ -234,6 +237,8 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKSystemStatusGenerator";
         case PDKGeofences:
             return @"PDKGeofencesGenerator";
+        case PDKDarkSkyWeather:
+            return @"PDKDarkSkyWeather";
         case PDKAnyGenerator:
             return @"PDKAnyGenerator";
     }
@@ -261,6 +266,8 @@ static PassiveDataKit * sharedObject = nil;
             return [PDKWithingsGenerator sharedInstance];
         case PDKGeofences:
             return [PDKGeofencesGenerator sharedInstance];
+        case PDKDarkSkyWeather:
+            return [PDKDarkSkyWeatherGenerator sharedInstance];
         case PDKAnyGenerator:
             break;
     }
@@ -474,8 +481,6 @@ static PassiveDataKit * sharedObject = nil;
             return YES;
         }
     }
-
-    NSLog(@"PDK: DID NOT HANDLE URL: %@", url);
 
     return NO;
 }

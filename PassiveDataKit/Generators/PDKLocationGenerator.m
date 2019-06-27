@@ -45,7 +45,7 @@ NSString * const PDKLocationAltitudeAccuracy = @"altitude-accuracy"; //!OCLINT
 NSString * const PDKLocationFloor = @"floor"; //!OCLINT
 NSString * const PDKLocationSpeed = @"speed"; //!OCLINT
 NSString * const PDKLocationBearing = @"bearing"; //!OCLINT
-
+NSString * const PDKAuthorizationStatus = @"auth_status"; //!OCLINT
 
 #define GENERATOR_ID @"pdk-location"
 
@@ -397,6 +397,24 @@ static PDKLocationGenerator * sharedObject = nil;
                 [data setValue:[NSNumber numberWithDouble:thisLocation.horizontalAccuracy] forKey:PDKLocationAccuracy];
                 [data setValue:[NSNumber numberWithDouble:thisLocation.verticalAccuracy] forKey:PDKLocationAltitudeAccuracy];
                 [data setValue:[NSNumber numberWithInteger:thisLocation.floor.level] forKey:PDKLocationFloor];
+
+                switch ([CLLocationManager authorizationStatus]) {
+                    case kCLAuthorizationStatusDenied:
+                        [data setValue:@"denied" forKey:PDKAuthorizationStatus];
+                        break;
+                    case kCLAuthorizationStatusRestricted:
+                        [data setValue:@"restricted" forKey:PDKAuthorizationStatus];
+                        break;
+                    case kCLAuthorizationStatusNotDetermined:
+                        [data setValue:@"not_determined" forKey:PDKAuthorizationStatus];
+                        break;
+                    case kCLAuthorizationStatusAuthorizedAlways:
+                        [data setValue:@"always" forKey:PDKAuthorizationStatus];
+                        break;
+                    case kCLAuthorizationStatusAuthorizedWhenInUse:
+                        [data setValue:@"in_use" forKey:PDKAuthorizationStatus];
+                        break;
+                }
                 
                 if (thisLocation.speed >= 0) {
                     [data setValue:[NSNumber numberWithDouble:thisLocation.speed] forKey:PDKLocationSpeed];
@@ -700,6 +718,16 @@ static PDKLocationGenerator * sharedObject = nil;
     }
     
     return locations;
+}
+
+- (void) startUpdates {
+    NSLog(@"STARTING LOCATION UPDATES");
+    [self.locationManager startUpdatingLocation];
+}
+
+- (void) stopUpdates {
+    NSLog(@"STOPPING LOCATION UPDATES");
+    [self.locationManager stopUpdatingLocation];
 }
 
 @end

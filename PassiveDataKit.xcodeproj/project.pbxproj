@@ -37,6 +37,8 @@
 		387F9A571D1B8AF3007FA29A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A561D1B8AF3007FA29A /* CoreGraphics.framework */; };
 		387F9A591D1B8AF9007FA29A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A581D1B8AF9007FA29A /* QuartzCore.framework */; };
 		387F9A5C1D1B8E32007FA29A /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 387F9A5B1D1B8E32007FA29A /* libicucore.tbd */; };
+		388D45D922C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 388D45D722C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		388D45DA22C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 388D45D822C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.m */; };
 		388D5E401EF76CD500C9A2A2 /* PassiveDataKit-Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 388D5E3F1EF76C5000C9A2A2 /* PassiveDataKit-Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */; };
@@ -296,6 +298,8 @@
 		387F9A561D1B8AF3007FA29A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		387F9A581D1B8AF9007FA29A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		387F9A5B1D1B8E32007FA29A /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
+		388D45D722C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKDarkSkyWeatherGenerator.h; path = "Generators/Third-Party Services/PDKDarkSkyWeatherGenerator.h"; sourceTree = "<group>"; };
+		388D45D822C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKDarkSkyWeatherGenerator.m; path = "Generators/Third-Party Services/PDKDarkSkyWeatherGenerator.m"; sourceTree = "<group>"; };
 		388D5E3F1EF76C5000C9A2A2 /* PassiveDataKit-Shared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PassiveDataKit-Shared.h"; sourceTree = "<group>"; };
 		389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RAInflections.h"; sourceTree = "<group>"; };
 		389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RAInflections.m"; sourceTree = "<group>"; };
@@ -479,6 +483,15 @@
 			path = DTMHeatmap;
 			sourceTree = "<group>";
 		};
+		388D45C022C50CB700F6ABFA /* Third-Party Services */ = {
+			isa = PBXGroup;
+			children = (
+				388D45D722C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.h */,
+				388D45D822C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.m */,
+			);
+			name = "Third-Party Services";
+			sourceTree = "<group>";
+		};
 		389DE4CA1EF748EB009C8B27 /* Transmitters */ = {
 			isa = PBXGroup;
 			children = (
@@ -508,6 +521,7 @@
 		38C666AD1D037FA700E6A6C8 /* Generators */ = {
 			isa = PBXGroup;
 			children = (
+				388D45C022C50CB700F6ABFA /* Third-Party Services */,
 				38276F1C2219F1D200859EA6 /* Environment */,
 				38276F052216442300859EA6 /* Device */,
 				38F3333721236D400096D54B /* Fitness Services & Devices */,
@@ -632,6 +646,7 @@
 				385BC4681F9433710093157F /* DTMDiffHeatmap.h in Headers */,
 				38FDC0E4211E0E8B00D2E51C /* PDKGooglePlacesGenerator.h in Headers */,
 				385BC4691F9433710093157F /* DTMHeatmap.h in Headers */,
+				388D45D922C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.h in Headers */,
 				38FDC0E7211E0E8B00D2E51C /* PDKPedometerGenerator.h in Headers */,
 				38F33394212EEAF20096D54B /* PDKWithingsGenerator.h in Headers */,
 				38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */,
@@ -935,6 +950,7 @@
 				38F3333B21236D670096D54B /* PDKFitbitGenerator.m in Sources */,
 				385BC45F1F9432270093157F /* DTMColorProvider.m in Sources */,
 				38FDC16621207B6100D2E51C /* NSArray+Statistics.m in Sources */,
+				388D45DA22C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.m in Sources */,
 				38FDC0EE211E0E8B00D2E51C /* PDKBaseGenerator.m in Sources */,
 				385BC4601F9432270093157F /* DTMDiffColorProvider.m in Sources */,
 				38FDC104211E0EBE00D2E51C /* PDKGeneratorViewController.m in Sources */,

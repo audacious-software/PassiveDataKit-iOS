@@ -69,6 +69,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKFitbit,
     PDKSystemStatus,
     PDKGeofences,
+    PDKDarkSkyWeather,
 };
 
 @protocol PDKDataListener

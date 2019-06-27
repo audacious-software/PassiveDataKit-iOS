@@ -36,4 +36,7 @@ extern NSString *const PDKLocationAccuracyModeUserProvidedLongitude;
 
 - (void) requestRequiredPermissions:(void (^)(void))callback;
 
+- (void) startUpdates;
+- (void) stopUpdates;
+
 @end
