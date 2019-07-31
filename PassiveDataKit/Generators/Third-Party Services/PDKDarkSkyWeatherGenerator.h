@@ -10,7 +10,7 @@
 
 #import "PDKBaseGenerator.h"
 
-extern NSString * const PDKDarkSkyAPIKey;
+extern NSString * _Nonnull const PDKDarkSkyAPIKey;
 
 NS_ASSUME_NONNULL_BEGIN
 

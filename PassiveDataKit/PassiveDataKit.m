@@ -20,6 +20,7 @@
 #import "PDKSystemStatusGenerator.h"
 #import "PDKFitbitGenerator.h"
 #import "PDKWithingsGenerator.h"
+#import "PDKAccelerometerGenerator.h"
 
 #import "PDKDataReportViewController.h"
 #import "PDKAlertsTableViewController.h"
@@ -239,6 +240,8 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKGeofencesGenerator";
         case PDKDarkSkyWeather:
             return @"PDKDarkSkyWeather";
+        case PDKAccelerometer:
+            return @"PDKAccelerometer";
         case PDKAnyGenerator:
             return @"PDKAnyGenerator";
     }
@@ -268,6 +271,8 @@ static PassiveDataKit * sharedObject = nil;
             return [PDKGeofencesGenerator sharedInstance];
         case PDKDarkSkyWeather:
             return [PDKDarkSkyWeatherGenerator sharedInstance];
+        case PDKAccelerometer:
+            return [PDKAccelerometerGenerator sharedInstance];
         case PDKAnyGenerator:
             break;
     }

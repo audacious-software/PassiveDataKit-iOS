@@ -9,6 +9,7 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 #import "PDKHttpTransmitter.h"
 
 #import "PDKBaseGenerator.h"
+#import "PDKAccelerometerGenerator.h"
 #import "PDKLocationGenerator.h"
 #import "PDKGooglePlacesGenerator.h"
 #import "PDKPedometerGenerator.h"

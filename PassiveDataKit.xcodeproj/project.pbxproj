@@ -17,6 +17,8 @@
 		383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */; };
 		383ECC611D1F742E004E0B2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC601D1F742E004E0B2B /* Assets.xcassets */; };
 		383ECC631D1F7E9F004E0B2B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 383ECC621D1F7E9F004E0B2B /* MapKit.framework */; };
+		384089D122F0E91300F18243 /* PDKAccelerometerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 384089CF22F0E91300F18243 /* PDKAccelerometerGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		384089D222F0E91300F18243 /* PDKAccelerometerGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 384089D022F0E91300F18243 /* PDKAccelerometerGenerator.m */; };
 		3842F7351CDA2021007F843D /* PassiveDataKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3842F7341CDA2021007F843D /* PassiveDataKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3842F73C1CDA2021007F843D /* PassiveDataKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3842F7311CDA2021007F843D /* PassiveDataKit.framework */; };
 		3842F7411CDA2021007F843D /* PassiveDataKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3842F7401CDA2021007F843D /* PassiveDataKitTests.m */; };
@@ -101,6 +103,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 1CBBC58C6CE1EBEE9852CE41;
 			remoteInfo = ChartsTests;
+		};
+		384089B322F0E16E00F18243 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 343AAA531E83463400F9D36E;
+			remoteInfo = AppAuth_iOS;
 		};
 		3842F73D1CDA2021007F843D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -275,6 +284,8 @@
 		383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = PassiveDataKit.strings; sourceTree = "<group>"; };
 		383ECC601D1F742E004E0B2B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		383ECC621D1F7E9F004E0B2B /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		384089CF22F0E91300F18243 /* PDKAccelerometerGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKAccelerometerGenerator.h; path = Generators/Sensors/PDKAccelerometerGenerator.h; sourceTree = "<group>"; };
+		384089D022F0E91300F18243 /* PDKAccelerometerGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKAccelerometerGenerator.m; path = Generators/Sensors/PDKAccelerometerGenerator.m; sourceTree = "<group>"; };
 		3842F7311CDA2021007F843D /* PassiveDataKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PassiveDataKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3842F7341CDA2021007F843D /* PassiveDataKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PassiveDataKit.h; sourceTree = "<group>"; };
 		3842F7361CDA2021007F843D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = PassiveDataKit/Info.plist; sourceTree = "<group>"; };
@@ -419,6 +430,15 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		384089CE22F0E8F400F18243 /* Sensors */ = {
+			isa = PBXGroup;
+			children = (
+				384089CF22F0E91300F18243 /* PDKAccelerometerGenerator.h */,
+				384089D022F0E91300F18243 /* PDKAccelerometerGenerator.m */,
+			);
+			name = Sensors;
+			sourceTree = "<group>";
+		};
 		3842F7271CDA2021007F843D = {
 			isa = PBXGroup;
 			children = (
@@ -521,6 +541,7 @@
 		38C666AD1D037FA700E6A6C8 /* Generators */ = {
 			isa = PBXGroup;
 			children = (
+				384089CE22F0E8F400F18243 /* Sensors */,
 				388D45C022C50CB700F6ABFA /* Third-Party Services */,
 				38276F1C2219F1D200859EA6 /* Environment */,
 				38276F052216442300859EA6 /* Device */,
@@ -652,6 +673,7 @@
 				38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */,
 				38276F352219F1F500859EA6 /* PDKGeofencesGenerator.h in Headers */,
 				38FDC0E8211E0E8B00D2E51C /* PDKEventsGenerator.h in Headers */,
+				384089D122F0E91300F18243 /* PDKAccelerometerGenerator.h in Headers */,
 				38276F082216444900859EA6 /* PDKSystemStatusGenerator.h in Headers */,
 				38F3333A21236D670096D54B /* PDKFitbitGenerator.h in Headers */,
 				38FDC0ED211E0E8B00D2E51C /* PDKBatteryGenerator.h in Headers */,
@@ -683,6 +705,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				384089B422F0E16E00F18243 /* PBXTargetDependency */,
 				38724800214FE5AF0074C50B /* PBXTargetDependency */,
 			);
 			name = PassiveDataKit;
@@ -714,7 +737,7 @@
 		3842F7281CDA2021007F843D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1010;
+				LastUpgradeCheck = 1030;
 				ORGANIZATIONNAME = "Audacious Software";
 				TargetAttributes = {
 					3842F7301CDA2021007F843D = {
@@ -970,6 +993,7 @@
 				38FDC107211E0EBE00D2E51C /* PDKEventsGeneratorViewController.m in Sources */,
 				385BC4671F9433470093157F /* DTMHeatmap.m in Sources */,
 				38FDC10D211E0EBE00D2E51C /* PDKLocationAnnotation.m in Sources */,
+				384089D222F0E91300F18243 /* PDKAccelerometerGenerator.m in Sources */,
 				38FDC0F5211E0EA300D2E51C /* PDKHttpTransmitter.m in Sources */,
 				38FDC0E1211E0E8B00D2E51C /* PDKBatteryGenerator.m in Sources */,
 				38FDC109211E0EBE00D2E51C /* PDKBatteryGeneratorViewController.m in Sources */,
@@ -990,6 +1014,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		384089B422F0E16E00F18243 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AppAuth_iOS;
+			targetProxy = 384089B322F0E16E00F18243 /* PBXContainerItemProxy */;
+		};
 		3842F73E1CDA2021007F843D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3842F7301CDA2021007F843D /* PassiveDataKit */;
@@ -1007,6 +1036,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -1066,6 +1096,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
