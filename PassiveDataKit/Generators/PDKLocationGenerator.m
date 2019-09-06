@@ -721,12 +721,10 @@ static PDKLocationGenerator * sharedObject = nil;
 }
 
 - (void) startUpdates {
-    NSLog(@"STARTING LOCATION UPDATES");
     [self.locationManager startUpdatingLocation];
 }
 
 - (void) stopUpdates {
-    NSLog(@"STOPPING LOCATION UPDATES");
     [self.locationManager stopUpdatingLocation];
 }
 

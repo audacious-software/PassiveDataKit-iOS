@@ -259,8 +259,6 @@ static PDKAccelerometerGenerator * sharedObject = nil;
         return;
     }
     
-    NSLog(@"STARTING LOCATION UPDATES");
-    
     self.isRunning = YES;
     
     NSNumber * sampleRate = self.lastOptions[PDKAccelerometerSampleRate];

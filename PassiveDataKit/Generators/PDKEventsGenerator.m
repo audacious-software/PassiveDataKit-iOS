@@ -114,8 +114,6 @@ static PDKEventsGenerator * sharedObject = nil;
     // [defaults synchronize];
     
     [[PassiveDataKit sharedInstance] receivedData:event forGenerator:PDKEvents];
-    
-    NSLog(@"LOGGED EVENT: %@", eventName);
 }
 
 + (UIViewController *) detailsController {

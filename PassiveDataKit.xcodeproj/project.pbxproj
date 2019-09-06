@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		381F1C041FE78832008DCE52 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */; };
-		3822E334211CDA8200CA31DA /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3822E331211CDA6300CA31DA /* Charts.framework */; };
 		38276F082216444900859EA6 /* PDKSystemStatusGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38276F062216444900859EA6 /* PDKSystemStatusGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38276F092216444900859EA6 /* PDKSystemStatusGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38276F072216444900859EA6 /* PDKSystemStatusGenerator.m */; };
 		38276F352219F1F500859EA6 /* PDKGeofencesGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38276F332219F1F500859EA6 /* PDKGeofencesGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -42,6 +41,7 @@
 		388D45D922C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 388D45D722C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		388D45DA22C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 388D45D822C50CE400F6ABFA /* PDKDarkSkyWeatherGenerator.m */; };
 		388D5E401EF76CD500C9A2A2 /* PassiveDataKit-Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 388D5E3F1EF76C5000C9A2A2 /* PassiveDataKit-Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3899BFAD231EAAF3004D487D /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3822E331211CDA6300CA31DA /* Charts.framework */; };
 		389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */; };
 		38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38A652421CDA30DB00AE8B3B /* CoreLocation.framework */; };
@@ -124,6 +124,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 299522381BBF104D00859F49;
 			remoteInfo = "AFNetworking iOS";
+		};
+		3899BFA6231EAA9D004D487D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 342F42C32177B1FC00574F24;
+			remoteInfo = AppAuthCore;
+		};
+		3899BFA8231EAA9D004D487D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38F3330121236D0B0096D54B /* AppAuth.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 348970972177B3B000ABEED4;
+			remoteInfo = AppAuthCoreTests;
 		};
 		38F3331921236D0B0096D54B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -368,7 +382,6 @@
 			files = (
 				38F3333C212378AA0096D54B /* AppAuth.framework in Frameworks */,
 				38FDC12F211E2FD200D2E51C /* AFNetworking.framework in Frameworks */,
-				3822E334211CDA8200CA31DA /* Charts.framework in Frameworks */,
 				381F1C041FE78832008DCE52 /* libsqlite3.tbd in Frameworks */,
 				382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */,
 				383ECC631D1F7E9F004E0B2B /* MapKit.framework in Frameworks */,
@@ -379,6 +392,7 @@
 				387F9A531D1B8AD7007FA29A /* CoreTelephony.framework in Frameworks */,
 				387F9A511D1B8ACD007FA29A /* SystemConfiguration.framework in Frameworks */,
 				38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */,
+				3899BFAD231EAAF3004D487D /* Charts.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -615,10 +629,12 @@
 				38F3332821236D0B0096D54B /* AppAuth.framework */,
 				38F3332A21236D0B0096D54B /* AppAuth_iOSTests.xctest */,
 				38F3332C21236D0B0096D54B /* AppAuth.framework */,
-				38F3332E21236D0B0096D54B /* AppAUth.framework */,
+				38F3332E21236D0B0096D54B /* AppAuth.framework */,
 				38F3333021236D0B0096D54B /* AppAuth_tvOSTests.xctest */,
 				38F3333221236D0B0096D54B /* AppAuth.framework */,
 				38F3333421236D0B0096D54B /* AppAuth_macOSTests.xctest */,
+				3899BFA7231EAA9D004D487D /* AppAuthCore.framework */,
+				3899BFA9231EAA9D004D487D /* AppAuthCoreTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -796,6 +812,20 @@
 			remoteRef = 3822E332211CDA6300CA31DA /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		3899BFA7231EAA9D004D487D /* AppAuthCore.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = AppAuthCore.framework;
+			remoteRef = 3899BFA6231EAA9D004D487D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3899BFA9231EAA9D004D487D /* AppAuthCoreTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = AppAuthCoreTests.xctest;
+			remoteRef = 3899BFA8231EAA9D004D487D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		38F3331A21236D0B0096D54B /* libAppAuth-iOS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -866,10 +896,10 @@
 			remoteRef = 38F3332B21236D0B0096D54B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		38F3332E21236D0B0096D54B /* AppAUth.framework */ = {
+		38F3332E21236D0B0096D54B /* AppAuth.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = AppAUth.framework;
+			path = AppAuth.framework;
 			remoteRef = 38F3332D21236D0B0096D54B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
