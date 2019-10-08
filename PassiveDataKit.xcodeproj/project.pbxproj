@@ -753,7 +753,7 @@
 		3842F7281CDA2021007F843D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = "Audacious Software";
 				TargetAttributes = {
 					3842F7301CDA2021007F843D = {
@@ -766,11 +766,11 @@
 			};
 			buildConfigurationList = 3842F72B1CDA2021007F843D /* Build configuration list for PBXProject "PassiveDataKit" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
+				Base,
 			);
 			mainGroup = 3842F7271CDA2021007F843D;
 			productRefGroup = 3842F7321CDA2021007F843D /* Products */;
