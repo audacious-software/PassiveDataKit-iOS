@@ -27,4 +27,6 @@ extern NSString *const PDKPedometerDailySummaryDataEnabled;
 
 - (void) refresh;
 
+- (void) requestRequiredPermissions:(void (^)(void))callback;
+
 @end

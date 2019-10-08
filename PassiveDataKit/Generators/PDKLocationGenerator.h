@@ -35,6 +35,7 @@ extern NSString *const PDKLocationAccuracyModeUserProvidedLongitude;
 - (NSArray *) locationsFrom:(NSDate *) startDate to:(NSDate *) endDate;
 
 - (void) requestRequiredPermissions:(void (^)(void))callback;
+- (void) updateOptions:(NSDictionary *) options;
 
 - (void) startUpdates;
 - (void) stopUpdates;

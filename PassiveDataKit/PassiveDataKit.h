@@ -8,7 +8,9 @@
 
 @import UIKit;
 
-#import <AppAuth/AppAuth.h>
+@import AppAuth;
+
+// #import <AppAuth/AppAuth.h>
 
 //! Project version number for PassiveDataKit.
 FOUNDATION_EXPORT double PassiveDataKitVersionNumber;

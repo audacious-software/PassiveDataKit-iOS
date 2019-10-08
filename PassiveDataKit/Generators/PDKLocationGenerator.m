@@ -57,6 +57,7 @@ NSString * const PDKAuthorizationStatus = @"auth_status"; //!OCLINT
 @property NSString * mode;
 
 @property (nonatomic, copy) void (^accessDeniedBlock)(void);
+@property (nonatomic, copy) void (^accessGrantedBlock)(void);
 
 @property sqlite3 * database;
 
@@ -105,6 +106,9 @@ static PDKLocationGenerator * sharedObject = nil;
         self.database = [self openDatabase];
         
         self.requestPermissions = YES;
+        
+        self.accessGrantedBlock = nil;
+        self.accessDeniedBlock = nil;
     }
     
     return self;
@@ -214,14 +218,38 @@ static PDKLocationGenerator * sharedObject = nil;
     if (options == nil) {
         options = @{}; //!OCLINT
     }
-    
+
+    self.lastOptions = options;
+
 //    NSLog(@"TODO: Update options and refresh generator!");
 }
 
 - (void) requestRequiredPermissions:(void (^)(void))callback {
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
+
+    if (callback != nil) {
+        self.accessGrantedBlock = [callback copy];
+    }
+
     NSNumber * alwaysOn = [self.lastOptions valueForKey:PDKLocationAlwaysOn];
+
+    switch (status) {
+        case kCLAuthorizationStatusDenied:
+            NSLog(@"denied");
+            break;
+        case kCLAuthorizationStatusRestricted:
+            NSLog(@"restricted");
+            break;
+        case kCLAuthorizationStatusNotDetermined:
+            NSLog(@"not_determined");
+            break;
+        case kCLAuthorizationStatusAuthorizedAlways:
+            NSLog(@"always");
+            break;
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+            NSLog(@"in_use");
+            break;
+    }
 
     if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
         if (self.accessDeniedBlock != nil) {
@@ -240,9 +268,17 @@ static PDKLocationGenerator * sharedObject = nil;
     } else if (alwaysOn != nil && alwaysOn.boolValue && status == kCLAuthorizationStatusAuthorizedAlways) {
         self.locationManager.allowsBackgroundLocationUpdates = YES;
         self.locationManager.pausesLocationUpdatesAutomatically = NO;
+        
+        if (self.accessGrantedBlock != nil) {
+            self.accessGrantedBlock();
+        }
     } else { //!OCLINT
         self.locationManager.allowsBackgroundLocationUpdates = NO;
         self.locationManager.pausesLocationUpdatesAutomatically = YES;
+     
+        if (self.accessGrantedBlock != nil) {
+            self.accessGrantedBlock();
+        }
     }
 }
 
@@ -478,6 +514,14 @@ static PDKLocationGenerator * sharedObject = nil;
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     [self addListener:nil options:self.lastOptions];
+    
+    if (self.accessGrantedBlock != nil) {
+        self.accessGrantedBlock();
+        
+        if (status != kCLAuthorizationStatusNotDetermined) {
+            self.accessGrantedBlock = nil;
+        }
+    }
 }
 
 + (NSString *) title {

@@ -777,4 +777,16 @@ static PDKPedometerGenerator * sharedObject = nil;
     return YES;
 }
 
+- (void) requestRequiredPermissions:(void (^)(void))callback {
+    [self.pedometer queryPedometerDataFromDate:[NSDate date]
+                                        toDate:[NSDate date]
+                                   withHandler:^(CMPedometerData * _Nullable pedometerData, NSError * _Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (callback != nil) {
+                callback();
+            }
+        });
+    }];
+}
+
 @end
