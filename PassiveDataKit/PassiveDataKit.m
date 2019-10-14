@@ -102,6 +102,15 @@ static PassiveDataKit * sharedObject = nil;
     }
 }
 
+- (void) removeTransmitter:(id<PDKTransmitter>) transmitter {
+    if ([self.transmitters containsObject:transmitter]) {
+        [self.transmitters removeObject:transmitter];
+    }
+    
+    [transmitter unregister];
+}
+
+
 - (BOOL) registerListener:(id<PDKDataListener>) listener forGenerator:(PDKDataGenerator) dataGenerator options:(NSDictionary *) options {
     NSString * key = [PassiveDataKit keyForGenerator:dataGenerator];
     

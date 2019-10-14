@@ -104,6 +104,9 @@ typedef enum {
     return -1;
 }
 
+- (void) unregister {
+    [[PassiveDataKit sharedInstance] unregisterListener:self forGenerator:PDKAnyGenerator];
+}
 
 #pragma mark - Database Methods
 

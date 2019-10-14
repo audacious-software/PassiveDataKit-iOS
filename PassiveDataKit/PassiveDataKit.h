@@ -100,6 +100,7 @@ typedef NS_ENUM(NSInteger, PDKDataGenerator) {
 // - (void) transmitReadings;
 - (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler;
 - (NSInteger) pendingDataPoints;
+- (void) unregister;
 
 @end
 
@@ -165,6 +166,7 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 - (UIViewController *) alertsController;
 
 - (void) addTransmitter:(id<PDKTransmitter>) transmitter;
+- (void) removeTransmitter:(id<PDKTransmitter>) transmitter;
 
 - (NSArray *) alerts;
 - (void) updateAlertWithTag:(NSString *) alertTag title:(NSString *) title message:(NSString *) message level:(PDKAlertLevel) level action:(void(^)(void)) action;
