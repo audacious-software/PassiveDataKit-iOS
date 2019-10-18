@@ -231,27 +231,7 @@ static PDKLocationGenerator * sharedObject = nil;
         self.accessGrantedBlock = [callback copy];
     }
     
-    /*
     NSNumber * alwaysOn = [self.lastOptions valueForKey:PDKLocationAlwaysOn];
-
-    switch (status) {
-        case kCLAuthorizationStatusDenied:
-            NSLog(@"denied");
-            break;
-        case kCLAuthorizationStatusRestricted:
-            NSLog(@"restricted");
-            break;
-        case kCLAuthorizationStatusNotDetermined:
-            NSLog(@"not_determined");
-            break;
-        case kCLAuthorizationStatusAuthorizedAlways:
-            NSLog(@"always");
-            break;
-        case kCLAuthorizationStatusAuthorizedWhenInUse:
-            NSLog(@"in_use");
-            break;
-    }
-     */
 
     if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
         if (self.accessDeniedBlock != nil) {
