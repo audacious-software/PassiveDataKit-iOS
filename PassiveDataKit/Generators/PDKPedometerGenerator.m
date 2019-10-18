@@ -32,6 +32,9 @@ NSString * const PDKPedometerFromBackground = @"from-background"; //!OCLINT
 NSString * const PDKPedometerDailySummaryNumberOfStep = @"daily-summary-steps"; //!OCLINT
 NSString * const PDKPedometerDailySummaryDistance = @"daily-summary-distance"; //!OCLINT
 NSString * const PDKPedometerDailySummaryAverageActivePace = @"daily-average-pace"; //!OCLINT
+NSString * const PDKPedometerDailySummaryFloors = @"daily-summary-floors"; //!OCLINT
+NSString * const PDKPedometerDailySummaryFloorsAscended = @"daily-summary-floors-ascended"; //!OCLINT
+NSString * const PDKPedometerDailySummaryFloorsDescended = @"daily-summary-floors-descended"; //!OCLINT
 
 NSString * const PDKPedometerAlert = @"pdk-pedometer-alert"; //!OCLINT
 
@@ -323,6 +326,10 @@ static PDKPedometerGenerator * sharedObject = nil;
             data[PDKPedometerDailySummaryNumberOfStep] = pedometerData.numberOfSteps;
             data[PDKPedometerDailySummaryDistance] = pedometerData.distance;
             data[PDKPedometerDailySummaryAverageActivePace] = pedometerData.averageActivePace;
+
+            data[PDKPedometerDailySummaryFloorsAscended] = pedometerData.floorsAscended;
+            data[PDKPedometerDailySummaryFloorsDescended] = pedometerData.floorsDescended;
+            data[PDKPedometerDailySummaryFloors] = @(pedometerData.floorsAscended.doubleValue - pedometerData.floorsDescended.doubleValue);
         }
 
         CGFloat stepCount = -1;
@@ -465,7 +472,6 @@ static PDKPedometerGenerator * sharedObject = nil;
 
 - (void) historicalStepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end withHandler:(CMPedometerHandler)handler {
     if ([self isAuthorized] == NO) {
-        
         return;
     }
     

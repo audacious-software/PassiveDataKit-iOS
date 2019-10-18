@@ -230,7 +230,8 @@ static PDKLocationGenerator * sharedObject = nil;
     if (callback != nil) {
         self.accessGrantedBlock = [callback copy];
     }
-
+    
+    /*
     NSNumber * alwaysOn = [self.lastOptions valueForKey:PDKLocationAlwaysOn];
 
     switch (status) {
@@ -250,6 +251,7 @@ static PDKLocationGenerator * sharedObject = nil;
             NSLog(@"in_use");
             break;
     }
+     */
 
     if (status == kCLAuthorizationStatusRestricted || status == kCLAuthorizationStatusDenied) { //!OCLINT
         if (self.accessDeniedBlock != nil) {
