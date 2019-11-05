@@ -1,8 +1,9 @@
-#import <UIKit/UIKit.h>
+@import UIKit;
 
 FOUNDATION_EXPORT double PassiveDataKit_SharedVersionNumber;
 
 FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
+
 
 #import "PassiveDataKit.h"
 
@@ -22,9 +23,3 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 #import "PDKWithingsGenerator.h"
 
 #import "PDKGeneratorDetailsViewController.h"
-
-#import "DTMHeatmap.h"
-#import "DTMDiffHeatmap.h"
-#import "DTMColorProvider.h"
-#import "DTMDiffColorProvider.h"
-#import "DTMHeatmapRenderer.h"

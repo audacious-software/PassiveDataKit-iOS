@@ -367,7 +367,7 @@ static PDKBatteryGenerator * sharedObject = nil;
         };
     }
     
-    LineChartDataSet * dataSet = [[LineChartDataSet alloc] initWithValues:levels label:@""];
+    LineChartDataSet * dataSet = [[LineChartDataSet alloc] initWithEntries:levels label:@""];
     dataSet.drawIconsEnabled = NO;
     dataSet.drawValuesEnabled = NO;
     dataSet.drawCirclesEnabled = NO;

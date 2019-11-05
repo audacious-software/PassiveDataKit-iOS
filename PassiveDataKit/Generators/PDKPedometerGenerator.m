@@ -673,7 +673,7 @@ static PDKPedometerGenerator * sharedObject = nil;
 
                 [displayValues addObject:[[BarChartDataEntry alloc] initWithX:(values.count - 1) y:totalSteps]];
                 
-                LineChartDataSet * dataSet = [[LineChartDataSet alloc] initWithValues:values label:@""];
+                LineChartDataSet * dataSet = [[LineChartDataSet alloc] initWithEntries:values label:@""];
                 dataSet.drawIconsEnabled = NO;
                 dataSet.drawValuesEnabled = NO;
                 dataSet.drawCirclesEnabled = NO;
@@ -682,7 +682,7 @@ static PDKPedometerGenerator * sharedObject = nil;
                 dataSet.lineWidth = 0.0;
                 dataSet.fillColor = UIColor.redColor;
                 
-                LineChartDataSet * displayDataSet = [[LineChartDataSet alloc] initWithValues:displayValues label:@""];
+                LineChartDataSet * displayDataSet = [[LineChartDataSet alloc] initWithEntries:displayValues label:@""];
                 displayDataSet.drawCirclesEnabled = YES;
                 displayDataSet.drawValuesEnabled = YES;
                 displayDataSet.fillAlpha = 0.0;

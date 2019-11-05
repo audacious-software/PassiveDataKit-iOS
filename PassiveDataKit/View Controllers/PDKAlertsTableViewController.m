@@ -21,16 +21,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    UIImage * backIcon = [UIImage imageNamed:@"PDK Icon - Back"
-                                    inBundle:[NSBundle bundleForClass:self.class]
-               compatibleWithTraitCollection:nil];
+    // UIImage * backIcon = [UIImage imageNamed:@"PDK Icon - Back"
+    //                                inBundle:[NSBundle bundleForClass:self.class]
+    //           compatibleWithTraitCollection:nil];
+    
+    // self.navigationItem.title = NSLocalizedString(@"pdk_alerts", nil);
 
-    
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:backIcon
-                                                                             style:UIBarButtonItemStylePlain
-                                                                            target:self
-                                                                            action:@selector(goBack)];
-    
+    // self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:backIcon
+    //                                                                         style:UIBarButtonItemStylePlain
+    //                                                                        target:self
+    //                                                                        action:@selector(goBack)];
+
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.backgroundColor = [UIColor colorWithWhite:(0xe0 / 255.0) alpha:1.0];
 }
