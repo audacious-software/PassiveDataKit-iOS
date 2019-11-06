@@ -23,3 +23,4 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 #import "PDKWithingsGenerator.h"
 
 #import "PDKGeneratorDetailsViewController.h"
+#import "PDKAlertsTableViewController.h"
