@@ -96,6 +96,24 @@ typedef enum {
     return self;
 }
 
+- (void) updateOptions:(NSDictionary *) options {
+    if (options[PDK_TRANSMITTER_UPLOAD_URL_KEY] != nil) {
+        self.uploadUrl = [NSURL URLWithString:options[PDK_TRANSMITTER_UPLOAD_URL_KEY]];
+    }
+
+    if (options[PDK_TRANSMITTER_REQUIRE_CHARGING_KEY] != nil) {
+        self.requireCharging = [options[PDK_TRANSMITTER_REQUIRE_CHARGING_KEY] boolValue];
+    }
+
+    if (options[PDK_TRANSMITTER_REQUIRE_WIFI_KEY] != nil) {
+        self.requireWiFi = [options[PDK_TRANSMITTER_REQUIRE_WIFI_KEY] boolValue];
+    }
+
+    if (options[PDK_TRANSMITTER_PAYLOAD_SIZE_KEY] != nil) {
+        self.payloadSizeCount = [options[PDK_TRANSMITTER_PAYLOAD_SIZE_KEY] unsignedIntegerValue];
+    }
+}
+
 - (NSUInteger) pendingSize {
     return -1;
 }
@@ -347,6 +365,11 @@ typedef enum {
         }
         
         metadata[PDK_TIMESTAMP_KEY] = @([NSDate date].timeIntervalSince1970);
+        
+        NSTimeZone * localTz = [NSTimeZone localTimeZone];
+        
+        metadata[PDK_TIMEZONE_KEY] = localTz.name;
+        metadata[PDK_TIMEZONE_OFFSET_KEY] = @(localTz.secondsFromGMT);
         
         toStore[PDK_METADATA_KEY] = metadata;
     }

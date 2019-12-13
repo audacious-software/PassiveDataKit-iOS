@@ -20,6 +20,8 @@
 #define PDK_GENERATOR_ID_KEY @"generator-id"
 #define PDK_GENERATOR_KEY @"generator"
 #define PDK_TIMESTAMP_KEY @"timestamp"
+#define PDK_TIMEZONE_KEY @"timezone"
+#define PDK_TIMEZONE_OFFSET_KEY @"timezone-offset"
 
 #define PDK_DEFAULT_TRANSMITTER_ID @"http-transmitter"
 
@@ -30,5 +32,7 @@
 @property NSURL * uploadUrl;
 
 - (NSInteger) pendingDataPoints;
+
+- (void) updateOptions:(NSDictionary *) options;
 
 @end
