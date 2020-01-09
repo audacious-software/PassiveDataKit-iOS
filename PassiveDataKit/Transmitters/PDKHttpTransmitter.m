@@ -364,7 +364,13 @@ typedef enum {
             metadata[PDK_SOURCE_KEY] = [[PassiveDataKit sharedInstance] identifierForUser];
         }
         
-        metadata[PDK_TIMESTAMP_KEY] = @([NSDate date].timeIntervalSince1970);
+        NSDate * when = toStore[PDKGeneratedDate];
+        
+        if (when == nil) {
+            when = [NSDate date];
+        }
+
+        metadata[PDK_TIMESTAMP_KEY] = @(when.timeIntervalSince1970);
         
         NSTimeZone * localTz = [NSTimeZone localTimeZone];
         
@@ -374,6 +380,8 @@ typedef enum {
         toStore[PDK_METADATA_KEY] = metadata;
     }
     
+    [toStore removeObjectForKey:PDKGeneratedDate];
+
     return toStore;
 }
 
@@ -386,7 +394,7 @@ typedef enum {
             
             NSString * insert = @"INSERT INTO data (timestamp, properties) VALUES (?, ?)";
             
-            if(sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
+            if (sqlite3_prepare_v2(self.database, [insert UTF8String], -1, &stmt, NULL) == SQLITE_OK) {
                 if (sqlite3_bind_double(stmt, 1, [toStore[PDK_METADATA_KEY][PDK_TIMESTAMP_KEY] doubleValue]) == SQLITE_OK) {
                     NSError * err = nil;
                     NSData * jsonData = [NSJSONSerialization dataWithJSONObject:toStore options:0 error:&err];

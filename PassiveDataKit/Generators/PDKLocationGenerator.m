@@ -339,14 +339,14 @@ static PDKLocationGenerator * sharedObject = nil;
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
-    NSDate * now = [NSDate date];
-
     NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
     
     if ([PDKLocationAccuracyModeBest isEqualToString:self.mode] || [PDKLocationAccuracyModeRandomized isEqualToString:self.mode]) {
         for (CLLocation * location in locations) {
             CLLocation * thisLocation = location;
-            
+
+            NSDate * now = thisLocation.timestamp;
+
             if (self.latestLocation.latitude != thisLocation.coordinate.latitude || self.latestLocation.longitude != thisLocation.coordinate.longitude) {
                 self.latestLocation = CLLocationCoordinate2DMake(thisLocation.coordinate.latitude, thisLocation.coordinate.longitude);
                 
@@ -409,6 +409,7 @@ static PDKLocationGenerator * sharedObject = nil;
                 }
                 
                 NSMutableDictionary * data = [NSMutableDictionary dictionary];
+                [data setValue:now forKey:PDKGeneratedDate];
                 [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.latitude] forKey:PDKLocationLatitude];
                 [data setValue:[NSNumber numberWithDouble:thisLocation.coordinate.longitude] forKey:PDKLocationLongitude];
                 [data setValue:[NSNumber numberWithDouble:thisLocation.altitude] forKey:PDKLocationAltitude];
@@ -445,6 +446,8 @@ static PDKLocationGenerator * sharedObject = nil;
             }
         }
     } else if ([PDKLocationAccuracyModeUserProvided isEqualToString:self.mode]) {
+        NSDate * now = [NSDate date];
+
         CLLocationDegrees latitude = [defaults doubleForKey:PDKLocationAccuracyModeUserProvidedLatitude];
         CLLocationDegrees longitude = [defaults doubleForKey:PDKLocationAccuracyModeUserProvidedLongitude];
 
@@ -494,8 +497,10 @@ static PDKLocationGenerator * sharedObject = nil;
     NSLog(@"TODO: LOG LOCATION FAILURE: %@", error);
 }
 
-- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
-    [self addListener:nil options:self.lastOptions];
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus) status {
+    if (status != kCLAuthorizationStatusNotDetermined) {
+        [self addListener:nil options:self.lastOptions];
+    }
     
     if (self.accessGrantedBlock != nil) {
         self.accessGrantedBlock();

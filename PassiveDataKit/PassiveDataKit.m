@@ -47,6 +47,8 @@ NSString * const PDKLastEventLogged = @"PDKLastEventLogged"; //!OCLINT
 NSString * const PDKEventGenerator = @"PDKEventsGenerator"; //!OCLINT
 NSString * const PDKMixpanelEventGenerator = @"PDKMixpanelEventGenerator"; //!OCLINT
 
+NSString * const PDKGeneratedDate = @"PDKGeneratedDate"; //!OCLINT
+
 NSString * const PDKRequestPermissions = @"PDKRequestPermissions"; //!OCLINT
 
 NSString * const PDKGooglePlacesInstance = @"PDKGooglePlacesInstance"; //!OCLINT

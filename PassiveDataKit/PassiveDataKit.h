@@ -28,6 +28,8 @@ extern NSString *const PDKLocationRequestedDistance;
 extern NSString *const PDKLocationInstance;
 extern NSString *const PDKLocationAccessDenied;
 
+extern NSString *const PDKGeneratedDate;
+
 extern NSString *const PDKMixpanelToken;
 
 extern NSString *const PDKGooglePlacesSpecificLocation;
