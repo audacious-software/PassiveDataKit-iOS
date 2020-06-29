@@ -1,0 +1,48 @@
+PODS:
+  - AFNetworking (4.0.1):
+    - AFNetworking/NSURLSession (= 4.0.1)
+    - AFNetworking/Reachability (= 4.0.1)
+    - AFNetworking/Security (= 4.0.1)
+    - AFNetworking/Serialization (= 4.0.1)
+    - AFNetworking/UIKit (= 4.0.1)
+  - AFNetworking/NSURLSession (4.0.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (4.0.1)
+  - AFNetworking/Security (4.0.1)
+  - AFNetworking/Serialization (4.0.1)
+  - AFNetworking/UIKit (4.0.1):
+    - AFNetworking/NSURLSession
+  - AppAuth (1.2.0):
+    - AppAuth/Core (= 1.2.0)
+    - AppAuth/ExternalUserAgent (= 1.2.0)
+  - AppAuth/Core (1.2.0)
+  - AppAuth/ExternalUserAgent (1.2.0)
+  - Charts (3.4.0):
+    - Charts/Core (= 3.4.0)
+  - Charts/Core (3.4.0)
+  - DTMHeatmap (1.0)
+
+DEPENDENCIES:
+  - AFNetworking (~> 4.0)
+  - AppAuth (~> 1.2.0)
+  - Charts (~> 3.4.0)
+  - DTMHeatmap
+
+SPEC REPOS:
+  trunk:
+    - AFNetworking
+    - AppAuth
+    - Charts
+    - DTMHeatmap
+
+SPEC CHECKSUMS:
+  AFNetworking: 7864c38297c79aaca1500c33288e429c3451fdce
+  AppAuth: bce82c76043657c99d91e7882e8a9e1a93650cd4
+  Charts: 74c9f256eaf0460c0c416522d1cf8c634ea6b286
+  DTMHeatmap: f5588af0730fbfe78c75d6d013f1932d7d327ab2
+
+PODFILE CHECKSUM: caf693a7a06cf48f765fb0edff16b0d5d4939d42
+
+COCOAPODS: 1.9.2

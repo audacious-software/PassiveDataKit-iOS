@@ -136,7 +136,7 @@ Pod::Spec.new do |spec|
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
 
   spec.dependency "AFNetworking", "~> 4.0"
-  spec.dependency "AppAuth", "~> 1.2.0"
+  spec.dependency "AppAuth", "~> 1.3.0"
   spec.dependency "Charts", "~> 3.4.0"
   spec.dependency "DTMHeatmap"
 

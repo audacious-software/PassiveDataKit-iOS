@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		123E4B66A6134ECC5DC9E578 /* Pods_PassiveDataKitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A36D6DB44665BE53047EC5 /* Pods_PassiveDataKitTests.framework */; };
 		381F1C041FE78832008DCE52 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */; };
 		38276F082216444900859EA6 /* PDKSystemStatusGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38276F062216444900859EA6 /* PDKSystemStatusGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38276F092216444900859EA6 /* PDKSystemStatusGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38276F072216444900859EA6 /* PDKSystemStatusGenerator.m */; };
 		382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 382BEDD11F01B41500A99FA4 /* CoreMotion.framework */; };
+		382E0E0C23A3FECA007AF288 /* PassiveDataKit.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 382E0E0B23A3FECA007AF288 /* PassiveDataKit.podspec */; };
 		383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */; };
 		383ECC611D1F742E004E0B2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC601D1F742E004E0B2B /* Assets.xcassets */; };
 		383ECC631D1F7E9F004E0B2B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 383ECC621D1F7E9F004E0B2B /* MapKit.framework */; };
@@ -60,6 +62,7 @@
 		38FDC10E211E0EBE00D2E51C /* PDKBatteryGeneratorViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC102211E0EBE00D2E51C /* PDKBatteryGeneratorViewController.h */; };
 		38FDC16621207B6100D2E51C /* NSArray+Statistics.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC15B21207B6100D2E51C /* NSArray+Statistics.m */; };
 		38FDC16721207B6100D2E51C /* NSArray+Statistics.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC16521207B6100D2E51C /* NSArray+Statistics.h */; };
+		FF66AF7C5CF45E62FF48D097 /* Pods_PassiveDataKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29451940FA0F1A569BB7B9E1 /* Pods_PassiveDataKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,9 +89,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		29451940FA0F1A569BB7B9E1 /* Pods_PassiveDataKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PassiveDataKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		38276F062216444900859EA6 /* PDKSystemStatusGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PDKSystemStatusGenerator.h; path = Generators/Devices/PDKSystemStatusGenerator.h; sourceTree = "<group>"; };
 		38276F072216444900859EA6 /* PDKSystemStatusGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PDKSystemStatusGenerator.m; path = Generators/Devices/PDKSystemStatusGenerator.m; sourceTree = "<group>"; };
 		382BEDD11F01B41500A99FA4 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		382E0E0B23A3FECA007AF288 /* PassiveDataKit.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PassiveDataKit.podspec; sourceTree = "<group>"; };
 		383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = PassiveDataKit.strings; path = Resources/PassiveDataKit.strings; sourceTree = "<group>"; };
 		383ECC601D1F742E004E0B2B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
 		383ECC621D1F7E9F004E0B2B /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -143,6 +148,11 @@
 		38FDC102211E0EBE00D2E51C /* PDKBatteryGeneratorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PDKBatteryGeneratorViewController.h; path = "Generators/View Controllers/PDKBatteryGeneratorViewController.h"; sourceTree = "<group>"; };
 		38FDC15B21207B6100D2E51C /* NSArray+Statistics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Statistics.m"; sourceTree = "<group>"; };
 		38FDC16521207B6100D2E51C /* NSArray+Statistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Statistics.h"; sourceTree = "<group>"; };
+		39F59A71EBEFBB33F457C448 /* Pods-PassiveDataKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PassiveDataKit.debug.xcconfig"; path = "Target Support Files/Pods-PassiveDataKit/Pods-PassiveDataKit.debug.xcconfig"; sourceTree = "<group>"; };
+		3EBA64E4987B51B4E905FD7F /* Pods-PassiveDataKitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PassiveDataKitTests.release.xcconfig"; path = "Target Support Files/Pods-PassiveDataKitTests/Pods-PassiveDataKitTests.release.xcconfig"; sourceTree = "<group>"; };
+		41A36D6DB44665BE53047EC5 /* Pods_PassiveDataKitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PassiveDataKitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C924B9DF5BE465A03CEF501 /* Pods-PassiveDataKitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PassiveDataKitTests.debug.xcconfig"; path = "Target Support Files/Pods-PassiveDataKitTests/Pods-PassiveDataKitTests.debug.xcconfig"; sourceTree = "<group>"; };
+		4E5D3D0AAC020CFDA2CC4C3B /* Pods-PassiveDataKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PassiveDataKit.release.xcconfig"; path = "Target Support Files/Pods-PassiveDataKit/Pods-PassiveDataKit.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -160,6 +170,7 @@
 				387F9A531D1B8AD7007FA29A /* CoreTelephony.framework in Frameworks */,
 				387F9A511D1B8ACD007FA29A /* SystemConfiguration.framework in Frameworks */,
 				38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */,
+				FF66AF7C5CF45E62FF48D097 /* Pods_PassiveDataKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +179,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3842F73C1CDA2021007F843D /* PassiveDataKit.framework in Frameworks */,
+				123E4B66A6134ECC5DC9E578 /* Pods_PassiveDataKitTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -196,6 +208,7 @@
 				3842F7361CDA2021007F843D /* Info.plist */,
 				383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */,
 				383ECC601D1F742E004E0B2B /* Assets.xcassets */,
+				382E0E0B23A3FECA007AF288 /* PassiveDataKit.podspec */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -279,6 +292,8 @@
 				387F9A501D1B8ACD007FA29A /* SystemConfiguration.framework */,
 				38C666B21D0380CD00E6A6C8 /* libsqlite3.tbd */,
 				38A652421CDA30DB00AE8B3B /* CoreLocation.framework */,
+				29451940FA0F1A569BB7B9E1 /* Pods_PassiveDataKit.framework */,
+				41A36D6DB44665BE53047EC5 /* Pods_PassiveDataKitTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -346,6 +361,10 @@
 		A58FCAB4BE797AABE4A91895 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
+				39F59A71EBEFBB33F457C448 /* Pods-PassiveDataKit.debug.xcconfig */,
+				4E5D3D0AAC020CFDA2CC4C3B /* Pods-PassiveDataKit.release.xcconfig */,
+				4C924B9DF5BE465A03CEF501 /* Pods-PassiveDataKitTests.debug.xcconfig */,
+				3EBA64E4987B51B4E905FD7F /* Pods-PassiveDataKitTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -387,6 +406,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3842F7451CDA2021007F843D /* Build configuration list for PBXNativeTarget "PassiveDataKit" */;
 			buildPhases = (
+				5EE812D70353C8A0B6589B08 /* [CP] Check Pods Manifest.lock */,
 				3842F72C1CDA2021007F843D /* Sources */,
 				3842F72D1CDA2021007F843D /* Frameworks */,
 				3842F72E1CDA2021007F843D /* Headers */,
@@ -406,9 +426,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3842F7481CDA2021007F843D /* Build configuration list for PBXNativeTarget "PassiveDataKitTests" */;
 			buildPhases = (
+				DA8B309751A3AE64BC84D120 /* [CP] Check Pods Manifest.lock */,
 				3842F7371CDA2021007F843D /* Sources */,
 				3842F7381CDA2021007F843D /* Frameworks */,
 				3842F7391CDA2021007F843D /* Resources */,
+				27E9441829863196C381BD86 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -462,6 +484,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				382E0E0C23A3FECA007AF288 /* PassiveDataKit.podspec in Resources */,
 				383ECC611D1F742E004E0B2B /* Assets.xcassets in Resources */,
 				383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */,
 			);
@@ -475,6 +498,77 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		27E9441829863196C381BD86 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PassiveDataKitTests/Pods-PassiveDataKitTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/AFNetworking/AFNetworking.framework",
+				"${BUILT_PRODUCTS_DIR}/AppAuth/AppAuth.framework",
+				"${BUILT_PRODUCTS_DIR}/Charts/Charts.framework",
+				"${BUILT_PRODUCTS_DIR}/DTMHeatmap/DTMHeatmap.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AFNetworking.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AppAuth.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Charts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DTMHeatmap.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PassiveDataKitTests/Pods-PassiveDataKitTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5EE812D70353C8A0B6589B08 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PassiveDataKit-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DA8B309751A3AE64BC84D120 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PassiveDataKitTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3842F72C1CDA2021007F843D /* Sources */ = {
@@ -638,6 +732,7 @@
 		};
 		3842F7461CDA2021007F843D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 39F59A71EBEFBB33F457C448 /* Pods-PassiveDataKit.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
@@ -660,6 +755,7 @@
 		};
 		3842F7471CDA2021007F843D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4E5D3D0AAC020CFDA2CC4C3B /* Pods-PassiveDataKit.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
@@ -681,6 +777,7 @@
 		};
 		3842F7491CDA2021007F843D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C924B9DF5BE465A03CEF501 /* Pods-PassiveDataKitTests.debug.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = PassiveDataKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -691,6 +788,7 @@
 		};
 		3842F74A1CDA2021007F843D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3EBA64E4987B51B4E905FD7F /* Pods-PassiveDataKitTests.release.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = PassiveDataKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
