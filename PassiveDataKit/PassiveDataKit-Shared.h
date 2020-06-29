@@ -4,7 +4,6 @@ FOUNDATION_EXPORT double PassiveDataKit_SharedVersionNumber;
 
 FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 
-
 #import "PassiveDataKit.h"
 
 #import "PDKHttpTransmitter.h"
