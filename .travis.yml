@@ -17,9 +17,10 @@ script:
 - oclint-json-compilation-database -v
   -e AFNetworking
   -e DTMHeatmap
+  -e AppAuth
   -e DerivedSources
   --
-  -allow-duplicated-violations
+  -enable-global-analysis
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
   -disable-rule=LongVariableName
