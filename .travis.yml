@@ -16,6 +16,7 @@ script:
 - oclint-json-compilation-database
   -e AFNetworking
   -e AppAuth
+  -e DTMHeatmap
   --
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
