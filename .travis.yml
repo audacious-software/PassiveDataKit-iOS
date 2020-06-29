@@ -7,8 +7,8 @@ xcode_sdk: iphonesimulator11.5
 
 before_install:
 - brew update
-- brew tap oclint/formulae
-- brew install oclint
+- brew unlink brew-cask && brew install caskroom/cask/brew-cask
+- brew cask install oclint
 - gem install xcpretty
 
 script:
