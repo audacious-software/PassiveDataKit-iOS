@@ -11,14 +11,10 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKit_SharedVersionString[];
 
 #import "PDKBaseGenerator.h"
 #import "PDKAccelerometerGenerator.h"
-#import "PDKLocationGenerator.h"
-#import "PDKGooglePlacesGenerator.h"
 #import "PDKPedometerGenerator.h"
-#import "PDKDarkSkyWeatherGenerator.h"
 #import "PDKEventsGenerator.h"
 #import "PDKBatteryGenerator.h"
 #import "PDKSystemStatusGenerator.h"
-#import "PDKGeofencesGenerator.h"
 #import "PDKFitbitGenerator.h"
 #import "PDKWithingsGenerator.h"
 
