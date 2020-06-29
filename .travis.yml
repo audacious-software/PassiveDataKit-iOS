@@ -6,10 +6,10 @@ xcode_scheme: PassiveDataKit
 xcode_sdk: iphonesimulator11.5
 
 before_install:
-- brew cask uninstall oclint
-- brew tap oclint/formulae
 - brew update
+- brew tap oclint/formulae
 - brew install oclint
+- brew upgrade oclint
 - gem install xcpretty
 
 script:
