@@ -6,9 +6,10 @@ xcode_scheme: PassiveDataKit
 xcode_sdk: iphonesimulator11.5
 
 before_install:
+- brew cask uninstall oclint
+- brew tap oclint/formulae
 - brew update
-- brew install caskroom/cask/brew-cask
-- brew cask install oclint
+- brew install oclint
 - gem install xcpretty
 
 script:
@@ -18,7 +19,7 @@ script:
   -e AFNetworking
   -e AppAuth
   -e DTMHeatmap
-  -e *\.c
+  -e DerivedSources/*.c
   --
   -allow-duplicated-violations
   -disable-rule=PreferEarlyExit
