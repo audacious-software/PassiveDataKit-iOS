@@ -18,9 +18,7 @@ script:
   -e AFNetworking
   -e DTMHeatmap
   -e AppAuth
-  -e DerivedSources
   --
-  -enable-global-analysis
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
   -disable-rule=LongVariableName
