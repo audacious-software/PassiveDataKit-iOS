@@ -22,7 +22,6 @@ extern NSString *const PDKGeneratedDate;
 
 extern NSString *const PDKMixpanelToken;
 
-
 extern NSString *const PDKPedometerStart;
 extern NSString *const PDKPedometerEnd;
 extern NSString *const PDKPedometerStepCount;
