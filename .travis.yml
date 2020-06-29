@@ -13,8 +13,8 @@ before_install:
 script:
 - xcodebuild test -scheme "PassiveDataKit" -workspace "PassiveDataKit.xcworkspace" -destination 'platform=iOS Simulator,name=iPhone 8,OS=13.5' ARCHS='x86_64' VALID_ARCHS='x86_64' ONLY_ACTIVE_ARCH=NO | xcpretty
 - xcodebuild -scheme "PassiveDataKit" -workspace "PassiveDataKit.xcworkspace" clean
-- xcodebuild -workspace "PassiveDataKit.xcworkspace" -scheme "PassiveDataKit" -destination 'platform=iOS Simulator,name=iPhone 8,OS=13.5' -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" COMPILER_INDEX_STORE_ENABLE="NO" ARCHS='x86_64' VALID_ARCHS='x86_64' ONLY_ACTIVE_ARCH=NO CLANG_ENABLE_MODULES=YES | tee xcodebuild.log | xcpretty 
-- oclint-xcodebuild
+- xcodebuild -workspace "PassiveDataKit.xcworkspace" -scheme "PassiveDataKit" -destination 'platform=iOS Simulator,name=iPhone 8,OS=13.5' -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" COMPILER_INDEX_STORE_ENABLE="NO" ARCHS='x86_64' VALID_ARCHS='x86_64' ONLY_ACTIVE_ARCH=NO CLANG_ENABLE_MODULES=YES | tee xcodebuild.log | xcpretty -r json-compilation-database --output compile_commands.json
+- cat compile_commands.json
 - oclint-json-compilation-database
   -e AFNetworking
   -e AppAuth
