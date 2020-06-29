@@ -446,7 +446,7 @@
 		3842F7281CDA2021007F843D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1110;
+				LastUpgradeCheck = 1150;
 				ORGANIZATIONNAME = "Audacious Software";
 				TargetAttributes = {
 					3842F7301CDA2021007F843D = {
@@ -666,7 +666,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -777,6 +777,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4C924B9DF5BE465A03CEF501 /* Pods-PassiveDataKitTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				INFOPLIST_FILE = PassiveDataKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.audacious-software.PassiveDataKitTests";
@@ -788,6 +789,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3EBA64E4987B51B4E905FD7F /* Pods-PassiveDataKitTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				INFOPLIST_FILE = PassiveDataKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.audacious-software.PassiveDataKitTests";
