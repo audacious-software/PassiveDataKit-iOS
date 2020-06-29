@@ -230,6 +230,7 @@ static PDKGeofencesGenerator * sharedObject = nil;
         
         [manager GET:[defaults valueForKey:PDKGeofencesURL]
           parameters:@{}
+            headers:nil
             progress:^(NSProgress * _Nonnull downloadProgress) {
 
             } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

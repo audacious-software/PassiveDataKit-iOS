@@ -1538,28 +1538,28 @@ static PDKWithingsGenerator * sharedObject = nil;
             
             [manager POST:@"https://account.withings.com/oauth2/token"
                parameters:@{
-                            @"grant_type": @"refresh_token",
-                            @"client_id": self.options[PDKWithingsClientID],
-                            @"client_secret": self.options[PDKWithingsClientSecret],
-                            @"refresh_token": authState.lastTokenResponse.refreshToken
-                            }
+               @"grant_type": @"refresh_token",
+               @"client_id": self.options[PDKWithingsClientID],
+               @"client_secret": self.options[PDKWithingsClientSecret],
+               @"refresh_token": authState.lastTokenResponse.refreshToken
+               }
+                  headers:nil
                  progress:^(NSProgress * _Nonnull uploadProgress) {
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                [authState.lastTokenResponse updateAccessToken:responseObject[@"access_token"]];
+                [authState.lastTokenResponse updateRefreshToken:responseObject[@"refresh_token"]];
 
-                 } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                     [authState.lastTokenResponse updateAccessToken:responseObject[@"access_token"]];
-                     [authState.lastTokenResponse updateRefreshToken:responseObject[@"refresh_token"]];
+                NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+                [defaults setValue:authData forKey:PDKWithingsAuthState];
+                [defaults synchronize];
 
-                     NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-                     [defaults setValue:authData forKey:PDKWithingsAuthState];
-                     [defaults synchronize];
+                self.isExecuting = NO;
 
-                     self.isExecuting = NO;
+                [self executeRequest:executeBlock error:errorBlock];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                self.isExecuting = NO;
+            }];
 
-                     [self executeRequest:executeBlock error:errorBlock];
-                 } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                     self.isExecuting = NO;
-                 }];
-            
             return;
         }
         

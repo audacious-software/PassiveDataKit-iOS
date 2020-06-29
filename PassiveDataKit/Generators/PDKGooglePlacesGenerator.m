@@ -197,35 +197,38 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
             manager.responseSerializer = [AFHTTPResponseSerializer serializer];
             manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript", nil];
             
-            [manager GET:[weakSelf urlForLocation:location].absoluteString parameters:nil progress:nil success:^(NSURLSessionTask *task, id responseObject) {
+            [manager GET:[weakSelf urlForLocation:location].absoluteString
+              parameters:nil
+                 headers:nil
+                progress:^(NSProgress * _Nonnull downloadProgress) {
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                    NSError * error = nil;
 
-                NSError * error = nil;
+                    NSDictionary * response = [NSJSONSerialization JSONObjectWithData:responseObject options:0 error:&error];
 
-                NSDictionary * response = [NSJSONSerialization JSONObjectWithData:responseObject options:0 error:&error];
-
-                NSMutableDictionary * log = [NSMutableDictionary dictionary];
-                [log setValue:[NSDate date] forKey:@"recorded"];
-                [log setValue:response[@"results"] forKey:@"response"];
-            
-                [PDKGooglePlacesGenerator logForReview:log];
+                    NSMutableDictionary * log = [NSMutableDictionary dictionary];
+                    [log setValue:[NSDate date] forKey:@"recorded"];
+                    [log setValue:response[@"results"] forKey:@"response"];
                 
-                NSMutableDictionary * data = [NSMutableDictionary dictionary];
-                
-                [data setValue:response[@"results"] forKey:PDKGooglePlacesInstance];
-                
-                if (self.lastOptions[PDKGooglePlacesIncludeFullDetails] != nil && [self.lastOptions[PDKGooglePlacesIncludeFullDetails] boolValue]) {
-                    for (NSDictionary * place in response[@"results"]) {
-                        NSData * placeData = [[NSData alloc] initWithContentsOfURL:[weakSelf urlForPlaceId:place[@"place_id"]]];
-                        
-                        NSDictionary * placeResponse = [NSJSONSerialization JSONObjectWithData:placeData options:0 error:&error];
+                    [PDKGooglePlacesGenerator logForReview:log];
+                    
+                    NSMutableDictionary * data = [NSMutableDictionary dictionary];
+                    
+                    [data setValue:response[@"results"] forKey:PDKGooglePlacesInstance];
+                    
+                    if (self.lastOptions[PDKGooglePlacesIncludeFullDetails] != nil && [self.lastOptions[PDKGooglePlacesIncludeFullDetails] boolValue]) {
+                        for (NSDictionary * place in response[@"results"]) {
+                            NSData * placeData = [[NSData alloc] initWithContentsOfURL:[weakSelf urlForPlaceId:place[@"place_id"]]];
                             
-                        [data setValue:placeResponse[@"result"] forKey:place[@"place_id"]];
+                            NSDictionary * placeResponse = [NSJSONSerialization JSONObjectWithData:placeData options:0 error:&error];
+                                
+                            [data setValue:placeResponse[@"result"] forKey:place[@"place_id"]];
+                        }
                     }
-                }
-                for (id<PDKDataListener> listener in weakSelf.listeners) {
-                    [listener receivedData:data forGenerator:PDKGooglePlaces];
-                }
-            } failure:^(NSURLSessionTask *operation, NSError *error) {
+                    for (id<PDKDataListener> listener in weakSelf.listeners) {
+                        [listener receivedData:data forGenerator:PDKGooglePlaces];
+                    }
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                 NSLog(@"ERROR: %@", error);
                 // TODO: Log failure...
             }];
@@ -251,7 +254,9 @@ static PDKGooglePlacesGenerator * sharedObject = nil;
             manager.responseSerializer = [AFHTTPResponseSerializer serializer];
             manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript", nil];
             
-            [manager GET:[weakSelf urlForFreetextQuery:query].absoluteString parameters:nil progress:nil success:^(NSURLSessionTask *task, id responseObject) {
+            [manager GET:[weakSelf urlForFreetextQuery:query].absoluteString parameters:nil
+                headers:nil
+                progress:nil success:^(NSURLSessionTask *task, id responseObject) {
                 
                 NSError * error = nil;
                 

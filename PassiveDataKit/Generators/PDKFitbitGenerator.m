@@ -1261,42 +1261,41 @@ static PDKFitbitGenerator * sharedObject = nil;
 
             [manager.requestSerializer setAuthorizationHeaderFieldWithUsername:self.options[PDKFitbitClientID]
                                                                       password:self.options[PDKFitbitClientSecret]];
-
+            
             [manager POST:@"https://api.fitbit.com/oauth2/token"
                parameters:@{
-                            @"grant_type": @"refresh_token",
-                            @"refresh_token": refreshToken
-                            }
-
+               @"grant_type": @"refresh_token",
+               @"refresh_token": refreshToken
+               }
+                  headers:nil
                  progress:^(NSProgress * _Nonnull uploadProgress) {
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                [defaults setValue:responseObject[@"access_token"] forKey:PDKFitbitAccessToken];
+                [defaults setValue:responseObject[@"refresh_token"] forKey:PDKFitbitRefreshToken];
+                [defaults setValue:[NSDate date] forKey:PDKFitbitLastRefreshed];
+                [defaults synchronize];
 
-                 } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                     [defaults setValue:responseObject[@"access_token"] forKey:PDKFitbitAccessToken];
-                     [defaults setValue:responseObject[@"refresh_token"] forKey:PDKFitbitRefreshToken];
-                     [defaults setValue:[NSDate date] forKey:PDKFitbitLastRefreshed];
-                     [defaults synchronize];
+                self.isExecuting = NO;
+                
+                [self executeRequest:executeBlock error:errorBlock];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                self.isExecuting = NO;
 
-                     self.isExecuting = NO;
-                     
-                     [self executeRequest:executeBlock error:errorBlock];
-                 } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                     self.isExecuting = NO;
-
-                     if (error.code == 401) {
-                         [self logout];
-                     } else if (error.userInfo[AFNETWORKING_ERROR_KEY] != nil) {
-                         NSDictionary * errorResponse = [NSJSONSerialization JSONObjectWithData:error.userInfo[AFNETWORKING_ERROR_KEY]
-                                                                                      options:kNilOptions
-                                                                                        error:&error];
-                         NSArray * errors = errorResponse[@"errors"];
-                         
-                         for (NSDictionary * errorItem in errors) {
-                             if ([@"invalid_grant" isEqualToString:errorItem[@"errorType"]]) {
-                                 [self logout];
-                             }
-                         }
-                     }
-                 }];
+                if (error.code == 401) {
+                    [self logout];
+                } else if (error.userInfo[AFNETWORKING_ERROR_KEY] != nil) {
+                    NSDictionary * errorResponse = [NSJSONSerialization JSONObjectWithData:error.userInfo[AFNETWORKING_ERROR_KEY]
+                                                                                 options:kNilOptions
+                                                                                   error:&error];
+                    NSArray * errors = errorResponse[@"errors"];
+                    
+                    for (NSDictionary * errorItem in errors) {
+                        if ([@"invalid_grant" isEqualToString:errorItem[@"errorType"]]) {
+                            [self logout];
+                        }
+                    }
+                }
+            }];
             
             return;
         }
