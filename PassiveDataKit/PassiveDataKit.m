@@ -11,10 +11,6 @@
 #import "PassiveDataKit.h"
 
 #import "PDKEventsGenerator.h"
-#import "PDKLocationGenerator.h"
-#import "PDKDarkSkyWeatherGenerator.h"
-#import "PDKGeofencesGenerator.h"
-#import "PDKGooglePlacesGenerator.h"
 #import "PDKPedometerGenerator.h"
 #import "PDKBatteryGenerator.h"
 #import "PDKSystemStatusGenerator.h"
@@ -50,16 +46,6 @@ NSString * const PDKMixpanelEventGenerator = @"PDKMixpanelEventGenerator"; //!OC
 NSString * const PDKGeneratedDate = @"PDKGeneratedDate"; //!OCLINT
 
 NSString * const PDKRequestPermissions = @"PDKRequestPermissions"; //!OCLINT
-
-NSString * const PDKGooglePlacesInstance = @"PDKGooglePlacesInstance"; //!OCLINT
-NSString * const PDKGooglePlacesSpecificLocation = @"PDKGooglePlacesSpecificLocation"; //!OCLINT
-NSString * const PDKGooglePlacesAPIKey = @"PDKGooglePlacesAPIKey"; //!OCLINT
-NSString * const PDKGooglePlacesType = @"PDKGooglePlacesType"; //!OCLINT
-NSString * const PDKGooglePlacesRadius = @"PDKGooglePlacesRadius"; //!OCLINT
-NSString * const PDKGooglePlacesIncludeFullDetails = @"PDKGooglePlacesIncludeFullDetails"; //!OCLINT
-NSString * const PDKGooglePlacesFreetextQuery = @"PDKGooglePlacesFreetextQuery"; //!OCLINT
-
-NSString * const PDKDarkSkyWeatherAPIKey = @"PDKDarkSkyWeatherAPIKey"; //!OCLINT
 
 @implementation PDKAlert
 @end

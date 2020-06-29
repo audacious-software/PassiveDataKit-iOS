@@ -20,25 +20,10 @@ FOUNDATION_EXPORT const unsigned char PassiveDataKitVersionString[];
 
 extern NSString *const PDKRequestPermissions;
 
-extern NSString *const PDKCapabilityRationale;
-extern NSString *const PDKLocationSignificantChangesOnly;
-extern NSString *const PDKLocationAlwaysOn;
-extern NSString *const PDKLocationRequestedAccuracy;
-extern NSString *const PDKLocationRequestedDistance;
-extern NSString *const PDKLocationInstance;
-extern NSString *const PDKLocationAccessDenied;
-
 extern NSString *const PDKGeneratedDate;
 
 extern NSString *const PDKMixpanelToken;
 
-extern NSString *const PDKGooglePlacesSpecificLocation;
-extern NSString *const PDKGooglePlacesFreetextQuery;
-extern NSString *const PDKGooglePlacesAPIKey;
-extern NSString *const PDKGooglePlacesType;
-extern NSString *const PDKGooglePlacesRadius;
-extern NSString *const PDKGooglePlacesInstance;
-extern NSString *const PDKGooglePlacesIncludeFullDetails;
 
 extern NSString *const PDKPedometerStart;
 extern NSString *const PDKPedometerEnd;
@@ -51,12 +36,6 @@ extern NSString *const PDKPedometerFloorsAscended;
 extern NSString *const PDKPedometerFloorsDescended;
 extern NSString *const PDKPedometerDailySummaryDataEnabled;
 
-extern NSString *const PDKLocationLatitude;
-extern NSString *const PDKLocationLongitude;
-extern NSString *const PDKLocationAltitude;
-extern NSString *const PDKLocationAccuracy;
-extern NSString *const PDKLocationAltitudeAccuracy;
-extern NSString *const PDKLocationFloor;
 extern NSString *const PDKPedometerFloorsDescended;
 extern NSString *const PDKPedometerFloorsDescended;
 
@@ -64,16 +43,12 @@ extern NSString *const PDKGeofencesURL;
 
 typedef NS_ENUM(NSInteger, PDKDataGenerator) {
     PDKAnyGenerator,
-    PDKLocation,
-    PDKGooglePlaces,
     PDKEvents,
     PDKPedometer,
     PDKBattery,
     PDKWithings,
     PDKFitbit,
     PDKSystemStatus,
-    PDKGeofences,
-    PDKDarkSkyWeather,
     PDKAccelerometer,
 };
 
