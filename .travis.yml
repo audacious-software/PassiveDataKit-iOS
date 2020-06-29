@@ -19,7 +19,7 @@ script:
   -e AFNetworking
   -e AppAuth
   -e DTMHeatmap
-  -e /Users/travis/Library/Developer/Xcode/DerivedData
+  -e PassiveDataKitTests
   --
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
