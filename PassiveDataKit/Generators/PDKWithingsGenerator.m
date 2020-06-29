@@ -680,7 +680,7 @@ static PDKWithingsGenerator * sharedObject = nil;
     [task resume];
 }
 
-- (void) logSleepMeasures:(id) responseObject {
+- (void) logSleepMeasures:(id) responseObject { //!OCLINT
     // NSLog(@"NH SLEEP MEASURES: %@", responseObject);
 }
 
@@ -720,7 +720,7 @@ static PDKWithingsGenerator * sharedObject = nil;
     [task resume];
 }
 
-- (void) logSleepSummary:(id) responseObject {
+- (void) logSleepSummary:(id) responseObject { //!OCLINT
     // NSLog(@"NH SLEEP SUMMARY: %@", responseObject);
     // NSLog(@"NH SLEEP TODO w/ TEST DATA: %@", responseObject);
 }
@@ -784,7 +784,7 @@ static PDKWithingsGenerator * sharedObject = nil;
                 
                 data[PDKWithingsMeasureStatus] = PDKWithingsMeasureStatusUnknown;
                 
-                switch (attribValue.integerValue) {
+                switch (attribValue.integerValue) { //!OCLINT
                     case 0:
                         data[PDKWithingsMeasureStatus] = PDKWithingsMeasureStatusUserDevice;
                         break;
@@ -824,7 +824,7 @@ static PDKWithingsGenerator * sharedObject = nil;
                     
                     newData[PDKWithingsMeasureType] = PDKWithingsMeasureTypeUnknown;
                     
-                    switch (measureType.integerValue) {
+                    switch (measureType.integerValue) { //!OCLINT
                         case 1:
                             newData[PDKWithingsMeasureType] = PDKWithingsMeasureTypeWeight;
                             break;
@@ -948,17 +948,17 @@ static PDKWithingsGenerator * sharedObject = nil;
     }
 }
 
-- (BOOL)application:(UIApplication *) app openURL:(NSURL *) url options:(NSDictionary<NSString *, id> *) options {
+- (BOOL)application:(UIApplication *) app openURL:(NSURL *) url options:(NSDictionary<NSString *, id> *) options { //!OCLINT
     if (self.currentExternalUserAgentFlow == nil) {
         return NO;
     }
     
-    if (self.options[PDKWithingsCallbackURL] != nil && [url.description rangeOfString:self.options[PDKWithingsCallbackURL]].location == 0) {
-        if ([self.currentExternalUserAgentFlow resumeExternalUserAgentFlowWithURL:url]) {
-            self.currentExternalUserAgentFlow = nil;
-            
-            return YES;
-        }
+    if (self.options[PDKWithingsCallbackURL] != nil &&
+        [url.description rangeOfString:self.options[PDKWithingsCallbackURL]].location == 0 &&
+        [self.currentExternalUserAgentFlow resumeExternalUserAgentFlowWithURL:url]) {
+        self.currentExternalUserAgentFlow = nil;
+        
+        return YES;
     }
     
     return NO;
@@ -1296,53 +1296,50 @@ static PDKWithingsGenerator * sharedObject = nil;
 
                                              // inspects response and processes further if needed (e.g. authorization
                                              // code exchange)
-                                             if (authorizationResponse) {
-                                                 if ([request.responseType
-                                                      isEqualToString:OIDResponseTypeCode]) {
-                                                     // if the request is for the code flow (NB. not hybrid), assumes the
-                                                     // code is intended for this client, and performs the authorization
-                                                     // code exchange
-                                                     OIDTokenRequest *tokenExchangeRequest = [authorizationResponse tokenExchangeRequestWithAdditionalParameters:addParams];
-                                                     
-                                                     [OIDAuthorizationService performTokenRequest:tokenExchangeRequest
-                                                                    originalAuthorizationResponse:authorizationResponse
-                                                                                         callback:^(OIDTokenResponse *_Nullable tokenResponse,
-                                                                                                    NSError *_Nullable tokenError) {
-                                                                                             OIDAuthState *authState = nil;
+                                             if (authorizationResponse && [request.responseType isEqualToString:OIDResponseTypeCode]) {
+                                                 // if the request is for the code flow (NB. not hybrid), assumes the
+                                                 // code is intended for this client, and performs the authorization
+                                                 // code exchange
+                                                 OIDTokenRequest *tokenExchangeRequest = [authorizationResponse tokenExchangeRequestWithAdditionalParameters:addParams];
+                                                 
+                                                 [OIDAuthorizationService performTokenRequest:tokenExchangeRequest
+                                                                originalAuthorizationResponse:authorizationResponse
+                                                                                     callback:^(OIDTokenResponse *_Nullable tokenResponse,
+                                                                                                NSError *_Nullable tokenError) {
+                                                                                         OIDAuthState *authState = nil;
+                                                                                         
+                                                                                         if (tokenResponse) {
+                                                                                             authState = [[OIDAuthState alloc]
+                                                                                                          initWithAuthorizationResponse:
+                                                                                                          authorizationResponse
+                                                                                                          tokenResponse:tokenResponse];
+                                                                                         }
+                                                                                         
+                                                                                         if (authState) {
+                                                                                             NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
                                                                                              
-                                                                                             if (tokenResponse) {
-                                                                                                 authState = [[OIDAuthState alloc]
-                                                                                                              initWithAuthorizationResponse:
-                                                                                                              authorizationResponse
-                                                                                                              tokenResponse:tokenResponse];
-                                                                                             }
+                                                                                             NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
                                                                                              
-                                                                                             if (authState) {
-                                                                                                 NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
-                                                                                                 
-                                                                                                 NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
-                                                                                                 
-                                                                                                 [defaults setValue:authData
-                                                                                                             forKey:PDKWithingsAuthState];
-                                                                                                 
-                                                                                                 [defaults setValue:[NSDate date]
-                                                                                                             forKey:PDKWithingsLastRefreshed];
-                                                                                                 [defaults synchronize];
-                                                                                                 
-                                                                                                 [[PDKWithingsGenerator sharedInstance] refresh];
+                                                                                             [defaults setValue:authData
+                                                                                                         forKey:PDKWithingsAuthState];
+                                                                                             
+                                                                                             [defaults setValue:[NSDate date]
+                                                                                                         forKey:PDKWithingsLastRefreshed];
+                                                                                             [defaults synchronize];
+                                                                                             
+                                                                                             [[PDKWithingsGenerator sharedInstance] refresh];
 
-                                                                                                 if (success != nil) {
-                                                                                                     success();
-                                                                                                 }
-                                                                                             } else {
-                                                                                                 NSLog(@"NH Authorization error: %@", [tokenError localizedDescription]);
-
-                                                                                                 if (failure != nil) {
-                                                                                                     failure();
-                                                                                                 }
+                                                                                             if (success != nil) {
+                                                                                                 success();
                                                                                              }
-                                                                                         }];
-                                                 }
+                                                                                         } else {
+                                                                                             NSLog(@"NH Authorization error: %@", [tokenError localizedDescription]);
+
+                                                                                             if (failure != nil) {
+                                                                                                 failure();
+                                                                                             }
+                                                                                         }
+                                                                                     }];
                                              }
                                          }];
     
@@ -1383,7 +1380,7 @@ static PDKWithingsGenerator * sharedObject = nil;
 }
 
 
-- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill force:(BOOL) force {
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill force:(BOOL) force { //!OCLINT
     
     NSNumber * steps = nil;
     
@@ -1416,22 +1413,20 @@ static PDKWithingsGenerator * sharedObject = nil;
                 }
             }
             
-            if (steps == nil) {
-                if (sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
-                    NSCalendar * calendar = [NSCalendar currentCalendar];
-                    
-                    NSDate * startDate = [calendar startOfDayForDate:[NSDate dateWithTimeIntervalSince1970:start]];
-                    NSDate * endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
-                    
-                    sqlite3_bind_double(statement, 1, start);
-                    sqlite3_bind_double(statement, 2, endDate.timeIntervalSince1970);
-                    
-                    if (sqlite3_step(statement) == SQLITE_ROW) {
-                        steps = @(0);
-                    }
-                    
-                    sqlite3_finalize(statement);
+            if (steps == nil && sqlite3_prepare_v2(self.database, query_stmt, -1, &statement, NULL) == SQLITE_OK) { //!OCLINT
+                NSCalendar * calendar = [NSCalendar currentCalendar];
+                
+                NSDate * startDate = [calendar startOfDayForDate:[NSDate dateWithTimeIntervalSince1970:start]];
+                NSDate * endDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:1 toDate:startDate options:0];
+                
+                sqlite3_bind_double(statement, 1, start);
+                sqlite3_bind_double(statement, 2, endDate.timeIntervalSince1970);
+                
+                if (sqlite3_step(statement) == SQLITE_ROW) {
+                    steps = @(0);
                 }
+                
+                sqlite3_finalize(statement);
             }
         }
 

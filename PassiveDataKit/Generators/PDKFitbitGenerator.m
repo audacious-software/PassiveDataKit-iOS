@@ -812,7 +812,7 @@ static PDKFitbitGenerator * sharedObject = nil;
     }
 }
 
-- (BOOL)application:(UIApplication *) app openURL:(NSURL *) url options:(NSDictionary<NSString *, id> *) options {
+- (BOOL)application:(UIApplication *) app openURL:(NSURL *) url options:(NSDictionary<NSString *, id> *) options { //!OCLINT
     if (self.currentExternalUserAgentFlow == nil) {
         return NO;
     }
@@ -1001,7 +1001,7 @@ static PDKFitbitGenerator * sharedObject = nil;
     }
 }
 
-- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill force:(BOOL) forceRefresh {
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback backfill:(BOOL) doBackfill force:(BOOL) forceRefresh { //!OCLINT
     
     NSDate * dayStart = [[NSCalendar currentCalendar] startOfDayForDate:[NSDate dateWithTimeIntervalSince1970:start]];
 
@@ -1112,7 +1112,7 @@ static PDKFitbitGenerator * sharedObject = nil;
     }
 }
 
-- (void) fetchProfile:(void (^)(NSDictionary * profile))callback {
+- (void) fetchProfile:(void (^)(NSDictionary * profile))callback { //!OCLINT
     NSTimeInterval now = [NSDate date].timeIntervalSince1970;
     
     if (now < self.waitUntil) {

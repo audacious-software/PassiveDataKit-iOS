@@ -218,7 +218,7 @@ typedef enum {
     return self.payloadSizeCount;
 }
 
-- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler; {
+- (void) transmitWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler; { //!OCLINT
     if (self.lastTransmissionStart != 0) {
         if (completionHandler != nil) {
             completionHandler(UIBackgroundFetchResultNoData);
@@ -233,7 +233,7 @@ typedef enum {
     [self transmitReadingsWithCompletionHandler:completionHandler];
 }
 
-- (void) transmitReadingsWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler; {
+- (void) transmitReadingsWithCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler; { //!OCLINT
     @synchronized(self) {
         for (NSNumber * identifier in self.readingsTransmitted) {
             sqlite3_stmt * deleteStatement = NULL;

@@ -143,7 +143,7 @@ static PDKPedometerGenerator * sharedObject = nil;
         BOOL updated = NO;
         char * error = NULL;
 
-        switch (dbVersion.integerValue) {
+        switch (dbVersion.integerValue) { //!OCLINT
             case 0:
                 if (sqlite3_exec(database, "ALTER TABLE pedometer_data ADD COLUMN today_start REAL", NULL, NULL, &error) != SQLITE_OK) { //!OCLINT
 
@@ -480,7 +480,7 @@ static PDKPedometerGenerator * sharedObject = nil;
                                    withHandler:handler];
 }
 
-- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback force:(BOOL) force {
+- (void) stepsBetweenStart:(NSTimeInterval) start end:(NSTimeInterval) end callback:(void (^)(NSTimeInterval start, NSTimeInterval end, CGFloat steps)) callback force:(BOOL) force { //!OCLINT
     if ([self isAuthorized] == NO) {
         callback(start, end, 0);
         return;

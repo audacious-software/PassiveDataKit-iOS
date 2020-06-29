@@ -38,7 +38,7 @@
     NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
 }
 
-- (void) setCachedDataRetentionPeriod:(NSTimeInterval) period {
+- (void) setCachedDataRetentionPeriod:(NSTimeInterval) period { //!OCLINT
     NSLog(@"Implement %@ in subclass... (%@)", NSStringFromSelector(_cmd), [self generatorId]);
 }
 

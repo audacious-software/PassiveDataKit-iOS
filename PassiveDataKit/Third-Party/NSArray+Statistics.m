@@ -67,7 +67,7 @@
     }
     else
     {
-        median = [sortedArray objectAtIndex:1];
+        median = sortedArray[1];
     }
     return median;
 }
