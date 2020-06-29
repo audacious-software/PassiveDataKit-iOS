@@ -18,6 +18,7 @@ script:
   -e AFNetworking
   -e AppAuth
   -e DTMHeatmap
+  -e *\.c
   --
   -allow-duplicated-violations
   -disable-rule=PreferEarlyExit
