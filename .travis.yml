@@ -19,6 +19,8 @@ script:
   -e AppAuth
   -e DTMHeatmap
   --
+  -allow-duplicated-violations
+  -enable-clang-static-analyzer
   -disable-rule=PreferEarlyExit
   -disable-rule=LongMethod
   -disable-rule=LongVariableName
