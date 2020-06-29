@@ -3,7 +3,7 @@ platform :ios, '9.0'
 def required_pods
   pod 'DTMHeatmap'
   pod 'Charts', '~> 3.4.0'
-  pod 'AppAuth', '~> 1.2.0'
+  pod 'AppAuth', '~> 1.3.0'
   pod 'AFNetworking', '~> 4.0'
 end
 

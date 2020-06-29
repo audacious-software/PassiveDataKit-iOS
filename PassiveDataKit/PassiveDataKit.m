@@ -217,10 +217,6 @@ static PassiveDataKit * sharedObject = nil;
 + (NSString *) keyForGenerator:(PDKDataGenerator) generator
 {
     switch(generator) { //!OCLINT
-        case PDKLocation:
-            return @"PDKLocationGenerator";
-        case PDKGooglePlaces:
-            return @"PDKGooglePlacesGenerator";
         case PDKEvents:
             return @"PDKEventsGenerator";
         case PDKPedometer:
@@ -233,10 +229,6 @@ static PassiveDataKit * sharedObject = nil;
             return @"PDKWithingsGenerator";
         case PDKSystemStatus:
             return @"PDKSystemStatusGenerator";
-        case PDKGeofences:
-            return @"PDKGeofencesGenerator";
-        case PDKDarkSkyWeather:
-            return @"PDKDarkSkyWeather";
         case PDKAccelerometer:
             return @"PDKAccelerometer";
         case PDKAnyGenerator:
@@ -248,10 +240,6 @@ static PassiveDataKit * sharedObject = nil;
 
 - (id<PDKGenerator>) generatorInstance:(PDKDataGenerator) generator {
     switch(generator) { //!OCLINT
-        case PDKLocation:
-            return [PDKLocationGenerator sharedInstance];
-        case PDKGooglePlaces:
-            return [PDKGooglePlacesGenerator sharedInstance];
         case PDKEvents:
             return [PDKEventsGenerator sharedInstance];
         case PDKPedometer:
@@ -264,10 +252,6 @@ static PassiveDataKit * sharedObject = nil;
             return [PDKFitbitGenerator sharedInstance];
         case PDKWithings:
             return [PDKWithingsGenerator sharedInstance];
-        case PDKGeofences:
-            return [PDKGeofencesGenerator sharedInstance];
-        case PDKDarkSkyWeather:
-            return [PDKDarkSkyWeatherGenerator sharedInstance];
         case PDKAccelerometer:
             return [PDKAccelerometerGenerator sharedInstance];
         case PDKAnyGenerator:

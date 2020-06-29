@@ -31,7 +31,6 @@
 		388D5E401EF76CD500C9A2A2 /* PassiveDataKit-Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 388D5E3F1EF76C5000C9A2A2 /* PassiveDataKit-Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D61EF74DDA009C8B27 /* NSString+RAInflections.h in Headers */ = {isa = PBXBuildFile; fileRef = 389DE4D41EF74DDA009C8B27 /* NSString+RAInflections.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */; };
-		38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38A652421CDA30DB00AE8B3B /* CoreLocation.framework */; };
 		38F3333A21236D670096D54B /* PDKFitbitGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F3333821236D670096D54B /* PDKFitbitGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38F3333B21236D670096D54B /* PDKFitbitGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F3333921236D670096D54B /* PDKFitbitGenerator.m */; };
 		38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F3336921238F190096D54B /* PDKAlertsTableViewController.h */; };
@@ -169,7 +168,6 @@
 				387F9A551D1B8ADE007FA29A /* Accelerate.framework in Frameworks */,
 				387F9A531D1B8AD7007FA29A /* CoreTelephony.framework in Frameworks */,
 				387F9A511D1B8ACD007FA29A /* SystemConfiguration.framework in Frameworks */,
-				38A652431CDA30DB00AE8B3B /* CoreLocation.framework in Frameworks */,
 				FF66AF7C5CF45E62FF48D097 /* Pods_PassiveDataKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
