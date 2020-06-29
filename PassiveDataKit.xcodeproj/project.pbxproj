@@ -33,7 +33,7 @@
 		389DE4D71EF74DDA009C8B27 /* NSString+RAInflections.m in Sources */ = {isa = PBXBuildFile; fileRef = 389DE4D51EF74DDA009C8B27 /* NSString+RAInflections.m */; };
 		38F3333A21236D670096D54B /* PDKFitbitGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F3333821236D670096D54B /* PDKFitbitGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38F3333B21236D670096D54B /* PDKFitbitGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F3333921236D670096D54B /* PDKFitbitGenerator.m */; };
-		38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F3336921238F190096D54B /* PDKAlertsTableViewController.h */; };
+		38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F3336921238F190096D54B /* PDKAlertsTableViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38F3336C21238F190096D54B /* PDKAlertsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F3336A21238F190096D54B /* PDKAlertsTableViewController.m */; };
 		38F33394212EEAF20096D54B /* PDKWithingsGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38F33392212EEAF20096D54B /* PDKWithingsGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38F33395212EEAF20096D54B /* PDKWithingsGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F33393212EEAF20096D54B /* PDKWithingsGenerator.m */; };
@@ -48,7 +48,7 @@
 		38FDC0ED211E0E8B00D2E51C /* PDKBatteryGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC0DD211E0E8B00D2E51C /* PDKBatteryGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38FDC0EE211E0E8B00D2E51C /* PDKBaseGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC0DE211E0E8B00D2E51C /* PDKBaseGenerator.m */; };
 		38FDC0F1211E0E9600D2E51C /* PDKDataReportViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC0EF211E0E9600D2E51C /* PDKDataReportViewController.m */; };
-		38FDC0F2211E0E9600D2E51C /* PDKDataReportViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC0F0211E0E9600D2E51C /* PDKDataReportViewController.h */; };
+		38FDC0F2211E0E9600D2E51C /* PDKDataReportViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC0F0211E0E9600D2E51C /* PDKDataReportViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38FDC0F5211E0EA300D2E51C /* PDKHttpTransmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC0F3211E0EA300D2E51C /* PDKHttpTransmitter.m */; };
 		38FDC0F6211E0EA300D2E51C /* PDKHttpTransmitter.h in Headers */ = {isa = PBXBuildFile; fileRef = 38FDC0F4211E0EA300D2E51C /* PDKHttpTransmitter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38FDC104211E0EBE00D2E51C /* PDKGeneratorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38FDC0F8211E0EBD00D2E51C /* PDKGeneratorViewController.m */; };
@@ -383,16 +383,16 @@
 				38FDC0EA211E0E8B00D2E51C /* PDKBaseGenerator.h in Headers */,
 				38FDC0E7211E0E8B00D2E51C /* PDKPedometerGenerator.h in Headers */,
 				38F33394212EEAF20096D54B /* PDKWithingsGenerator.h in Headers */,
-				38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */,
 				38FDC0E8211E0E8B00D2E51C /* PDKEventsGenerator.h in Headers */,
 				384089D122F0E91300F18243 /* PDKAccelerometerGenerator.h in Headers */,
 				38276F082216444900859EA6 /* PDKSystemStatusGenerator.h in Headers */,
+				38F3336B21238F190096D54B /* PDKAlertsTableViewController.h in Headers */,
 				38F3333A21236D670096D54B /* PDKFitbitGenerator.h in Headers */,
+				38FDC0F2211E0E9600D2E51C /* PDKDataReportViewController.h in Headers */,
 				38FDC0ED211E0E8B00D2E51C /* PDKBatteryGenerator.h in Headers */,
 				38FDC10B211E0EBE00D2E51C /* PDKGeneratorDetailsViewController.h in Headers */,
 				38FDC10A211E0EBE00D2E51C /* PDKEventsGeneratorViewController.h in Headers */,
 				38FDC16721207B6100D2E51C /* NSArray+Statistics.h in Headers */,
-				38FDC0F2211E0E9600D2E51C /* PDKDataReportViewController.h in Headers */,
 				38FDC105211E0EBE00D2E51C /* PDKGeneratorViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -618,7 +618,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -679,7 +678,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
