@@ -10,6 +10,9 @@
 
 @import AppAuth;
 
+#ifndef _PASSIVE_DATA_KIT_
+#define _PASSIVE_DATA_KIT_
+
 //! Project version number for PassiveDataKit.
 FOUNDATION_EXPORT double PassiveDataKitVersionNumber;
 
@@ -156,3 +159,6 @@ typedef NS_ENUM(NSInteger, PDKAlertLevel) {
 - (NSDate *) appStart;
 
 @end
+#endif /* _AFNETWORKING_ */
+
+
