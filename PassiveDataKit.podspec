@@ -137,7 +137,7 @@ Pod::Spec.new do |spec|
 
   spec.dependency "AFNetworking", "~> 4.0"
   spec.dependency "AppAuth", "~> 1.4.0"
-  spec.dependency "Charts", "~> 3.4.0"
+  spec.dependency "Charts", "~> 3.6.0"
   spec.dependency "DTMHeatmap"
 
 end
