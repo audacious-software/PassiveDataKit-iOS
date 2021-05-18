@@ -44,6 +44,6 @@ workflows:
   build-test-adhoc:
     jobs:
       - build-and-test
-      - adhoc:
-          requires:
-            - build-and-test
+#      - adhoc:
+#          requires:
+#            - build-and-test
