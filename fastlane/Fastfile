@@ -12,7 +12,8 @@ platform :ios do
     scan(
       scheme: "PassiveDataKit",
       use_clang_report_name: true,
-      output_types: "html,junit,json-compilation-database"
+      output_types: "html,junit,json-compilation-database",
+      xcargs: "COMPILER_INDEX_STORE_ENABLE=NO"
     )
     oclint(
       enable_clang_static_analyzer: true,
