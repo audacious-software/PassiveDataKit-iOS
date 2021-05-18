@@ -26,7 +26,8 @@ platform :ios do
         "HighCyclomaticComplexity",
         "HighNPathComplexity",
         "HighNcssMethod"
-      ]
+      ],
+      report_path: "/Users/distiller/project/output/scan/oclint_report.html"
     )
   end
 
