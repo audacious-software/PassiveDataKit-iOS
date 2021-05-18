@@ -1,0 +1,42 @@
+update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  before_all do
+    setup_circle_ci
+  end
+
+  desc "Runs all the tests"
+  lane :test do
+    scan(
+      scheme: "PassiveDataKit",
+      use_clang_report_name: true,
+      output_types: "html,junit,json-compilation-database",
+      xcargs: "COMPILER_INDEX_STORE_ENABLE=NO"
+    )
+    oclint(
+      enable_clang_static_analyzer: true,
+      compile_commands: "/Users/distiller/project/output/scan/compile_commands.json",
+      exclude_regex: /(AFNetworking|DTMHeatmap|AppAuth)/,
+      disable_rules: [
+        "PreferEarlyExit",
+        "LongMethod",
+        "LongVariableName",
+        "HighCyclomaticComplexity",
+        "HighNPathComplexity",
+        "HighNcssMethod"
+      ],
+      report_path: "/Users/distiller/project/output/scan/oclint_report.html"
+    )
+  end
+
+  desc "Ad-hoc build"
+  lane :adhoc do
+    match(type: "adhoc")
+    gym(
+      export_method: "ad-hoc",
+      scheme: "PassiveDataKit"
+    )
+  end  
+end
