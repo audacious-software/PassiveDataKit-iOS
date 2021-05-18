@@ -11,7 +11,7 @@ platform :ios do
   lane :test do
     scan(scheme: "PassiveDataKit")
     oclint(
-      exclude_regex: /(AFNetworking|DTMHeatmap|AppAuth)
+      exclude_regex: /(AFNetworking|DTMHeatmap|AppAuth)/
       disable_rules: [
         "PreferEarlyExit",
         "LongMethod",
