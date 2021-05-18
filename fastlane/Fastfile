@@ -11,7 +11,8 @@ platform :ios do
   lane :test do
     scan(
       scheme: "PassiveDataKit",
-      use_clang_report_name: true
+      use_clang_report_name: true,
+      output_types: "html,junit,json-compilation-database"
     )
     oclint(
       exclude_regex: /(AFNetworking|DTMHeatmap|AppAuth)/,
