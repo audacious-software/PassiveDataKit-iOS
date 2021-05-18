@@ -9,7 +9,10 @@ platform :ios do
 
   desc "Runs all the tests"
   lane :test do
-    scan(scheme: "PassiveDataKit")
+    scan(
+      scheme: "PassiveDataKit",
+      use_clang_report_name: true
+    )
     oclint(
       exclude_regex: /(AFNetworking|DTMHeatmap|AppAuth)/,
       disable_rules: [
