@@ -18,7 +18,6 @@ platform :ios do
       enable_clang_static_analyzer: true,
       compile_commands: "/Users/distiller/project/output/scan/compile_commands.json",
       exclude_regex: /(AFNetworking|DTMHeatmap|AppAuth)/,
-      compile_commands:
       disable_rules: [
         "PreferEarlyExit",
         "LongMethod",
