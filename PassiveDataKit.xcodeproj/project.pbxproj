@@ -12,7 +12,6 @@
 		38276F082216444900859EA6 /* PDKSystemStatusGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 38276F062216444900859EA6 /* PDKSystemStatusGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		38276F092216444900859EA6 /* PDKSystemStatusGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 38276F072216444900859EA6 /* PDKSystemStatusGenerator.m */; };
 		382BEDD21F01B41500A99FA4 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 382BEDD11F01B41500A99FA4 /* CoreMotion.framework */; };
-		382E0E0C23A3FECA007AF288 /* PassiveDataKit.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 382E0E0B23A3FECA007AF288 /* PassiveDataKit.podspec */; };
 		383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC551D1F5178004E0B2B /* PassiveDataKit.strings */; };
 		383ECC611D1F742E004E0B2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 383ECC601D1F742E004E0B2B /* Assets.xcassets */; };
 		383ECC631D1F7E9F004E0B2B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 383ECC621D1F7E9F004E0B2B /* MapKit.framework */; };
@@ -482,7 +481,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				382E0E0C23A3FECA007AF288 /* PassiveDataKit.podspec in Resources */,
 				383ECC611D1F742E004E0B2B /* Assets.xcassets in Resources */,
 				383ECC561D1F5178004E0B2B /* PassiveDataKit.strings in Resources */,
 			);
