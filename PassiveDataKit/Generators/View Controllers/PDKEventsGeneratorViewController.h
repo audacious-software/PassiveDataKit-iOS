@@ -6,8 +6,8 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
-@import UIKit;
-@import WebKit;
+#import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 
 @interface PDKEventsGeneratorViewController : UIViewController<UITableViewDelegate, UITableViewDataSource, WKNavigationDelegate>
 

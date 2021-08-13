@@ -6,8 +6,9 @@
 //  Copyright © 2017 Audacious Software. All rights reserved.
 //
 
-@import Foundation;
-@import CoreMotion;
+
+#import <Foundation/Foundation.h>
+#import <CoreMotion/CoreMotion.h>
 
 #import "PDKBaseGenerator.h"
 

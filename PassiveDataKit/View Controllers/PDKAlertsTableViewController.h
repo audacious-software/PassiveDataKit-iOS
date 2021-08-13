@@ -6,7 +6,7 @@
 //  Copyright © 2018 Audacious Software. All rights reserved.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 @interface PDKAlertsTableViewController : UITableViewController
 

@@ -6,7 +6,7 @@
 //  Copyright © 2017 Audacious Software. All rights reserved.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 #import "PDKBaseGenerator.h"
 

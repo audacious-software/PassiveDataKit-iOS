@@ -6,8 +6,6 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
-@import UIKit;
-
 #import "PassiveDataKit.h"
 
 #import "PDKEventsGenerator.h"

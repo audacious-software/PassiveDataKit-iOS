@@ -269,7 +269,7 @@ static PDKBatteryGenerator * sharedObject = nil;
 
     tableView.dataSource = self;
     tableView.delegate = self;
-    tableView.separatorStyle = UITableViewCellSelectionStyleNone;
+    tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     tableView.backgroundColor = [UIColor darkGrayColor];
     tableView.bounces = NO;
 

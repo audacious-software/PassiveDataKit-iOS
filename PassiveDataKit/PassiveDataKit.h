@@ -6,9 +6,9 @@
 //  Copyright © 2016 Audacious Software. All rights reserved.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
-@import AppAuth;
+#import <AppAuth/AppAuth.h>
 
 #ifndef _PASSIVE_DATA_KIT_
 #define _PASSIVE_DATA_KIT_

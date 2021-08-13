@@ -1,4 +1,4 @@
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 FOUNDATION_EXPORT double PassiveDataKit_SharedVersionNumber;
 
