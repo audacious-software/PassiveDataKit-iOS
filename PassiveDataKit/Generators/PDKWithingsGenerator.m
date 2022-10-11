@@ -1317,8 +1317,10 @@ static PDKWithingsGenerator * sharedObject = nil;
                                                                                          
                                                                                          if (authState) {
                                                                                              NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
-                                                                                             
-                                                                                             NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+
+                                                                                             NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState
+                                                                                                                                       requiringSecureCoding:NO
+                                                                                                                                                       error:nil];
                                                                                              
                                                                                              [defaults setValue:authData
                                                                                                          forKey:PDKWithingsAuthState];
@@ -1513,7 +1515,9 @@ static PDKWithingsGenerator * sharedObject = nil;
     NSData * authStateData = [defaults valueForKey:PDKWithingsAuthState];
 
     if (authStateData != nil) {
-        OIDAuthState *authState = (OIDAuthState *) [NSKeyedUnarchiver unarchiveObjectWithData:authStateData];
+        OIDAuthState * authState = (OIDAuthState *) [NSKeyedUnarchiver unarchivedObjectOfClass:[OIDAuthState class]
+                                                                                     fromData:authStateData
+                                                                                        error:nil];
 
         NSDate * now = [NSDate date];
         NSDate * lastRefresh = [defaults valueForKey:PDKWithingsLastRefreshed];
@@ -1544,7 +1548,10 @@ static PDKWithingsGenerator * sharedObject = nil;
                 [authState.lastTokenResponse updateAccessToken:responseObject[@"access_token"]];
                 [authState.lastTokenResponse updateRefreshToken:responseObject[@"refresh_token"]];
 
-                NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+                NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState
+                                                          requiringSecureCoding:NO
+                                                                          error:nil];
+                
                 [defaults setValue:authData forKey:PDKWithingsAuthState];
                 [defaults synchronize];
 
@@ -1558,7 +1565,10 @@ static PDKWithingsGenerator * sharedObject = nil;
             return;
         }
         
-        NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+        NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState
+                                                  requiringSecureCoding:NO
+                                                                  error:nil];
+
         [defaults setValue:authData forKey:PDKWithingsAuthState];
         [defaults synchronize];
         

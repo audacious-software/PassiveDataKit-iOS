@@ -956,8 +956,11 @@ static PDKFitbitGenerator * sharedObject = nil;
                                                                                                NSDate * now = [NSDate date];
                                                                                                
                                                                                                NSUserDefaults * defaults = [[NSUserDefaults alloc] initWithSuiteName:@"PassiveDataKit"];
-                                                                                               
-                                                                                               NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState];
+
+                                                                                               NSData * authData = [NSKeyedArchiver archivedDataWithRootObject:authState
+                                                                                                                                         requiringSecureCoding:NO
+                                                                                                                                                         error:nil];
+
                                                                                                [defaults setValue:authData
                                                                                                            forKey:PDKFitbitAuthState];
                                                                                                [defaults setValue:now

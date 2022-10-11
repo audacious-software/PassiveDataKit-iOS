@@ -13,24 +13,15 @@ jobs:
           name: Update and install Cocoapods and OCLint
           command: |
             sudo gem install cocoapods --quiet
-            sudo gem install fastlane --quiet
             pod install --silent
-            brew install oclint
       - run:
-          name: Build and Test
+          name: Build
           command: |
             xcodebuild -workspace "PassiveDataKit.xcworkspace" -scheme "PassiveDataKit" -sdk iphonesimulator -destination "platform=iOS Simulator,OS=16.0,name=iPhone 14" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" COMPILER_INDEX_STORE_ENABLE="NO" ARCHS="x86_64" VALID_ARCHS="x86_64" ONLY_ACTIVE_ARCH=NO | tee xcodebuild.log | xcpretty -r json-compilation-database --output compile_commands.json
+      - run:
+          name: Test
+          command: |
             xcodebuild test -scheme "PassiveDataKit" -workspace "PassiveDataKit.xcworkspace" -sdk iphonesimulator -destination "platform=iOS Simulator,OS=16.0,name=iPhone 14" ARCHS="x86_64" VALID_ARCHS="x86_64" ONLY_ACTIVE_ARCH=NO | xcpretty
-      - run:
-          name: OCLint
-          command: |
-            xcodebuild CLANG_ENABLE_MODULE_DEBUGGING=NO COMPILER_INDEX_STORE_ENABLE=NO -workspace "PassiveDataKit.xcworkspace" -scheme "PassiveDataKit" -configuration Debug -destination "platform=iOS Simulator,OS=16.0,name=iPhone 14" clean
-            xcodebuild CLANG_ENABLE_MODULE_DEBUGGING=NO  COMPILER_INDEX_STORE_ENABLE=NO -workspace "PassiveDataKit.xcworkspace" -scheme "PassiveDataKit" -configuration Debug -destination "platform=iOS Simulator,OS=16.0,name=iPhone 14" build | tee xcodebuild.log | xcpretty -r json-compilation-database --output compile_commands.json
-            oclint-json-compilation-database -e AFNetworking -e AppAuth -e BEMCheckBox -e Charts -e DTMHeatmap -e JSQMessagesViewController -e LHSKeyboardAdjusting -e MaterialComponents -e MDFInternationalization -e MDFTextAccessibility -e MMDrawerController -e MapboxMobileEvents -e SDWebImage -e ActionSheetPicker-3.0 -e FSCalendar -e JSQSystemSoundPlayer -e UIBarButtonItem+Badge -- -disable-rule=LongMethod -disable-rule=EmptyElseBlock -disable-rule=UnusedMethodParameter -disable-rule=HighNPathComplexity -disable-rule=HighCyclomaticComplexity -disable-rule=HighNcssMethod -disable-rule=EmptyDoWhileStatement -disable-rule=DeepNestedBlock -disable-rule=EmptyIfStatement -disable-rule=PreferEarlyExit -disable-rule=TooManyMethods -disable-rule=ParameterReassignment -disable-rule=LongClass -disable-rule=LongLine -disable-rule=InvertedLogic -disable-rule=LongVariableName -disable-rule=MissingDefaultStatement -disable-rule=TooFewBranchesInSwitchStatement
-      - run:
-          name: Fastlane scan
-          command: |
-            fastlane scan --workspace "PassiveDataKit.xcworkspace" --scheme "PassiveDataKit" --device "iPhone 11" --clean
       - save_cache:
           key: Podfile-{{ checksum "Podfile" }}-{{ checksum "Podfile.lock" }}
           paths:

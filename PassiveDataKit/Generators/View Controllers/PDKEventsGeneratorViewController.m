@@ -159,9 +159,12 @@
     [defaults synchronize];
 }
 
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
-{
-    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    [[UIApplication sharedApplication] openURL:navigationAction.request.URL
+                                       options:@{}
+                             completionHandler:^(BOOL success) {
+
+    }];
     
     decisionHandler(WKNavigationActionPolicyAllow);
 }
