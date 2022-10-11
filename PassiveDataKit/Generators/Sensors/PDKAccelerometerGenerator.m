@@ -138,11 +138,11 @@ static PDKAccelerometerGenerator * sharedObject = nil;
 }
 
 - (void) updateOptions:(NSDictionary *) options {
-    if (options == nil) {
-        options = @{}; //!OCLINT
-    }
+    NSLog(@"TODO: Update options and refresh generator!");
     
-    //    NSLog(@"TODO: Update options and refresh generator!");
+    // if (options == nil) {
+    //    options = @{};
+    // }
 }
 
 - (void) addListener:(id<PDKDataListener>)listener options:(NSDictionary *) options {
