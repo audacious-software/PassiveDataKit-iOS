@@ -14,20 +14,23 @@ PODS:
   - AFNetworking/Serialization (4.0.1)
   - AFNetworking/UIKit (4.0.1):
     - AFNetworking/NSURLSession
-  - AppAuth (1.4.0):
-    - AppAuth/Core (= 1.4.0)
-    - AppAuth/ExternalUserAgent (= 1.4.0)
-  - AppAuth/Core (1.4.0)
-  - AppAuth/ExternalUserAgent (1.4.0)
-  - Charts (3.6.0):
-    - Charts/Core (= 3.6.0)
-  - Charts/Core (3.6.0)
+  - AppAuth (1.6.0):
+    - AppAuth/Core (= 1.6.0)
+    - AppAuth/ExternalUserAgent (= 1.6.0)
+  - AppAuth/Core (1.6.0)
+  - AppAuth/ExternalUserAgent (1.6.0):
+    - AppAuth/Core
+  - Charts (4.1.0):
+    - Charts/Core (= 4.1.0)
+  - Charts/Core (4.1.0):
+    - SwiftAlgorithms (~> 1.0)
   - DTMHeatmap (1.0)
+  - SwiftAlgorithms (1.0.0)
 
 DEPENDENCIES:
   - AFNetworking (~> 4.0)
-  - AppAuth (~> 1.4.0)
-  - Charts (~> 3.6.0)
+  - AppAuth (~> 1.6.0)
+  - Charts (~> 4.1.0)
   - DTMHeatmap
 
 SPEC REPOS:
@@ -36,13 +39,15 @@ SPEC REPOS:
     - AppAuth
     - Charts
     - DTMHeatmap
+    - SwiftAlgorithms
 
 SPEC CHECKSUMS:
   AFNetworking: 7864c38297c79aaca1500c33288e429c3451fdce
-  AppAuth: 31bcec809a638d7bd2f86ea8a52bd45f6e81e7c7
-  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
+  AppAuth: 8fca6b5563a5baef2c04bee27538025e4ceb2add
+  Charts: 354f86803d11d9c35de280587fef50d1af063978
   DTMHeatmap: f5588af0730fbfe78c75d6d013f1932d7d327ab2
+  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
 
-PODFILE CHECKSUM: 494591d0fc317c838de5b4b2382c94da9abc1255
+PODFILE CHECKSUM: a631480bc1dd58848305a93202e205c96657d973
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.3
