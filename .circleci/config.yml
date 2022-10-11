@@ -10,7 +10,7 @@ jobs:
       - restore_cache:
           key: Podfile-{{ checksum "Podfile" }}-{{ checksum "Podfile.lock" }}
       - run:
-          name: Update and install Cocoapods and OCLint
+          name: Update and install Cocoapods
           command: |
             sudo gem install cocoapods --quiet
             pod install --silent
