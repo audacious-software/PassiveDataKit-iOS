@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "PassiveDataKit"
-  spec.version      = "0.0.2"
+  spec.version      = "0.0.3"
   spec.summary      = "Framework for collecting and transmitting passive data from devices and services."
 
   # This description is used to generate tags and improve search results.
@@ -135,8 +135,8 @@ Pod::Spec.new do |spec|
 
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
 
-  spec.dependency "AFNetworking", "~> 4.0"
-  spec.dependency "AppAuth", "~> 1.6.0"
+  spec.dependency "AFNetworking", "~> 4.0.1"
+  spec.dependency "AppAuth", "~> 1.6.1"
   spec.dependency "Charts", "~> 4.1.0"
   spec.dependency "DTMHeatmap"
 

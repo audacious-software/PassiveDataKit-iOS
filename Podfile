@@ -3,8 +3,8 @@ platform :ios, '12.0'
 def required_pods
   pod 'DTMHeatmap'
   pod 'Charts', '~> 4.1.0'
-  pod 'AppAuth', '~> 1.6.0'
-  pod 'AFNetworking', '~> 4.0'
+  pod 'AppAuth', '~> 1.6.1'
+  pod 'AFNetworking', '~> 4.0.1'
 end
 
 target 'PassiveDataKit' do
